@@ -1,0 +1,97 @@
+﻿@page "/"
+@inject IJSRuntime JSRuntime
+
+<PageTitle>Home Assistant Visualisation</PageTitle>
+
+<div class="container">
+    <div id="d3-container" @ref="d3Container"></div>
+</div>
+
+@code {
+    private ElementReference d3Container;
+    private List<Building> buildings;
+
+    protected override void OnInitialized()
+    {
+        // Données de test
+        buildings = new List<Building>
+        {
+            new Building
+            {
+                Id = 1,
+                Name = "Bâtiment A",
+                X = 100,
+                Y = 100,
+                Width = 200,
+                Height = 300,
+                Rooms = new List<Room>
+                {
+                    new Room { Id = 1, Name = "Salle 101", Type = "TD", X = 10, Y = 10, Width = 80, Height = 60 },
+                    new Room { Id = 2, Name = "Salle 102", Type = "TP", X = 100, Y = 10, Width = 90, Height = 70 }
+                }
+            },
+            new Building
+            {
+                Id = 2,
+                Name = "Bâtiment B",
+                X = 400,
+                Y = 100,
+                Width = 250,
+                Height = 350,
+                Rooms = new List<Room>
+                {
+                    new Room { Id = 3, Name = "Labo 201", Type = "TP", X = 10, Y = 10, Width = 100, Height = 80 },
+                    new Room { Id = 4, Name = "Salle 202", Type = "TD", X = 120, Y = 10, Width = 70, Height = 60 }
+                }
+            }
+        };
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initializeD3", d3Container, buildings);
+        }
+    }
+
+    private class Building
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+        public List<Room> Rooms { get; set; }
+    }
+
+    private class Room
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+}
+
+<style>
+    .container {
+        padding: 20px;
+        background-color: #0a192f;
+        min-height: 100vh;
+    }
+
+    #d3-container {
+        width: 100%;
+        height: 800px;
+        border: 1px solid #64ffda;
+        border-radius: 8px;
+        margin-top: 20px;
+        box-shadow: 0 0 20px rgba(100, 255, 218, 0.2);
+        background-color: rgba(10, 25, 47, 0.95);
+    }
+</style>

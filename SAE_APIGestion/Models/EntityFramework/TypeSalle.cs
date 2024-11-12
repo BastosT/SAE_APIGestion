@@ -3,20 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
     [PrimaryKey("Id")]
     [Table("typesalle")]
     public class TypeSalle
     {
         [Key]
-        [Column("id")]
+        [Column("idtypesalle")]
         public int Id { get; set; }
 
-        [Column("nom")]
+        [Column("nomtypesalle")]
         public string Nom { get; set; }    // TD, TP, etc.
 
-        [Column("description")]
+        [Column("descriptiontypesalle")]
         public string Description { get; set; }
     }
 }

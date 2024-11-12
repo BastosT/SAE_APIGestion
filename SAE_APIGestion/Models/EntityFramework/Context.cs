@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
     public class DataContext : DbContext
     {

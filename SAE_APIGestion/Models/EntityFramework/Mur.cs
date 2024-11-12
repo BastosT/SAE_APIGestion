@@ -3,23 +3,23 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
     [PrimaryKey("Id")]
     [Table("mur")]
     public class Mur
     {
         [Key]
-        [Column("id")]
+        [Column("idmur")]
         public int Id { get; set; }
 
-        [Column("nom")]
+        [Column("nommur")]
         public string Nom { get; set; }    // Nord, Sud, Est, Ouest
 
-        [Column("longueur")]
+        [Column("longueurmur")]
         public double Longueur { get; set; }
 
-        [Column("hauteur")]
+        [Column("hauteurmur")]
         public double Hauteur { get; set; }
 
         [Column("salleid")]

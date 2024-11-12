@@ -3,17 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
     [PrimaryKey("Id")]
     [Table("equipement")]
     public class Equipement
     {
         [Key]
-        [Column("id")]
+        [Column("idequipement")]
         public int Id { get; set; }
 
-        [Column("nom")]
+        [Column("nomequipement")]
         public string Nom { get; set; }
 
         [ForeignKey("TypeEquipementId")]

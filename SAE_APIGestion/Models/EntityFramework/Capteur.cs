@@ -3,17 +3,17 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("Id")]
+    //[PrimaryKey("Id")]
     [Table("capteur")]
     public class Capteur
     {
         [Key]
-        [Column("id")]
+        [Column("idcapteur")]
         public int Id { get; set; }
 
-        [Column("nom")]
+        [Column("nomcapteur")]
         public string Nom { get; set; }
 
         [Column("idz_wave")]

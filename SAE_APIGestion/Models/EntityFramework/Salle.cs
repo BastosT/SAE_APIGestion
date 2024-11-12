@@ -3,20 +3,20 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
     [PrimaryKey("Id")]
     [Table("salle")]
     public class Salle
     {
         [Key]
-        [Column("id")]
+        [Column("idsalle")]
         public int Id { get; set; }
 
-        [Column("nom")]
+        [Column("nomsalle")]
         public string Nom { get; set; }
 
-        [Column("surface")]
+        [Column("surfacesalle")]
         public double Surface { get; set; }
 
         [ForeignKey("TypeSalleId")]
@@ -28,7 +28,7 @@ namespace SAE_APIGestion.Models
 
         [ForeignKey("BatimentId")]
         [InverseProperty(nameof(Batiment.Salles))]
-        public Batiment Batiment { get; set; }
+        public Batiment BatimentNavigation { get; set; }
 
         [InverseProperty(nameof(Mur.Salle))]
         public List<Mur> Murs { get; set; } = new List<Mur>();

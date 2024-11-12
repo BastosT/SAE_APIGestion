@@ -1,17 +1,16 @@
-using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SAE_APIGestion.Models
+namespace SAE_APIGestion.Models.EntityFramework
 {
     [PrimaryKey("Id")]
     [Table("mesurecapteur")]
     public class MesureCapteur
     {
         [Key]
-        [Column("id")]
+        [Column("idmesurecapteur")]
         public int Id { get; set; }
 
         [Column("capteurid")]
@@ -30,4 +29,5 @@ namespace SAE_APIGestion.Models
         [Column("horodatage")]
         public DateTime Horodatage { get; set; }
     }
+
 }

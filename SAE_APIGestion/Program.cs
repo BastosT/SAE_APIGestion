@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using SAE_APIGestion.Models.DataManger;
+using SAE_APIGestion.Models.EntityFramework;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -7,7 +11,34 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddDbContext<GlobalDBContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("GlobalDBContext")));
+
+// data repo
+builder.Services.AddScoped<IDataRepository<Batiment>, BatimentManager>();
+builder.Services.AddScoped<IDataRepository<Capteur>, CapteurManager>();
+builder.Services.AddScoped<IDataRepository<TypeDonneesCapteur>, TypeDonneesCapteurManager>();
+builder.Services.AddScoped<IDataRepository<DonneesCapteur>, DonneesCapteurManager>();
+builder.Services.AddScoped<IDataRepository<Equipement>, EquipementManager>();
+builder.Services.AddScoped<IDataRepository<Mur>, MurManager>();
+builder.Services.AddScoped<IDataRepository<Salle>, SalleManager>();
+builder.Services.AddScoped<IDataRepository<TypeEquipement>, TypeEquipementManager>();
+builder.Services.AddScoped<IDataRepository<TypeSalle>, TypeSalleManager>();
+
+//cors
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -16,9 +47,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-//app.UseHttpsRedirection();
+// app.UseHttpsRedirection();
 
-app.UseAuthorization();
+// app.UseAuthorization();
 
 app.MapControllers();
 

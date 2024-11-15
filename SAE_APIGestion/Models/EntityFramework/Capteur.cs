@@ -8,6 +8,10 @@ namespace SAE_APIGestion.Models.EntityFramework
     [Table("t_e_capteur_cap")]
     public class Capteur
     {
+        [Key]
+        [Column("cap_id")]
+        public int CapteurId { get; set; }
+
         [Column("cap_estactif")]
         public bool EstActif { get; set; }
 
@@ -19,6 +23,10 @@ namespace SAE_APIGestion.Models.EntityFramework
 
         [Column("cap_distancechauffage")]
         public double? DistanceChauffage { get; set; }
+
+        [ForeignKey("MurId")]
+        [InverseProperty(nameof(Mur.Capteurs))]
+        public Mur Mur { get; set; }
 
         public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
     }

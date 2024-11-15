@@ -13,9 +13,9 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual DbSet<Salle> Salles { get; set; } = null!;
         public virtual DbSet<Mur> Murs { get; set; } = null!;
         public virtual DbSet<Equipement> Equipements { get; set; } = null!;
-        public virtual DbSet<TypeCapteur> TypesCapteurs { get; set; } = null!;
         public virtual DbSet<Capteur> Capteurs { get; set; } = null!;
-        public virtual DbSet<CapaciteCapteur> CapacitesCapteur { get; set; } = null!;
+        public virtual DbSet<TypeDonneesCapteur> TypesDonneesCapteurs { get; set; } = null!;
+        public virtual DbSet<DonneesCapteur> DonneesCapteurs { get; set; } = null!;
         public virtual DbSet<TypeSalle> TypesSalles { get; set; } = null!;
         public virtual DbSet<MesureCapteur> MesuresCapteur { get; set; } = null!;
 

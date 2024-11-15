@@ -45,6 +45,9 @@ namespace SAE_APIGestion.Models.DataManger
         {
             dbContext.Entry(enseignant).State = EntityState.Modified;
             enseignant.Id = entity.Id;
+            enseignant.Adresse = entity.Adresse;
+            enseignant.Salles = entity.Salles;
+            enseignant.Nom = entity.Nom;
 
             await dbContext.SaveChangesAsync();
         }

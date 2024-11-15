@@ -16,7 +16,7 @@ namespace SAE_APIGestion.Models.EntityFramework
 
         [Required]
         [Column("tye_nom")]
-        public string NomTypeEquipement { get; set; }
+        public string Nom { get; set; }
 
     }
 

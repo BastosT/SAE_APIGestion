@@ -8,6 +8,10 @@ namespace SAE_APIGestion.Models.EntityFramework
     [Table("t_e_capteur_cap")]
     public class Capteur
     {
+        [Key]
+        [Column("cap_id")]
+        public int CapteurId { get; set; }
+
         [Column("cap_estactif")]
         public bool EstActif { get; set; }
 

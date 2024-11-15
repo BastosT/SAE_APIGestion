@@ -5,25 +5,25 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("Id")]
-    [Table("salle")]
+    [PrimaryKey("BatimentId")]
+    [Table("t_e_salle_sal")]
     public class Salle
     {
         [Key]
-        [Column("idsalle")]
+        [Column("sal_id")]
         public int Id { get; set; }
 
-        [Column("nomsalle")]
+        [Column("sal_nom")]
         public string Nom { get; set; }
 
-        [Column("surfacesalle")]
+        [Column("sal_surface")]
         public double Surface { get; set; }
 
-        [ForeignKey("TypeSalleId")]
+        [ForeignKey("typsal_id")]
         [Column("type")]
         public TypeSalle Type { get; set; }
 
-        [Column("batimentid")]
+        [Column("bat_id")]
         public int BatimentId { get; set; }
 
         [ForeignKey("BatimentId")]

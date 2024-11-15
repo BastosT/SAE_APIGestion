@@ -3,6 +3,9 @@ using SAE_APIGestion.Models.EntityFramework;
 
 namespace SAE_APIGestion.Controllers
 {
+
+    [Route("api/[controller]")]
+    [ApiController]
     public class BatimentController : ControllerBase
     {
 

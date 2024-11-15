@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("BatimentId")]
     [Table("t_e_salle_sal")]
     public class Salle
     {

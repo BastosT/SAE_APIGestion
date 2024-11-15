@@ -102,10 +102,10 @@ namespace SAE_APIGestion.Models.EntityFramework
             {
                 entity.HasKey(e => e.CapteurId).HasName("pk_capteur");
 
-                entity.HasOne(c => c.DonneesCapteurs)
-                    .WithMany()
-                    .HasForeignKey(c => c.DonneesCapteurId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
+                entity.HasMany(c => c.DonneesCapteurs)
+                    .WithOne(d => d.Capteur)
+                    .HasForeignKey(d => d.CapteurId)
+                    .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("fk_capteur_donneescapteur");
 
                 entity.HasOne(c => c.Salle)

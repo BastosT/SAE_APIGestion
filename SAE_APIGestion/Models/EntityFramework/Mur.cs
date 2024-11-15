@@ -5,7 +5,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("EquipementId")]
     [Table("t_e_mur_mur")]
     public class Mur
     {

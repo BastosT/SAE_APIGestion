@@ -19,6 +19,8 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual DbSet<TypeSalle> TypesSalles { get; set; } = null!;
         public virtual DbSet<MesureCapteur> MesuresCapteur { get; set; } = null!;
 
+        public virtual DbSet<TypeEquipement> TypesEquipements { get; set; } = null!;
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             // Supprimez cette logique si vous configurez DbContext dans Program.cs

@@ -6,17 +6,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SAE_APIGestion.Models.EntityFramework
 {
     [PrimaryKey("Id")]
-    [Table("typesalle")]
+    [Table("t_e_typesalle_tys")]
     public class TypeSalle
     {
         [Key]
-        [Column("idtypesalle")]
-        public int Id { get; set; }
+        [Column("tys_idtypesalle")]
+        public int IdTypeSalle { get; set; }
 
-        [Column("nomtypesalle")]
-        public string Nom { get; set; }    // TD, TP, etc.
+        [Column("tys_nomtypesalle")]
+        public string NomTypeSalle { get; set; }    // TD, TP, etc.
 
-        [Column("descriptiontypesalle")]
+        [Column("tys_descriptiontypesalle")]
         public string Description { get; set; }
     }
 }

@@ -5,24 +5,24 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("Id")]
-    [Table("mur")]
+    [PrimaryKey("EquipementId")]
+    [Table("t_e_mur_mur")]
     public class Mur
     {
         [Key]
-        [Column("idmur")]
-        public int Id { get; set; }
+        [Column("mur_id")]
+        public int MurId { get; set; }
 
-        [Column("nommur")]
+        [Column("mur_nom")]
         public string Nom { get; set; }    // Nord, Sud, Est, Ouest
 
-        [Column("longueurmur")]
+        [Column("mur_longueur")]
         public double Longueur { get; set; }
 
-        [Column("hauteurmur")]
+        [Column("mur_hauteur")]
         public double Hauteur { get; set; }
 
-        [Column("salleid")]
+        [Column("sal_id")]
         public int SalleId { get; set; }
 
         [ForeignKey("SalleId")]

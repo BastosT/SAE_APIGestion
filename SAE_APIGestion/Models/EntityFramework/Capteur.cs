@@ -5,62 +5,64 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [Table("capteur")]
+    [Table("t_e_capteur_cap")]
     public class Capteur
     {
-        [Column("estactif")]
+        [Column("cap_estactif")]
         public bool EstActif { get; set; }
 
-        [Column("distancefenetre")]
+        [Column("cap_distancefenetre")]
         public double? DistanceFenetre { get; set; }
 
-        [Column("distanceporte")]
+        [Column("cap_distanceporte")]
         public double? DistancePorte { get; set; }
 
-        [Column("distancechauffage")]
+        [Column("cap_distancechauffage")]
         public double? DistanceChauffage { get; set; }
 
         public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
     }
 
-    [Table("typedonneescapteur")]
+    [Table("t_e_typedonneescapteur_tdc")]
     public class TypeDonneesCapteur
     {
         [Key]
-        [Column("idtypedonneescapteur")]
-        public int Id { get; set; }
+        [Column("tdc_id")]
+        public int TypeDonneesCapteurId { get; set; }
 
-        [Column("nom")]
+        [Column("tdc_nom")]
         [Required]
         public string Nom { get; set; }  // e.g. "Temperature", "CO2"
 
-        [Column("unite")]
+        [Column("tdc_unite")]
         public string Unite { get; set; } // e.g. "°C", "ppm"
 
         public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
     }
 
-    [Table("donneescapteur")]
+    [Table("t_e_donneescapteur_dc")]
     public class DonneesCapteur
     {
         [Key]
-        [Column("iddonneescapteur")]
-        public int Id { get; set; }
+        [Column("dc_id")]
+        public int DonneesCapteurId { get; set; }
 
-        [Column("capteurid")]
+        [Column("cap_id")]
         public int CapteurId { get; set; }
+
         [ForeignKey("CapteurId")]
         public virtual Capteur Capteur { get; set; }
 
-        [Column("typedonneesid")]
+        [Column("tdc_id")]
         public int TypeDonneesId { get; set; }
+
         [ForeignKey("TypeDonneesId")]
         public virtual TypeDonneesCapteur TypeDonnees { get; set; }
 
-        [Column("valeur")]
+        [Column("dc_valeur")]
         public double Valeur { get; set; }
 
-        [Column("timestamp")]
+        [Column("dc_timestamp")]
         public DateTime Timestamp { get; set; }
     }
 }

@@ -5,41 +5,41 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("Id")]
-    [Table("equipement")]
+    [PrimaryKey("SalleId")]
+    [Table("t_e_equipement_equ ")]
     public class Equipement
     {
         [Key]
-        [Column("idequipement")]
-        public int Id { get; set; }
+        [Column("equ_id")]
+        public int EquipementId { get; set; }
 
-        [Column("nomequipement")]
+        [Column("equ_nom")]
         public string Nom { get; set; }
 
-        [ForeignKey("TypeEquipementId")]
+        [ForeignKey("typequ_id")]
         [Column("type")]
         public TypeEquipement Type { get; set; }
 
-        [Column("largeur")]
+        [Column("equ_id")]
         public double Largeur { get; set; }
 
-        [Column("hauteur")]
+        [Column("equ_hauteur")]
         public double Hauteur { get; set; }
 
-        [Column("positionx")]
+        [Column("equ_positionx")]
         public double PositionX { get; set; }    // Position relative sur le mur
 
-        [Column("positiony")]
+        [Column("equ_positiony")]
         public double PositionY { get; set; }
 
-        [Column("murid")]
+        [Column("mur_id")]
         public int? MurId { get; set; }          // Nullable car peut être au sol
 
         [ForeignKey("MurId")]
         [InverseProperty(nameof(Mur.Equipements))]
         public Mur Mur { get; set; }
 
-        [Column("salleid")]
+        [Column("sal_id")]
         public int SalleId { get; set; }
 
         [ForeignKey("SalleId")]

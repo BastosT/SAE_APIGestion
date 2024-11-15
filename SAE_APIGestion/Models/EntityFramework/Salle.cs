@@ -8,34 +8,38 @@ namespace SAE_APIGestion.Models.EntityFramework
     [Table("t_e_salle_sal")]
     public class Salle
     {
+        public Salle()
+        {
+            Murs = new HashSet<Mur>();
+            Equipements = new HashSet<Equipement>();
+            Capteurs = new HashSet<Capteur>();
+        }
+
         [Key]
         [Column("sal_id")]
         public int SalleId { get; set; }
 
+        [Required]
         [Column("sal_nom")]
-        public string NomSalle { get; set; }
+        public string Nom { get; set; }
 
         [Column("sal_surface")]
         public double Surface { get; set; }
 
-        [ForeignKey("tys_id")]
-        [Column("type")]
-        public TypeSalle Type { get; set; }
+        [Column("tys_id")]
+        public int TypeSalleId { get; set; }
+
+        [ForeignKey("TypeSalleId")]
+        public virtual TypeSalle TypeSalle { get; set; }
 
         [Column("bat_id")]
         public int BatimentId { get; set; }
 
         [ForeignKey("BatimentId")]
-        [InverseProperty(nameof(Batiment.Salles))]
-        public Batiment BatimentNavigation { get; set; }
+        public virtual Batiment BatimentNavigation { get; set; }
 
-        [InverseProperty(nameof(Mur.Salle))]
-        public List<Mur> Murs { get; set; } = new List<Mur>();
-
-        [InverseProperty(nameof(Equipement.Salle))]
-        public List<Equipement> Equipements { get; set; } = new List<Equipement>();
-
-        [InverseProperty(nameof(Capteur.Salle))]
-        public List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+        public virtual ICollection<Mur> Murs { get; set; }
+        public virtual ICollection<Equipement> Equipements { get; set; }
+        public virtual ICollection<Capteur> Capteurs { get; set; }
     }
 }

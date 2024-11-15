@@ -36,7 +36,6 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task UpdateAsync(TypeEquipement typeEquipement, TypeEquipement entity)
         {
             globalDBContext.Entry(typeEquipement).State = EntityState.Modified;
-            typeEquipement.TypeEquipementId = entity.TypeEquipementId;
             typeEquipement.Nom = entity.Nom;
    
             globalDBContext.SaveChanges();

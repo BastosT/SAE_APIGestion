@@ -2,13 +2,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    public class GlobalDBContext : DbContext
+    public partial class GlobalDBContext : DbContext
     {
         public GlobalDBContext() { }
-
         public GlobalDBContext(DbContextOptions<GlobalDBContext> options) : base(options) { }
 
-        // DbSet pour chaque entité
         public virtual DbSet<Batiment> Batiments { get; set; } = null!;
         public virtual DbSet<Salle> Salles { get; set; } = null!;
         public virtual DbSet<Mur> Murs { get; set; } = null!;
@@ -19,25 +17,22 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual DbSet<TypeSalle> TypesSalles { get; set; } = null!;
         public virtual DbSet<TypeEquipement> TypesEquipements { get; set; } = null!;
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            // Supprimez cette logique si vous configurez DbContext dans Program.cs
-            if (!optionsBuilder.IsConfigured)
-            {
-                // Laissez vide si la configuration est faite dans Program.cs
-            }
-        }
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Batiment>(entity =>
             {
+                entity.ToTable("t_e_batiment_bat");
                 entity.HasKey(e => e.BatimentId).HasName("pk_batiment");
-                entity.HasMany(e => e.Salles).WithOne(s => s.BatimentNavigation).HasForeignKey(s => s.BatimentId);
+                entity.HasMany(e => e.Salles)
+                    .WithOne(s => s.BatimentNavigation)
+                    .HasForeignKey(s => s.BatimentId);
             });
 
             modelBuilder.Entity<Salle>(entity =>
             {
+                entity.ToTable("t_e_salle_sal");
                 entity.HasKey(e => e.SalleId).HasName("pk_salle");
 
                 entity.HasOne(d => d.BatimentNavigation)
@@ -45,6 +40,10 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .HasForeignKey(d => d.BatimentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("fk_salle_batiment");
+
+                entity.HasOne(d => d.TypeSalle)
+                    .WithMany(p => p.Salles)
+                    .HasForeignKey(d => d.TypeSalleId);
 
                 entity.HasMany(s => s.Murs)
                     .WithOne(m => m.Salle)
@@ -64,6 +63,7 @@ namespace SAE_APIGestion.Models.EntityFramework
 
             modelBuilder.Entity<Mur>(entity =>
             {
+                entity.ToTable("t_e_mur_mur");
                 entity.HasKey(e => e.MurId).HasName("pk_mur");
 
                 entity.HasMany(m => m.Equipements)
@@ -79,7 +79,12 @@ namespace SAE_APIGestion.Models.EntityFramework
 
             modelBuilder.Entity<Equipement>(entity =>
             {
+                entity.ToTable("t_e_equipement_equ");
                 entity.HasKey(e => e.EquipementId).HasName("pk_equipement");
+
+                entity.HasOne(e => e.TypeEquipement)
+                    .WithMany(t => t.Equipements)
+                    .HasForeignKey(e => e.TypeEquipementId);
 
                 entity.HasOne(e => e.Mur)
                     .WithMany(m => m.Equipements)
@@ -93,20 +98,10 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .HasConstraintName("fk_equipement_salle");
             });
 
-            modelBuilder.Entity<TypeDonneesCapteur>(entity =>
-            {
-                entity.HasKey(e => e.TypeDonneesCapteurId).HasName("pk_typecapteur");
-            });
-
             modelBuilder.Entity<Capteur>(entity =>
             {
+                entity.ToTable("t_e_capteur_cap");
                 entity.HasKey(e => e.CapteurId).HasName("pk_capteur");
-
-                entity.HasMany(c => c.DonneesCapteurs)
-                    .WithOne(d => d.Capteur)
-                    .HasForeignKey(d => d.CapteurId)
-                    .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("fk_capteur_donneescapteur");
 
                 entity.HasOne(c => c.Salle)
                     .WithMany(s => s.Capteurs)
@@ -120,26 +115,38 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .HasConstraintName("fk_capteur_mur");
             });
 
+            modelBuilder.Entity<TypeDonneesCapteur>(entity =>
+            {
+                entity.ToTable("t_e_typedonneescapteur_tdc");
+                entity.HasKey(e => e.TypeDonneesCapteurId).HasName("pk_typecapteur");
+            });
+
             modelBuilder.Entity<DonneesCapteur>(entity =>
             {
-                entity.HasKey(e => e.DonneesCapteurId).HasName("pk_capacitecapteur");
+                entity.ToTable("t_e_donneescapteur_dcp");
+                entity.HasKey(e => e.DonneesCapteurId).HasName("pk_donnees_capteur");
 
-                entity.HasOne(cc => cc.Capteur)
+                entity.HasOne(d => d.Capteur)
                     .WithMany(c => c.DonneesCapteurs)
-                    .HasForeignKey(cc => cc.CapteurId)
-                    .HasConstraintName("fk_capacitecapteur_capteur");
+                    .HasForeignKey(d => d.CapteurId)
+                    .OnDelete(DeleteBehavior.Cascade)
+                    .HasConstraintName("fk_donnees_capteur");
 
-                entity.HasOne(c => c.TypeDonnees)
-                    .WithMany(s => s.DonneesCapteurs)
-                    .HasForeignKey(c => c.TypeDonneesId)
+                entity.HasOne(d => d.TypeDonnees)
+                    .WithMany(t => t.DonneesCapteurs)
+                    .HasForeignKey(d => d.TypeDonneesId)
                     .HasConstraintName("fk_type_donnees");
             });
 
             modelBuilder.Entity<TypeSalle>(entity =>
             {
+                entity.ToTable("t_e_typesalle_tys");
                 entity.HasKey(e => e.TypeSalleId).HasName("pk_typesalle");
             });
 
+            OnModelCreatingPartial(modelBuilder);
         }
+
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

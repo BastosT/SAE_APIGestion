@@ -39,17 +39,14 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task UpdateAsync(Equipement equipement, Equipement entity)
         {
             globalDbContext.Entry(equipement).State = EntityState.Modified;
-            equipement.EquipementId = entity.EquipementId;
             equipement.Nom = entity.Nom;
-            equipement.Type = entity.Type;
+            equipement.TypeEquipementId = entity.TypeEquipementId;
             equipement.Largeur = entity.Largeur;
             equipement.Hauteur = entity.Hauteur;
             equipement.PositionX = entity.PositionX;
             equipement.PositionY = entity.PositionY;
             equipement.MurId = entity.MurId;
-            equipement.Mur = entity.Mur;
             equipement.SalleId = entity.SalleId;
-            equipement.Salle = entity.Salle;
             await globalDbContext.SaveChangesAsync();
         }
 

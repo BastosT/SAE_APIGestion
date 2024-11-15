@@ -12,37 +12,38 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("equ_id")]
         public int EquipementId { get; set; }
 
+        [Required]
         [Column("equ_nom")]
         public string Nom { get; set; }
 
-        [ForeignKey("tye_id")]
-        [Column("type")]
-        public TypeEquipement Type { get; set; }
+        [Column("tye_id")]
+        public int TypeEquipementId { get; set; }
 
-        [Column("equ_id")]
+        [ForeignKey("TypeEquipementId")]
+        public virtual TypeEquipement TypeEquipement { get; set; }
+
+        [Column("equ_largeur")]
         public double Largeur { get; set; }
 
         [Column("equ_hauteur")]
         public double Hauteur { get; set; }
 
         [Column("equ_positionx")]
-        public double PositionX { get; set; }    // Position relative sur le mur
+        public double PositionX { get; set; }
 
         [Column("equ_positiony")]
         public double PositionY { get; set; }
 
         [Column("mur_id")]
-        public int? MurId { get; set; }          // Nullable car peut être au sol
+        public int? MurId { get; set; }
 
         [ForeignKey("MurId")]
-        [InverseProperty(nameof(Mur.Equipements))]
-        public Mur Mur { get; set; }
+        public virtual Mur Mur { get; set; }
 
         [Column("sal_id")]
         public int SalleId { get; set; }
 
         [ForeignKey("SalleId")]
-        [InverseProperty(nameof(Salle.Equipements))]
-        public Salle Salle { get; set; }
+        public virtual Salle Salle { get; set; }
     }
 }

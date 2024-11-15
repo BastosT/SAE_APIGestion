@@ -9,6 +9,11 @@ namespace SAE_APIGestion.Models.EntityFramework
     [Table("t_e_typeequipement_tye")]
     public class TypeEquipement
     {
+        public TypeEquipement()
+        {
+            Equipements = new HashSet<Equipement>();
+        }
+
         [Key]
         [Column("tye_id")]
         public int TypeEquipementId { get; set; }
@@ -17,6 +22,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("tye_nom")]
         public string Nom { get; set; }
 
+        public virtual ICollection<Equipement> Equipements { get; set; }
     }
 
 

@@ -14,7 +14,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         public int SalleId { get; set; }
 
         [Column("sal_nom")]
-        public string Nom { get; set; }
+        public string NomSalle { get; set; }
 
         [Column("sal_surface")]
         public double Surface { get; set; }

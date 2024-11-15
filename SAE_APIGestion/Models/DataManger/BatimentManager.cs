@@ -24,7 +24,7 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task<ActionResult<Batiment>> GetByIdAsync(int id)
         {
-            return await dbContext.Batiments.FirstOrDefaultAsync(u => u.Id == id);
+            return await dbContext.Batiments.FirstOrDefaultAsync(u => u.BatimentId == id);
 
         }
 
@@ -44,7 +44,7 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task UpdateAsync(Batiment enseignant, Batiment entity)
         {
             dbContext.Entry(enseignant).State = EntityState.Modified;
-            enseignant.Id = entity.Id;
+            enseignant.BatimentId = entity.BatimentId;
             enseignant.Adresse = entity.Adresse;
             enseignant.Salles = entity.Salles;
             enseignant.Nom = entity.Nom;

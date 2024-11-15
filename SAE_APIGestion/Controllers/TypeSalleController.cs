@@ -78,7 +78,7 @@ namespace SAE_APIGestion.Controllers
 
             await dataRepository.AddAsync(typeSalle);
 
-            return CreatedAtAction("GetTypeSalle", new { id = typeSalle.IdTypeSalle }, typeSalle);
+            return CreatedAtAction("GetTypeSalle", new { id = typeSalle.TypeSalleId }, typeSalle);
         }
 
         // DELETE: api/typeSalles/5

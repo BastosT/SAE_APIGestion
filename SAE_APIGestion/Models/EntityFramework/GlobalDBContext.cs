@@ -2,14 +2,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    public class DataContext : DbContext
+    public class GlobalDBContext : DbContext
     {
-        public DataContext() { }
+        public GlobalDBContext() { }
 
-        public DataContext(DbContextOptions<DataContext> options) : base(options) { }
+        public GlobalDBContext(DbContextOptions<GlobalDBContext> options) : base(options) { }
 
         // DbSet pour chaque entité
-        public virtual DbSet<Batiment> Bâtiments { get; set; } = null!;
+        public virtual DbSet<Batiment> Batiments { get; set; } = null!;
         public virtual DbSet<Salle> Salles { get; set; } = null!;
         public virtual DbSet<Mur> Murs { get; set; } = null!;
         public virtual DbSet<Equipement> Equipements { get; set; } = null!;

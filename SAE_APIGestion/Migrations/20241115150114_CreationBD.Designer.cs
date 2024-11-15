@@ -12,7 +12,7 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Migrations
 {
     [DbContext(typeof(GlobalDBContext))]
-    [Migration("20241115143645_CreationBD")]
+    [Migration("20241115150114_CreationBD")]
     partial class CreationBD
     {
         /// <inheritdoc />
@@ -404,7 +404,7 @@ namespace SAE_APIGestion.Migrations
 
             modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Salle", b =>
                 {
-                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Batiment", "BatimentNavigation")
+                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Batiment", "Batiment")
                         .WithMany("Salles")
                         .HasForeignKey("BatimentId")
                         .IsRequired()
@@ -416,7 +416,7 @@ namespace SAE_APIGestion.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BatimentNavigation");
+                    b.Navigation("Batiment");
 
                     b.Navigation("TypeSalle");
                 });

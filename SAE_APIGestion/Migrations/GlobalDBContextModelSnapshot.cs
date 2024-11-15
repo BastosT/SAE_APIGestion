@@ -401,7 +401,7 @@ namespace SAE_APIGestion.Migrations
 
             modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Salle", b =>
                 {
-                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Batiment", "BatimentNavigation")
+                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Batiment", "Batiment")
                         .WithMany("Salles")
                         .HasForeignKey("BatimentId")
                         .IsRequired()
@@ -413,7 +413,7 @@ namespace SAE_APIGestion.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("BatimentNavigation");
+                    b.Navigation("Batiment");
 
                     b.Navigation("TypeSalle");
                 });

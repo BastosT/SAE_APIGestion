@@ -24,6 +24,10 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("cap_distancechauffage")]
         public double? DistanceChauffage { get; set; }
 
+        [ForeignKey("MurId")]
+        [InverseProperty(nameof(Mur.Capteurs))]
+        public Mur Mur { get; set; }
+
         public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
     }
 

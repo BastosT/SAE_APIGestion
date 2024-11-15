@@ -49,6 +49,7 @@ namespace SAE_APIGestion.Models.DataManger
             enseignant.DistancePorte = entity.DistancePorte;
             enseignant.DistanceFenetre = entity.DistanceFenetre;
             enseignant.EstActif = entity.EstActif;
+            enseignant.Mur = entity.Mur;
             enseignant.DonneesCapteurs = entity.DonneesCapteurs;
 
             await dbContext.SaveChangesAsync();

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using SAE_APIGestion.Models.DataManger;
 using SAE_APIGestion.Models.EntityFramework;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,12 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<GlobalDBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("GlobalDBContext")));
+
+// evite l'erreur de cycle de références 
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 
 // data repo
 builder.Services.AddScoped<IDataRepository<Batiment>, BatimentManager>();

@@ -21,12 +21,13 @@ namespace SAE_APIGestion.Models.EntityFramework
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Batiment>(entity =>
             {
                 entity.ToTable("t_e_batiment_bat");
                 entity.HasKey(e => e.BatimentId).HasName("pk_batiment");
                 entity.HasMany(e => e.Salles)
-                    .WithOne(s => s.BatimentNavigation)
+                    .WithOne(s => s.Batiment)
                     .HasForeignKey(s => s.BatimentId);
             });
 
@@ -35,7 +36,7 @@ namespace SAE_APIGestion.Models.EntityFramework
                 entity.ToTable("t_e_salle_sal");
                 entity.HasKey(e => e.SalleId).HasName("pk_salle");
 
-                entity.HasOne(d => d.BatimentNavigation)
+                entity.HasOne(d => d.Batiment)
                     .WithMany(p => p.Salles)
                     .HasForeignKey(d => d.BatimentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -63,6 +64,7 @@ namespace SAE_APIGestion.Models.EntityFramework
 
             modelBuilder.Entity<Mur>(entity =>
             {
+
                 entity.ToTable("t_e_mur_mur");
                 entity.HasKey(e => e.MurId).HasName("pk_mur");
 
@@ -148,5 +150,6 @@ namespace SAE_APIGestion.Models.EntityFramework
         }
 
         partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
     }
 }

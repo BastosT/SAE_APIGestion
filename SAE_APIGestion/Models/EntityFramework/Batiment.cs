@@ -18,7 +18,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("bat_adresse")]
         public string Adresse { get; set; }
 
-        [InverseProperty(nameof(Salle.BatimentNavigation))]
+        [InverseProperty(nameof(Salle.Batiment))]
         public List<Salle> Salles { get; set; } = new List<Salle>();
     }
 }

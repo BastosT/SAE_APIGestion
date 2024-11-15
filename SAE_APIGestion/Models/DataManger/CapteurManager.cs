@@ -19,12 +19,17 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Capteur>>> GetAllAsync()
         {
             return await dbContext.Capteurs
+                 .Include(b => b.DonneesCapteurs)
+                    .ThenInclude(s => s.TypeDonnees)
                 .ToListAsync();
         }
 
         public async Task<ActionResult<Capteur>> GetByIdAsync(int id)
         {
-            return await dbContext.Capteurs.FirstOrDefaultAsync(u => u.CapteurId == id);
+            return await dbContext.Capteurs
+                .Include(b => b.DonneesCapteurs)
+                    .ThenInclude(s => s.TypeDonnees)
+                .FirstOrDefaultAsync(u => u.CapteurId == id);
 
         }
 
@@ -72,12 +77,13 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<TypeDonneesCapteur>>> GetAllAsync()
         {
             return await dbContext.TypesDonneesCapteurs
+                .Include(b => b.DonneesCapteurs)
                 .ToListAsync();
         }
 
         public async Task<ActionResult<TypeDonneesCapteur>> GetByIdAsync(int id)
         {
-            return await dbContext.TypesDonneesCapteurs.FirstOrDefaultAsync(u => u.TypeDonneesCapteurId == id);
+            return await dbContext.TypesDonneesCapteurs.Include(b => b.DonneesCapteurs).FirstOrDefaultAsync(u => u.TypeDonneesCapteurId == id);
 
         }
 
@@ -122,12 +128,17 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<DonneesCapteur>>> GetAllAsync()
         {
             return await dbContext.DonneesCapteurs
+                .Include(b => b.Capteur)
+                .Include(b => b.TypeDonnees)
                 .ToListAsync();
         }
 
         public async Task<ActionResult<DonneesCapteur>> GetByIdAsync(int id)
         {
-            return await dbContext.DonneesCapteurs.FirstOrDefaultAsync(u => u.DonneesCapteurId == id);
+            return await dbContext.DonneesCapteurs
+                .Include(b => b.Capteur)
+                .Include(b => b.TypeDonnees)
+                .FirstOrDefaultAsync(u => u.DonneesCapteurId == id);
 
         }
 

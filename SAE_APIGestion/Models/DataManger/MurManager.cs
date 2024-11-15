@@ -19,12 +19,19 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Mur>>> GetAllAsync()
         {
             return await dbContext.Murs
+                .Include(b => b.Salle)
+                .Include(b => b.Equipements)
+                .Include(b => b.Capteurs)
                 .ToListAsync();
         }
 
         public async Task<ActionResult<Mur>> GetByIdAsync(int id)
         {
-            return await dbContext.Murs.FirstOrDefaultAsync(u => u.MurId == id);
+            return await dbContext.Murs
+                .Include(b => b.Salle)
+                .Include(b => b.Equipements)
+                .Include(b => b.Capteurs)
+                .FirstOrDefaultAsync(u => u.MurId == id);
 
         }
 

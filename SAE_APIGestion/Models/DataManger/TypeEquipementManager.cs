@@ -18,12 +18,16 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task<ActionResult<IEnumerable<TypeEquipement>>> GetAllAsync()
         {
-            return globalDBContext.TypesEquipements.ToList();
+            return globalDBContext.TypesEquipements
+                .Include(s => s.Equipements)
+                .ToList();
         }
 
         public async Task<ActionResult<TypeEquipement>> GetByIdAsync(int id)
         {
-            return globalDBContext.TypesEquipements.FirstOrDefault(p => p.TypeEquipementId == id);
+            return globalDBContext.TypesEquipements
+                .Include(s => s.Equipements)
+                .FirstOrDefault(p => p.TypeEquipementId == id);
         }
 
 

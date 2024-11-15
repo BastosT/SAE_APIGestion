@@ -17,12 +17,24 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task<ActionResult<IEnumerable<Salle>>> GetAllAsync()
         {
-            return globalDBContext.Salles.ToList();
+            return globalDBContext.Salles
+                .Include(b => b.TypeSalle)
+                .Include(b => b.Equipements)
+                .Include(b => b.Capteurs)
+                .Include(b => b.Murs)
+                .Include(b => b.Batiment)
+                .ToList();
         }
 
         public async Task<ActionResult<Salle>> GetByIdAsync(int id)
         {
-            return globalDBContext.Salles.FirstOrDefault(p => p.SalleId == id);
+            return globalDBContext.Salles
+                .Include(b => b.TypeSalle)
+                .Include(b => b.Equipements)
+                .Include(b => b.Capteurs)
+                .Include(b => b.Murs)
+                .Include(b => b.Batiment)
+                .FirstOrDefault(p => p.SalleId == id);
         }
 
 

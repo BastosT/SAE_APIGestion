@@ -11,7 +11,7 @@ namespace SAE_APIGestion.Models.EntityFramework
     {
         [Key]
         [Column("sal_id")]
-        public int Id { get; set; }
+        public int SalleId { get; set; }
 
         [Column("sal_nom")]
         public string Nom { get; set; }
@@ -19,7 +19,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("sal_surface")]
         public double Surface { get; set; }
 
-        [ForeignKey("typsal_id")]
+        [ForeignKey("tys_id")]
         [Column("type")]
         public TypeSalle Type { get; set; }
 

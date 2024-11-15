@@ -10,13 +10,13 @@ namespace SAE_APIGestion.Models.EntityFramework
     public class TypeSalle
     {
         [Key]
-        [Column("tys_idtypesalle")]
-        public int IdTypeSalle { get; set; }
+        [Column("tys_id")]
+        public int TypeSalleId { get; set; }
 
-        [Column("tys_nomtypesalle")]
+        [Column("tys_nom")]
         public string NomTypeSalle { get; set; }    // TD, TP, etc.
 
-        [Column("tys_descriptiontypesalle")]
+        [Column("tys_description")]
         public string Description { get; set; }
     }
 }

@@ -5,32 +5,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    //[PrimaryKey("Id")]
     [Table("capteur")]
     public class Capteur
     {
-        [Key]
-        [Column("idcapteur")]
-        public int Id { get; set; }
-
-        [Column("nomcapteur")]
-        public string Nom { get; set; }
-
-        [Column("idz_wave")]
-        public string IdZWave { get; set; }      // Identifiant unique Z-Wave
-
         [Column("estactif")]
-        public bool EstActif { get; set; }       // Actif (actionneur) ou passif
-
-        [ForeignKey("TypeCapteurId")]
-        [Column("type")]
-        public TypeCapteur Type { get; set; }
-
-        [Column("positionx")]
-        public double PositionX { get; set; }
-
-        [Column("positiony")]
-        public double PositionY { get; set; }
+        public bool EstActif { get; set; }
 
         [Column("distancefenetre")]
         public double? DistanceFenetre { get; set; }
@@ -38,24 +17,50 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("distanceporte")]
         public double? DistancePorte { get; set; }
 
-        [Column("distanceradiateur")]
-        public double? DistanceRadiateur { get; set; }
+        [Column("distancechauffage")]
+        public double? DistanceChauffage { get; set; }
 
-        [Column("murid")]
-        public int? MurId { get; set; }          // Nullable car peut être ailleurs dans la pièce
+        public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
+    }
 
-        [ForeignKey("MurId")]
-        [InverseProperty(nameof(Mur.Capteurs))]
-        public Mur Mur { get; set; }
+    [Table("typedonneescapteur")]
+    public class TypeDonneesCapteur
+    {
+        [Key]
+        [Column("idtypedonneescapteur")]
+        public int Id { get; set; }
 
-        [Column("salleid")]
-        public int SalleId { get; set; }
+        [Column("nom")]
+        [Required]
+        public string Nom { get; set; }  // e.g. "Temperature", "CO2"
 
-        [ForeignKey("SalleId")]
-        [InverseProperty(nameof(Salle.Capteurs))]
-        public Salle Salle { get; set; }
+        [Column("unite")]
+        public string Unite { get; set; } // e.g. "°C", "ppm"
 
-        [InverseProperty(nameof(CapaciteCapteur.Capteur))]
-        public List<CapaciteCapteur> Capacites { get; set; } = new List<CapaciteCapteur>();
+        public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
+    }
+
+    [Table("donneescapteur")]
+    public class DonneesCapteur
+    {
+        [Key]
+        [Column("iddonneescapteur")]
+        public int Id { get; set; }
+
+        [Column("capteurid")]
+        public int CapteurId { get; set; }
+        [ForeignKey("CapteurId")]
+        public virtual Capteur Capteur { get; set; }
+
+        [Column("typedonneesid")]
+        public int TypeDonneesId { get; set; }
+        [ForeignKey("TypeDonneesId")]
+        public virtual TypeDonneesCapteur TypeDonnees { get; set; }
+
+        [Column("valeur")]
+        public double Valeur { get; set; }
+
+        [Column("timestamp")]
+        public DateTime Timestamp { get; set; }
     }
 }

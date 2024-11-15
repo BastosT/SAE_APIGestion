@@ -22,7 +22,7 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task<ActionResult<TypeSalle>> GetByIdAsync(int id)
         {
-            return globalDBContext.TypesSalles.FirstOrDefault(p => p.IdTypeSalle == id);
+            return globalDBContext.TypesSalles.FirstOrDefault(p => p.TypeSalleId == id);
         }
 
 
@@ -35,8 +35,8 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task UpdateAsync(TypeSalle TypeSalle, TypeSalle entity)
         {
             globalDBContext.Entry(TypeSalle).State = EntityState.Modified;
-            TypeSalle.IdTypeSalle = entity.IdTypeSalle;
-            TypeSalle.NomTypeSalle = entity.NomTypeSalle;
+            TypeSalle.TypeSalleId = entity.TypeSalleId;
+            TypeSalle.Nom = entity.Nom;
             TypeSalle.Description = entity.Description;
     
 

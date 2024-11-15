@@ -23,7 +23,7 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task<ActionResult<TypeEquipement>> GetByIdAsync(int id)
         {
-            return globalDBContext.TypesEquipements.FirstOrDefault(p => p.IdTypeEquipement == id);
+            return globalDBContext.TypesEquipements.FirstOrDefault(p => p.TypeEquipementId == id);
         }
 
 
@@ -36,8 +36,8 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task UpdateAsync(TypeEquipement typeEquipement, TypeEquipement entity)
         {
             globalDBContext.Entry(typeEquipement).State = EntityState.Modified;
-            typeEquipement.IdTypeEquipement = entity.IdTypeEquipement;
-            typeEquipement.NomTypeEquipement = entity.NomTypeEquipement;
+            typeEquipement.TypeEquipementId = entity.TypeEquipementId;
+            typeEquipement.Nom = entity.Nom;
    
             globalDBContext.SaveChanges();
         }

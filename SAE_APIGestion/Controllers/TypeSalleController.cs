@@ -46,7 +46,7 @@ namespace SAE_APIGestion.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutTypeSalle(int id, TypeSalle typeSalle)
         {
-            if (id != typeSalle.IdTypeSalle)
+            if (id != typeSalle.TypeSalleId)
             {
                 return BadRequest();
             }

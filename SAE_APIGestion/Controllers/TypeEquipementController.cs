@@ -42,7 +42,7 @@ namespace SAE_APIGestion.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutTypeEquipement(int id, TypeEquipement typeEquipement)
         {
-            if (id != typeEquipement.IdTypeEquipement)
+            if (id != typeEquipement.TypeEquipementId)
             {
                 return BadRequest();
             }
@@ -74,7 +74,7 @@ namespace SAE_APIGestion.Controllers
 
             await dataRepository.AddAsync(typeEquipement);
 
-            return CreatedAtAction("GetTypeEquipement", new { id = typeEquipement.IdTypeEquipement }, typeEquipement);
+            return CreatedAtAction("GetTypeEquipement", new { id = typeEquipement.TypeEquipementId }, typeEquipement);
         }
 
         // DELETE: api/typeSalles/5

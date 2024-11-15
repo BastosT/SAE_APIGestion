@@ -17,8 +17,6 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual DbSet<TypeDonneesCapteur> TypesDonneesCapteurs { get; set; } = null!;
         public virtual DbSet<DonneesCapteur> DonneesCapteurs { get; set; } = null!;
         public virtual DbSet<TypeSalle> TypesSalles { get; set; } = null!;
-        public virtual DbSet<MesureCapteur> MesuresCapteur { get; set; } = null!;
-
         public virtual DbSet<TypeEquipement> TypesEquipements { get; set; } = null!;
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -34,15 +32,15 @@ namespace SAE_APIGestion.Models.EntityFramework
         {
             modelBuilder.Entity<Batiment>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_batiment");
-                entity.HasMany(e => e.Salles).WithOne(s => s.Batiment).HasForeignKey(s => s.BatimentId);
+                entity.HasKey(e => e.BatimentId).HasName("pk_batiment");
+                entity.HasMany(e => e.Salles).WithOne(s => s.BatimentNavigation).HasForeignKey(s => s.BatimentId);
             });
 
             modelBuilder.Entity<Salle>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_salle");
+                entity.HasKey(e => e.SalleId).HasName("pk_salle");
 
-                entity.HasOne(d => d.Batiment)
+                entity.HasOne(d => d.BatimentNavigation)
                     .WithMany(p => p.Salles)
                     .HasForeignKey(d => d.BatimentId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
@@ -66,7 +64,7 @@ namespace SAE_APIGestion.Models.EntityFramework
 
             modelBuilder.Entity<Mur>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_mur");
+                entity.HasKey(e => e.MurId).HasName("pk_mur");
 
                 entity.HasMany(m => m.Equipements)
                     .WithOne(e => e.Mur)
@@ -81,7 +79,7 @@ namespace SAE_APIGestion.Models.EntityFramework
 
             modelBuilder.Entity<Equipement>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_equipement");
+                entity.HasKey(e => e.EquipementId).HasName("pk_equipement");
 
                 entity.HasOne(e => e.Mur)
                     .WithMany(m => m.Equipements)
@@ -95,20 +93,20 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .HasConstraintName("fk_equipement_salle");
             });
 
-            modelBuilder.Entity<TypeCapteur>(entity =>
+            modelBuilder.Entity<TypeDonneesCapteur>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_typecapteur");
+                entity.HasKey(e => e.TypeDonneesCapteurId).HasName("pk_typecapteur");
             });
 
             modelBuilder.Entity<Capteur>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_capteur");
+                entity.HasKey(e => e.CapteurId).HasName("pk_capteur");
 
-                entity.HasOne(c => c.Type)
+                entity.HasOne(c => c.DonneesCapteurs)
                     .WithMany()
-                    .HasForeignKey(c => c.TypeId)
+                    .HasForeignKey(c => c.DonneesCapteurId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_capteur_typecapteur");
+                    .HasConstraintName("fk_capteur_donneescapteur");
 
                 entity.HasOne(c => c.Salle)
                     .WithMany(s => s.Capteurs)
@@ -122,30 +120,26 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .HasConstraintName("fk_capteur_mur");
             });
 
-            modelBuilder.Entity<CapaciteCapteur>(entity =>
+            modelBuilder.Entity<DonneesCapteur>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_capacitecapteur");
+                entity.HasKey(e => e.DonneesCapteurId).HasName("pk_capacitecapteur");
 
                 entity.HasOne(cc => cc.Capteur)
-                    .WithMany(c => c.Capacites)
+                    .WithMany(c => c.DonneesCapteurs)
                     .HasForeignKey(cc => cc.CapteurId)
                     .HasConstraintName("fk_capacitecapteur_capteur");
+
+                entity.HasOne(c => c.TypeDonnees)
+                    .WithMany(s => s.DonneesCapteurs)
+                    .HasForeignKey(c => c.TypeDonneesId)
+                    .HasConstraintName("fk_type_donnees");
             });
 
             modelBuilder.Entity<TypeSalle>(entity =>
             {
-                entity.HasKey(e => e.Id).HasName("pk_typesalle");
+                entity.HasKey(e => e.TypeSalleId).HasName("pk_typesalle");
             });
 
-            modelBuilder.Entity<MesureCapteur>(entity =>
-            {
-                entity.HasKey(e => e.Id).HasName("pk_mesurecapteur");
-
-                entity.HasOne(m => m.Capteur)
-                    .WithMany(c => c.Mesures)
-                    .HasForeignKey(m => m.CapteurId)
-                    .HasConstraintName("fk_mesurecapteur_capteur");
-            });
         }
     }
 }

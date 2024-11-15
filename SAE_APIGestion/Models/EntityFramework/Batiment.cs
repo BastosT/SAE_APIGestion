@@ -5,18 +5,18 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    [PrimaryKey("Id")]
-    [Table("batiment")]
+    [PrimaryKey("SalleId")]
+    [Table("t_e_batiment_bat")]
     public class Batiment
     {
         [Key]
-        [Column("idbatiment")]
-        public int Id { get; set; }
+        [Column("bat_id")]
+        public int BatimentId { get; set; }
 
-        [Column("nombatiment")]
+        [Column("bat_nom")]
         public string Nom { get; set; }
 
-        [Column("adressebatiment")]
+        [Column("bat_adresse")]
         public string Adresse { get; set; }
 
         [InverseProperty(nameof(Salle.BatimentNavigation))]

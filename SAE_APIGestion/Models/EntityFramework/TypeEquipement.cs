@@ -5,14 +5,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
-    
-    public enum TypeEquipement
+
+    [PrimaryKey("Id")]
+    [Table("t_e_typeequipement_tye")]
+    public class TypeEquipement
     {
-        Fenetre,
-        Porte,
-        Radiateur,
-        Bureau,
-        Armoire
+        [Key]
+        [Column("tye_idtypeequipement")]
+        public int IdTypeEquipement { get; set; }
+
+        [Required]
+        [Column("tye_nomtypeequipement")]
+        public string NomTypeEquipement { get; set; }
+
     }
 
 

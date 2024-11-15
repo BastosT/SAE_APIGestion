@@ -16,7 +16,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("equ_nom")]
         public string Nom { get; set; }
 
-        [ForeignKey("typequ_id")]
+        [ForeignKey("tye_id")]
         [Column("type")]
         public TypeEquipement Type { get; set; }
 

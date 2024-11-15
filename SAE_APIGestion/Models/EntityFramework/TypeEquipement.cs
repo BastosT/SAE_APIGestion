@@ -11,11 +11,11 @@ namespace SAE_APIGestion.Models.EntityFramework
     public class TypeEquipement
     {
         [Key]
-        [Column("tye_idtypeequipement")]
-        public int IdTypeEquipement { get; set; }
+        [Column("tye_id")]
+        public int TypeEquipementId { get; set; }
 
         [Required]
-        [Column("tye_nomtypeequipement")]
+        [Column("tye_nom")]
         public string NomTypeEquipement { get; set; }
 
     }

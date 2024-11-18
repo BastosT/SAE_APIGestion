@@ -1,24 +1,57 @@
-﻿window.babylonInterop = {
+﻿var babylonInterop = {
     config: {
-        building: {
-            width: 20,
-            depth: 15,
-            height: 8,
-            wallThickness: 0.5
-        },
-        room: {
-            minSize: 4,
-            wallHeight: 7.5,
-            wallThickness: 0.3
-        },
-        equipment: {
-            size: 1,
-            height: 0.1
-        }
+        scale: 0.01,
+        wallDepth: 0.3,
+        equipmentDepth: 0.1,
+        radiatorOffset: 0.05  // Offset from wall bottom
     },
 
-    createWall: function (scene, width, height, depth, position, name = "wall") {
-        const wall = BABYLON.MeshBuilder.CreateBox(name, {
+    createEquipment: function (scene, equipment, parentWall, wallWidth, wallHeight, isInterior = true) {
+        const width = equipment.largeur * this.config.scale;
+        const height = equipment.hauteur * this.config.scale;
+        const depth = this.config.equipmentDepth;
+
+        const equipmentMesh = BABYLON.MeshBuilder.CreateBox(equipment.nom, {
+            width: width,
+            height: height,
+            depth: depth,
+            updatable: false
+        }, scene);
+
+        const xPos = equipment.positionX * this.config.scale;
+        const yPos = equipment.positionY * this.config.scale;
+
+        equipmentMesh.position = new BABYLON.Vector3(
+            xPos - (wallWidth / 2) + (width / 2),
+            (wallHeight / 2) - yPos - (height / 2),
+            this.config.wallDepth
+        );
+
+        const material = new BABYLON.StandardMaterial(equipment.nom + "Material", scene);
+        if (equipment.nom.toLowerCase().includes("fenetre") || equipment.nom.toLowerCase().includes("vitre")) {
+            material.diffuseColor = new BABYLON.Color3(0.7, 0.9, 1);
+            material.alpha = 0.5;
+            material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+            material.backFaceCulling = false;
+        } else if (equipment.nom.toLowerCase().includes("radiateur")) {
+            material.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+            material.metallic = 0.8;
+            material.roughness = 0.3;
+        }
+
+        equipmentMesh.material = material;
+        equipmentMesh.parent = parentWall;
+
+        return equipmentMesh;
+    },
+    createWall: function (scene, wallData, position, rotation, isInterior = true) {
+        console.log('Creating wall with data:', wallData);
+
+        const width = wallData.largeur * this.config.scale;
+        const height = wallData.hauteur * this.config.scale;
+        const depth = this.config.wallDepth;
+
+        const wall = BABYLON.MeshBuilder.CreateBox("wall", {
             width: width,
             height: height,
             depth: depth,
@@ -26,227 +59,144 @@
         }, scene);
 
         wall.position = position;
+        if (rotation) {
+            wall.rotation = rotation;
+        }
 
-        // Créer un matériau unique pour chaque mur
-        const wallMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
-        wallMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-        wallMaterial.backFaceCulling = true;
+        const wallMaterial = new BABYLON.StandardMaterial("wallMaterial", scene);
+        wallMaterial.diffuseColor = new BABYLON.Color3(0.95, 0.95, 0.95);
+        wallMaterial.roughness = 0.8;
         wall.material = wallMaterial;
+
+        if (wallData.equipements && wallData.equipements.length > 0) {
+            console.log('Processing', wallData.equipements.length, 'equipment items');
+            wallData.equipements.forEach(equipment => {
+                this.createEquipment(scene, equipment, wall, width, height, isInterior);
+            });
+        } else {
+            console.log('No equipment to process');
+        }
 
         return wall;
     },
 
-    createRoom: function (scene, width, depth, position, name = "room") {
-        const room = new BABYLON.TransformNode(name, scene);
-        const config = this.config.room;
+    createRoom: function (scene, roomData) {
+        console.log('Creating room with data:', roomData);
 
-        // Créer les murs de la pièce
-        const northWall = this.createWall(scene,
-            width,
-            config.wallHeight,
-            config.wallThickness,
-            new BABYLON.Vector3(position.x, config.wallHeight / 2, position.z + depth / 2),
-            `${name}NorthWall`
+        const room = new BABYLON.TransformNode("room", scene);
+        const wallHeight = roomData.murFace.hauteur * this.config.scale;
+        const wallWidth = roomData.murFace.largeur * this.config.scale;
+
+        // Position le mur face à la caméra
+        const frontWall = this.createWall(
+            scene,
+            roomData.murFace,
+            new BABYLON.Vector3(0, wallHeight / 2, 0),
+            new BABYLON.Vector3(0, Math.PI, 0), // Rotation pour que la face avant soit visible
+            true
         );
 
-        const southWall = this.createWall(scene,
-            width,
-            config.wallHeight,
-            config.wallThickness,
-            new BABYLON.Vector3(position.x, config.wallHeight / 2, position.z - depth / 2),
-            `${name}SouthWall`
-        );
-
-        const eastWall = this.createWall(scene,
-            config.wallThickness,
-            config.wallHeight,
-            depth,
-            new BABYLON.Vector3(position.x + width / 2, config.wallHeight / 2, position.z),
-            `${name}EastWall`
-        );
-
-        const westWall = this.createWall(scene,
-            config.wallThickness,
-            config.wallHeight,
-            depth,
-            new BABYLON.Vector3(position.x - width / 2, config.wallHeight / 2, position.z),
-            `${name}WestWall`
-        );
-
-        [northWall, southWall, eastWall, westWall].forEach(wall => {
-            wall.parent = room;
-        });
-
+        frontWall.parent = room;
         return room;
     },
 
-    createEquipment: function (scene, position, name = "equipment") {
-        const config = this.config.equipment;
-        const equipment = BABYLON.MeshBuilder.CreateBox(name, {
-            width: config.size,
-            height: config.height,
-            depth: config.size,
-            updatable: false
-        }, scene);
+    initializeScene: function (canvasId, roomDataJson) {
+        try {
+            console.log('Initializing scene with data:', roomDataJson);
 
-        equipment.position = position;
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                throw new Error('Canvas not found: ' + canvasId);
+            }
 
-        const equipmentMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
-        equipmentMaterial.diffuseColor = new BABYLON.Color3(0.3, 0.5, 0.9);
-        equipment.material = equipmentMaterial;
+            // Parse JSON si nécessaire
+            const roomData = roomDataJson ?
+                (typeof roomDataJson === 'string' ? JSON.parse(roomDataJson) : roomDataJson)
+                : {
+                    murFace: {
+                        largeur: 575,
+                        hauteur: 270,
+                        equipements: []
+                    }
+                };
 
-        return equipment;
-    },
+            console.log('Parsed room data:', roomData);
 
-    createBuilding: function (scene, position, buildingIndex) {
-        const building = new BABYLON.TransformNode(`building${buildingIndex}`, scene);
-        const config = this.config.building;
+            const engine = new BABYLON.Engine(canvas, true);
+            const scene = new BABYLON.Scene(engine);
 
-        // Créer les murs extérieurs
-        const northWall = this.createWall(scene,
-            config.width,
-            config.height,
-            config.wallThickness,
-            new BABYLON.Vector3(position.x, config.height / 2, position.z + config.depth / 2),
-            `building${buildingIndex}NorthWall`
-        );
+            // Position la caméra pour voir la face avant du mur
+            const camera = new BABYLON.ArcRotateCamera("camera",
+                Math.PI,
+                Math.PI / 2,
+                15,
+                new BABYLON.Vector3(0, roomData.murFace.hauteur * this.config.scale / 2, 0),
+                scene
+            );
+            camera.attachControl(canvas, true);
+            camera.lowerRadiusLimit = 5;
+            camera.upperRadiusLimit = 30;
+            camera.wheelDeltaPercentage = 0.01;
 
-        const southWall = this.createWall(scene,
-            config.width,
-            config.height,
-            config.wallThickness,
-            new BABYLON.Vector3(position.x, config.height / 2, position.z - config.depth / 2),
-            `building${buildingIndex}SouthWall`
-        );
+            // Éclairage dirigé vers la face avant du mur
+            const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight",
+                new BABYLON.Vector3(0, 1, -1),
+                scene
+            );
+            hemisphericLight.intensity = 0.7;
 
-        const eastWall = this.createWall(scene,
-            config.wallThickness,
-            config.height,
-            config.depth,
-            new BABYLON.Vector3(position.x + config.width / 2, config.height / 2, position.z),
-            `building${buildingIndex}EastWall`
-        );
+            const pointLight = new BABYLON.PointLight("pointLight",
+                new BABYLON.Vector3(0, roomData.murFace.hauteur * this.config.scale, -5),
+                scene
+            );
+            pointLight.intensity = 0.5;
 
-        const westWall = this.createWall(scene,
-            config.wallThickness,
-            config.height,
-            config.depth,
-            new BABYLON.Vector3(position.x - config.width / 2, config.height / 2, position.z),
-            `building${buildingIndex}WestWall`
-        );
+            this.createRoom(scene, roomData);
 
-        // Créer le sol
-        const floor = BABYLON.MeshBuilder.CreateGround(`building${buildingIndex}Floor`, {
-            width: config.width,
-            height: config.depth,
-            updatable: false
-        }, scene);
+            // Ajout d'axes de référence pour debug
+            const showAxis = function (size) {
+                const axisX = BABYLON.MeshBuilder.CreateLines("axisX", {
+                    points: [
+                        new BABYLON.Vector3.Zero(),
+                        new BABYLON.Vector3(size, 0, 0)
+                    ]
+                }, scene);
+                axisX.color = new BABYLON.Color3(1, 0, 0);
 
-        floor.position = new BABYLON.Vector3(position.x, 0, position.z);
+                const axisY = BABYLON.MeshBuilder.CreateLines("axisY", {
+                    points: [
+                        new BABYLON.Vector3.Zero(),
+                        new BABYLON.Vector3(0, size, 0)
+                    ]
+                }, scene);
+                axisY.color = new BABYLON.Color3(0, 1, 0);
 
-        const floorMaterial = new BABYLON.StandardMaterial(`building${buildingIndex}FloorMaterial`, scene);
-        floorMaterial.diffuseColor = new BABYLON.Color3(0.9, 0.9, 0.9);
-        floor.material = floorMaterial;
+                const axisZ = BABYLON.MeshBuilder.CreateLines("axisZ", {
+                    points: [
+                        new BABYLON.Vector3.Zero(),
+                        new BABYLON.Vector3(0, 0, size)
+                    ]
+                }, scene);
+                axisZ.color = new BABYLON.Color3(0, 0, 1);
+            };
+            showAxis(10);
 
-        // Rattacher tous les éléments au bâtiment
-        [northWall, southWall, eastWall, westWall, floor].forEach(element => {
-            element.parent = building;
-        });
+            engine.runRenderLoop(() => {
+                scene.render();
+            });
 
-        // Créer les pièces avec des noms uniques
-        const room1 = this.createRoom(scene, 8, 6,
-            new BABYLON.Vector3(position.x - 5, 0, position.z - 3),
-            `building${buildingIndex}Room1`
-        );
+            window.addEventListener("resize", () => {
+                engine.resize();
+            });
 
-        const room2 = this.createRoom(scene, 8, 6,
-            new BABYLON.Vector3(position.x + 5, 0, position.z - 3),
-            `building${buildingIndex}Room2`
-        );
+            console.log('Scene initialized successfully');
+            return scene;
 
-        const room3 = this.createRoom(scene, 8, 6,
-            new BABYLON.Vector3(position.x, 0, position.z + 3),
-            `building${buildingIndex}Room3`
-        );
-
-        [room1, room2, room3].forEach(room => {
-            room.parent = building;
-        });
-
-        // Ajouter les équipements avec des noms uniques
-        const equipment1 = this.createEquipment(scene,
-            new BABYLON.Vector3(position.x - 5, 0.05, position.z - 3),
-            `building${buildingIndex}Equipment1`
-        );
-
-        const equipment2 = this.createEquipment(scene,
-            new BABYLON.Vector3(position.x + 5, 0.05, position.z - 3),
-            `building${buildingIndex}Equipment2`
-        );
-
-        const equipment3 = this.createEquipment(scene,
-            new BABYLON.Vector3(position.x, 0.05, position.z + 3),
-            `building${buildingIndex}Equipment3`
-        );
-
-        [equipment1, equipment2, equipment3].forEach(equipment => {
-            equipment.parent = building;
-        });
-
-        return building;
-    },
-
-    initializeScene: function (canvasId) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) {
-            console.error('Canvas not found:', canvasId);
-            return;
+        } catch (error) {
+            console.error('Error in initializeScene:', error);
+            throw error;
         }
-        if (typeof BABYLON === 'undefined') {
-            console.error('BABYLON is not loaded');
-            return;
-        }
-
-        const engine = new BABYLON.Engine(canvas, true);
-        const scene = new BABYLON.Scene(engine);
-
-        // Configuration de la caméra
-        const camera = new BABYLON.ArcRotateCamera("camera",
-            -Math.PI / 4,
-            Math.PI / 3,
-            50,
-            BABYLON.Vector3.Zero(),
-            scene);
-        camera.attachControl(canvas, true);
-        camera.setPosition(new BABYLON.Vector3(40, 40, -40));
-        camera.lowerBetaLimit = 0.1;
-        camera.upperBetaLimit = Math.PI / 2;
-
-        // Éclairage
-        const hemisphericLight = new BABYLON.HemisphericLight("hemisphericLight",
-            new BABYLON.Vector3(0, 1, 0),
-            scene);
-        hemisphericLight.intensity = 0.7;
-
-        const directionalLight = new BABYLON.DirectionalLight("directionalLight",
-            new BABYLON.Vector3(-1, -2, -1),
-            scene);
-        directionalLight.intensity = 0.5;
-
-        // Créer les bâtiments avec des indices uniques
-        this.createBuilding(scene, new BABYLON.Vector3(-25, 0, -25), 1);
-        this.createBuilding(scene, new BABYLON.Vector3(25, 0, -25), 2);
-        this.createBuilding(scene, new BABYLON.Vector3(-25, 0, 25), 3);
-        this.createBuilding(scene, new BABYLON.Vector3(25, 0, 25), 4);
-
-        engine.runRenderLoop(function () {
-            scene.render();
-        });
-
-        window.addEventListener("resize", function () {
-            engine.resize();
-        });
-
-        return scene;
     }
 };
+
+window.babylonInterop = babylonInterop;

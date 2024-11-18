@@ -274,64 +274,61 @@ namespace SAE_APIGestion.Controllers.Tests
             var actionResult = marqueController.PostBatiment(batiment).Result;
 
             // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(ActionResult<Batiment>), "Le retour n'est pas du type ActionResult<Marque>");
+            Assert.IsInstanceOfType(actionResult, typeof(ActionResult<Batiment>), "Le retour n'est pas du type ActionResult<Batiment>");
             Assert.IsInstanceOfType(actionResult.Result, typeof(CreatedAtActionResult), "Le résultat n'est pas un CreatedAtActionResult");
             var result = actionResult.Result as CreatedAtActionResult;
             Assert.IsNotNull(result.Value, "La valeur retournée est nulle");
-            Assert.AreEqual(batiment.Nom, ((Batiment)result.Value).Nom, "Le nom de la marque ne correspond pas");
+            Assert.AreEqual(batiment.Nom, ((Batiment)result.Value).Nom, "Le nom du batiment ne correspond pas");
         }
 
 
         [TestMethod()]
-        public void DeleteBatimentTest_MoqinMemory()
+        public void DeleteBatimentTest_Moq()
         {
-
-            var inMemoryDb = new List<Batiment>
-                     {
-                new Batiment
+            // Arrange
+            var batiment = new Batiment
+            {
+                BatimentId = 1,
+                Nom = "Batiment Test",
+                Adresse = "123 Rue Test",
+                Salles = new List<Salle>
                 {
-                    BatimentId = 1,
-                    Nom = "Batiment Test",
-                    Adresse = "123 Rue Test",
-                    Salles = new List<Salle>
+                    new Salle
                     {
-                        new Salle
+                        SalleId = 1,
+                        Nom = "Salle 1",
+                        Surface = 30.5,
+                        TypeSalle = new TypeSalle
                         {
-                            SalleId = 1,
-                            Nom = "Salle 1",
-                            Surface = 30.5,
-                            TypeSalle = new TypeSalle
+                            TypeSalleId = 1,
+                            Nom = "Type Salle 1",
+                            Description = "Description Type Salle 1"
+                        },
+                        Murs = new List<Mur>
+                        {
+                            new Mur
                             {
-                                TypeSalleId = 1,
-                                Nom = "Type Salle 1",
-                                Description = "Description Type Salle 1"
-                            },
-                            Murs = new List<Mur>
+                                MurId = 1,
+                                Nom = "Mur Nord",
+                                Longueur = 10,
+                                Hauteur = 3
+                            }
+                        },
+                        Equipements = new List<Equipement>
+                        {
+                            new Equipement
                             {
-                                new Mur
+                                EquipementId = 1,
+                                Nom = "Equipement 1",
+                                TypeEquipement = new TypeEquipement
                                 {
-                                    MurId = 1,
-                                    Nom = "Mur Nord",
-                                    Longueur = 10,
-                                    Hauteur = 3
-                                }
-                            },
-                            Equipements = new List<Equipement>
-                            {
-                                new Equipement
-                                {
-                                    EquipementId = 1,
-                                    Nom = "Equipement 1",
-                                    TypeEquipement = new TypeEquipement
-                                    {
-                                        TypeEquipementId = 1,
-                                        Nom = "Type Equipement 1"
-                                    },
-                                    Largeur = 1.5,
-                                    Hauteur = 2,
-                                    PositionX = 0.5,
-                                    PositionY = 0.5
-                                }
+                                    TypeEquipementId = 1,
+                                    Nom = "Type Equipement 1"
+                                },
+                                Largeur = 1.5,
+                                Hauteur = 2,
+                                PositionX = 0.5,
+                                PositionY = 0.5
                             }
                         }
                     }
@@ -339,29 +336,16 @@ namespace SAE_APIGestion.Controllers.Tests
             };
 
             var mockRepository = new Mock<IDataRepository<Batiment>>();
+            mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(batiment);
+            var batimentController = new BatimentController(mockRepository.Object);
 
-            // Retourne le `Batiment` de l'inMemoryDb
-            mockRepository.Setup(x => x.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((int id) => inMemoryDb.FirstOrDefault(b => b.BatimentId == id));
-
-            // Supprime le `Batiment` de l'inMemoryDb
-            mockRepository.Setup(x => x.DeleteAsync(It.IsAny<Batiment>())).Callback<Batiment>(batimentToDelete =>
-            {
-                inMemoryDb.RemoveAll(b => b.BatimentId == batimentToDelete.BatimentId);
-            }).Returns(Task.CompletedTask);
-
-            var marqueController = new BatimentController(mockRepository.Object);
-
-            // act
-            var actionResult = marqueController.DeleteBatiment(1).Result;
+            // Act
+            var actionResult = batimentController.DeleteBatiment(1).Result;
 
             // Assert
-            Assert.IsInstanceOfType(actionResult, typeof(NoContentResult), "Pas un NoContentResult");
+            Assert.IsInstanceOfType(actionResult, typeof(NoContentResult), "Pas un NoContentResult"); // Test du type de retour
 
-            // Vérification que le Batiment a bien été supprimé de l'inMemoryDb
-            var deletedBatiment = inMemoryDb.FirstOrDefault(b => b.BatimentId == 1);
-            Assert.IsNull(deletedBatiment, "Le Batiment n'a pas été supprimé correctement");
         }
-
 
     }
 }

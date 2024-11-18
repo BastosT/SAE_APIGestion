@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAE_APIGestion", "SAE_APIGestion\SAE_APIGestion.csproj", "{55ABB8B2-34A3-4BDA-B409-0CDD31AB5737}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAE_CLIENTGestion", "SAE_CLIENTGestion\SAE_CLIENTGestion.csproj", "{843A8269-9143-4F37-8631-81F242101EF3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAE_CLIENTGestion", "SAE_CLIENTGestion\SAE_CLIENTGestion.csproj", "{D6ACEA2F-307F-4C45-8EBF-092414DC75DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{55ABB8B2-34A3-4BDA-B409-0CDD31AB5737}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55ABB8B2-34A3-4BDA-B409-0CDD31AB5737}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55ABB8B2-34A3-4BDA-B409-0CDD31AB5737}.Release|Any CPU.Build.0 = Release|Any CPU
-		{843A8269-9143-4F37-8631-81F242101EF3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{843A8269-9143-4F37-8631-81F242101EF3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{843A8269-9143-4F37-8631-81F242101EF3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{843A8269-9143-4F37-8631-81F242101EF3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6ACEA2F-307F-4C45-8EBF-092414DC75DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6ACEA2F-307F-4C45-8EBF-092414DC75DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6ACEA2F-307F-4C45-8EBF-092414DC75DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6ACEA2F-307F-4C45-8EBF-092414DC75DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

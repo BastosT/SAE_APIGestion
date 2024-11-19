@@ -12,10 +12,14 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("bat_id")]
         public int BatimentId { get; set; }
 
-        [Column("bat_nom")]
+        [Required]
+        [Column("bat_nom" , TypeName = "varchar(100)")]
+        [StringLength(100)]
         public string Nom { get; set; }
 
-        [Column("bat_adresse")]
+        [Required]
+        [Column("bat_adresse",TypeName ="varchar(100)")]
+        [StringLength(100)]
         public string Adresse { get; set; }
 
         [InverseProperty(nameof(Salle.Batiment))]

@@ -20,18 +20,22 @@ namespace SAE_APIGestion.Models.EntityFramework
         public int SalleId { get; set; }
 
         [Required]
-        [Column("sal_nom")]
+        [Column("sal_nom",TypeName ="varchar(100)")]
+        [StringLength(100)]
         public string Nom { get; set; }
 
+        [Required]
         [Column("sal_surface")]
         public double Surface { get; set; }
 
+        [Required]
         [Column("tys_id")]
         public int TypeSalleId { get; set; }
 
         [ForeignKey("TypeSalleId")]
         public virtual TypeSalle TypeSalle { get; set; }
 
+        [Required]
         [Column("bat_id")]
         public int BatimentId { get; set; }
 

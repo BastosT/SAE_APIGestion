@@ -19,7 +19,8 @@ namespace SAE_APIGestion.Models.EntityFramework
         public int TypeEquipementId { get; set; }
 
         [Required]
-        [Column("tye_nom")]
+        [Column("tye_nom",TypeName ="varchar(100)")]
+        [StringLength(100)]
         public string Nom { get; set; }
 
         public virtual ICollection<Equipement> Equipements { get; set; }

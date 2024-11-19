@@ -13,9 +13,11 @@ namespace SAE_APIGestion.Models.EntityFramework
         public int EquipementId { get; set; }
 
         [Required]
-        [Column("equ_nom")]
+        [Column("equ_nom" , TypeName ="varchar(100)")]
+        [StringLength(100)]
         public string Nom { get; set; }
 
+        [Required]
         [Column("tye_id")]
         public int TypeEquipementId { get; set; }
 

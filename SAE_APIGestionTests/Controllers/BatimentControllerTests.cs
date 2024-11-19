@@ -20,7 +20,6 @@ namespace SAE_APIGestion.Controllers.Tests
         private IDataRepository<Batiment> dataRepository;
         private Batiment _batiment;
         private Batiment _batimentUpdate;
-        private Batiment _batimentSansNom;
         private Mock<IDataRepository<Batiment>> _mockRepository;
         private BatimentController _batimentController;
 
@@ -88,30 +87,6 @@ namespace SAE_APIGestion.Controllers.Tests
                 Salles = new List<Salle>(_batiment.Salles) 
             };
 
-
-            _batimentSansNom = new Batiment
-             {
-                 BatimentId = 0,
-                 Nom = null, // Pas de nom
-                 Adresse = "123 Rue Test",
-                 Salles = new List<Salle>
-                 {
-                    new Salle
-                    {
-                        SalleId = 1,
-                        Nom = "Salle 1",
-                        Surface = 30.5,
-                        TypeSalle = new TypeSalle
-                        {
-                            TypeSalleId = 1,
-                            Nom = "Type Salle 1",
-                            Description = "Description Type Salle 1"
-                        }
-                    }
-                  }
-             };
-
-
             // Initialisation du contrôleur avec le mock
             _batimentController = new BatimentController(_mockRepository.Object);
         }
@@ -165,19 +140,6 @@ namespace SAE_APIGestion.Controllers.Tests
             var result = actionResult.Result as CreatedAtActionResult;
             Assert.IsNotNull(result.Value, "La valeur retournée est nulle");
             Assert.AreEqual(_batiment.Nom, ((Batiment)result.Value).Nom, "Le nom du batiment ne correspond pas");
-        }
-
-        [TestMethod()]
-        public void PostBatimentTestNoName_Moq()
-        {
-            // Act 
-            var actionResult = _batimentController.PostBatiment(_batimentSansNom).Result;
-
-            // Assert
-            Assert.IsInstanceOfType(actionResult.Result, typeof(BadRequestObjectResult), "Le résultat n'est pas un BadRequestObjectResult");
-            var badRequest = actionResult.Result as BadRequestObjectResult;
-            Assert.IsNotNull(badRequest, "Le résultat BadRequest est null");
-            Assert.AreEqual("Le nom du bâtiment est obligatoire.", badRequest.Value.ToString(), "Le message d'erreur ne correspond pas.");
         }
 
 

@@ -126,14 +126,6 @@ public class BabylonJSService : IBabylonJSService
                             {
                                 Largeur = 752,
                                 Hauteur = 270,
-                                Equipements = new List<Equipment>
-                                {
-                                    new Equipment { Nom = "Fenetre 1", Type = EquipmentType.Window, Largeur = 100, Hauteur = 165, PositionX = 6, PositionY = 3 },
-                                    new Equipment { Nom = "Vitre 1", Type = EquipmentType.DoorWindow, Largeur = 89, Hauteur = 161, PositionX = 125, PositionY = 6 },
-                                    new Equipment { Nom = "Vitre 2", Type = EquipmentType.DoorWindow, Largeur = 89, Hauteur = 161, PositionX = 237, PositionY = 6 },
-                                    new Equipment { Nom = "Fenetre 2", Type = EquipmentType.Window, Largeur = 100, Hauteur = 165, PositionX = 345, PositionY = 3 },
-                                    new Equipment { Nom = "Vitre 3", Type = EquipmentType.DoorWindow, Largeur = 89, Hauteur = 161, PositionX = 482, PositionY = 6 },
-                                }
                             },
                             EntranceWall = new Wall
                             {
@@ -164,21 +156,37 @@ public class BabylonJSService : IBabylonJSService
                             {
                                 Largeur = 575,
                                 Hauteur = 270,
+                                Equipements = new List<Equipment>
+                                {
+                                    new Equipment { Nom = "Fenetre", Type = EquipmentType.Window, Largeur = 571, Hauteur = 266, PositionX = 2, PositionY = 2 },
+                                }
                             },
                             EntranceWall = new Wall
                             {
                                 Largeur = 575,
                                 Hauteur = 270,
+                                Equipements = new List<Equipment>
+                                {
+                                    new Equipment { Nom = "Fenetre", Type = EquipmentType.Window, Largeur = 571, Hauteur = 266, PositionX = 2, PositionY = 2 },
+                                }
                             },
                             RightWall = new Wall
                             {
                                 Largeur = 736,
                                 Hauteur = 270,
+                                Equipements = new List<Equipment>
+                                {
+                                    new Equipment { Nom = "Fenetre", Type = EquipmentType.Window, Largeur = 736, Hauteur = 266, PositionX = 2, PositionY = 2 },
+                                }
                             },
                             LeftWall = new Wall
                             {
                                 Largeur = 736,
                                 Hauteur = 270,
+                                Equipements = new List<Equipment>
+                                {
+                                    new Equipment { Nom = "Fenetre", Type = EquipmentType.Window, Largeur = 736, Hauteur = 266, PositionX = 2, PositionY = 2 },
+                                }
                             }
                         }
                     }

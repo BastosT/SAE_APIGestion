@@ -559,7 +559,7 @@ var babylonInterop = {
         building.rooms.forEach(room => {
             totalWidth += room.walls.frontWall.largeur * this.config.scale;
         });
-        totalWidth += (building.rooms.length - 1) * (this.config.roomSpacing / this.config.scale);
+        totalWidth += (building.rooms.length - 1) * this.config.roomSpacing;
         return totalWidth;
     },
 

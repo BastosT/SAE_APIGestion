@@ -87,6 +87,11 @@ public class BabylonJSService : IBabylonJSService
                             {
                                 Largeur = 575,
                                 Hauteur = 270,
+                                Equipements = new List<Equipment>
+                                {
+                                    new Equipment { Nom = "Radiateur 1", Type = EquipmentType.Radiator, Largeur = 160, Hauteur = 80, PositionX = 34, PositionY = 180 },
+                                    new Equipment { Nom = "Radiateur 2", Type = EquipmentType.Radiator, Largeur = 160, Hauteur = 80, PositionX = 256, PositionY = 180 }
+                                }
                             },
                             EntranceWall = new Wall
                             {

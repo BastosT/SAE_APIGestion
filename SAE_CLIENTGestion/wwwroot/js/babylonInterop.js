@@ -1,20 +1,4 @@
 ﻿
-const createUnifiedMaterial = function (scene, name, isOutside = false) {
-    const material = new BABYLON.StandardMaterial(name, scene);
-    material.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
-    material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-    material.ambientColor = new BABYLON.Color3(1, 1, 1);
-    material.roughness = 0.8;
-    material.backFaceCulling = true;
-    material.alpha = isOutside ? 0.3 : 1;
-    if (isOutside) {
-        material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
-    }
-    return material;
-};
-
-
-
 var babylonInterop = {
     config: {
         scale: 0.01,
@@ -31,205 +15,198 @@ var babylonInterop = {
     },
 
     initSharedMaterials: function (scene) {
+        const baseProperties = {
+            diffuseColor: new BABYLON.Color3(0.725, 0.608, 0.486), // Couleur murs
+            specularColor: new BABYLON.Color3(0.1, 0.1, 0.1),
+            roughness: 0.8,
+            backFaceCulling: true
+        };
+
         if (!this.sharedMaterials.inside) {
             this.sharedMaterials.inside = new BABYLON.StandardMaterial("sharedInside", scene);
-            this.sharedMaterials.inside.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
-            this.sharedMaterials.inside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-            this.sharedMaterials.inside.ambientColor = new BABYLON.Color3(1, 1, 1);
-            this.sharedMaterials.inside.roughness = 0.8;
-            this.sharedMaterials.inside.backFaceCulling = true;
+            Object.assign(this.sharedMaterials.inside, baseProperties);
         }
 
         if (!this.sharedMaterials.outside) {
             this.sharedMaterials.outside = new BABYLON.StandardMaterial("sharedOutside", scene);
-            this.sharedMaterials.outside.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
-            this.sharedMaterials.outside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-            this.sharedMaterials.outside.ambientColor = new BABYLON.Color3(1, 1, 1);
-            this.sharedMaterials.outside.roughness = 0.8;
-            this.sharedMaterials.outside.backFaceCulling = true;
+            Object.assign(this.sharedMaterials.outside, baseProperties);
             this.sharedMaterials.outside.alpha = 0.3;
             this.sharedMaterials.outside.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
         }
     },
 
     createWallWithHoles: function (scene, wallData) {
-        const width = wallData.largeur * this.config.scale;
-        const height = wallData.hauteur * this.config.scale;
-        const depth = this.config.wallDepth;
+        const { scale, wallDepth } = this.config;
+        const width = wallData.largeur * scale;
+        const height = wallData.hauteur * scale;
+        const wallContainer = new BABYLON.TransformNode("wallContainer", scene);
         const doorMargin = 0.1;
 
-        let wallSections = [];
+        // Séparation et tri des équipements
+        const openings = (wallData.equipements?.filter(e => e.type <= 2) || [])
+            .map(opening => ({
+                ...opening,
+                largeur: opening.type === 2 ? opening.largeur + (doorMargin * 4 / scale) : opening.largeur,
+                positionX: opening.type === 2 ? opening.positionX - (doorMargin * 2 / scale) : opening.positionX,
+            }))
+            .sort((a, b) => a.positionX - b.positionX);
+
+        const otherEquipments = wallData.equipements?.filter(e => e.type > 2) || [];
+
         let currentX = 0;
-        let openings = wallData.equipements?.filter(e => e.type === 0 || e.type === 1 || e.type === 2) || [];
-        let otherEquipments = wallData.equipements?.filter(e => e.type !== 0 && e.type !== 1 && e.type !== 2) || [];
-
-        openings = openings.map(opening => ({
-            ...opening,
-            largeur: opening.type === 2 ? opening.largeur + (doorMargin * 4 / this.config.scale) : opening.largeur,
-            positionX: opening.type === 2 ? opening.positionX - (doorMargin * 2 / this.config.scale) : opening.positionX,
-        }));
-
-        openings.sort((a, b) => a.positionX - b.positionX);
-
-        // Créer les sections de mur entre les ouvertures
         for (let i = 0; i <= openings.length; i++) {
-            let sectionWidth;
-            if (i === openings.length) {
-                sectionWidth = width - currentX;
-            } else {
-                sectionWidth = (openings[i].positionX * this.config.scale) - currentX;
-            }
+            // Section de mur principale
+            const sectionWidth = i === openings.length ?
+                width - currentX :
+                (openings[i].positionX * scale) - currentX;
 
             if (sectionWidth > 0) {
-                const section = BABYLON.MeshBuilder.CreateBox("wallSection" + i, {
+                this.createWallSection(scene, {
                     width: sectionWidth,
-                    height: height,
-                    depth: depth
-                }, scene);
-
-                section.position.x = -width / 2 + currentX + sectionWidth / 2;
-                wallSections.push(section);
+                    height,
+                    depth: wallDepth,
+                    x: -width / 2 + currentX + sectionWidth / 2,
+                    name: `wallSection${i}`
+                }, wallContainer);
             }
 
             if (i < openings.length) {
-                currentX = (openings[i].positionX + openings[i].largeur) * this.config.scale;
-
-                const openingHeight = openings[i].hauteur * this.config.scale;
-                const openingY = openings[i].positionY * this.config.scale;
+                const opening = openings[i];
+                const openingWidth = opening.largeur * scale;
+                const openingHeight = opening.hauteur * scale;
+                const openingY = opening.positionY * scale;
+                const openingX = -width / 2 + opening.positionX * scale + openingWidth / 2;
 
                 // Section au-dessus de l'ouverture
                 if (openingY > 0) {
-                    const topSection = BABYLON.MeshBuilder.CreateBox("wallTopSection" + i, {
-                        width: openings[i].largeur * this.config.scale,
+                    this.createWallSection(scene, {
+                        width: openingWidth,
                         height: openingY,
-                        depth: depth
-                    }, scene);
-                    topSection.position.x = -width / 2 + openings[i].positionX * this.config.scale + (openings[i].largeur * this.config.scale) / 2;
-                    topSection.position.y = height / 2 - openingY / 2;
-                    wallSections.push(topSection);
+                        depth: wallDepth,
+                        x: openingX,
+                        y: height / 2 - openingY / 2,
+                        name: `wallTopSection${i}`
+                    }, wallContainer);
                 }
 
-                // Si c'est une fenêtre, ajouter la section du bas
-                if (openings[i].type !== 2) {
+                // Section du bas pour les fenêtres
+                if (opening.type !== 2) {
                     const bottomHeight = height - openingY - openingHeight;
                     if (bottomHeight > 0) {
-                        const bottomSection = BABYLON.MeshBuilder.CreateBox("wallBottomSection" + i, {
-                            width: openings[i].largeur * this.config.scale,
+                        this.createWallSection(scene, {
+                            width: openingWidth,
                             height: bottomHeight,
-                            depth: depth
-                        }, scene);
-                        bottomSection.position.x = -width / 2 + openings[i].positionX * this.config.scale + (openings[i].largeur * this.config.scale) / 2;
-                        bottomSection.position.y = -height / 2 + bottomHeight / 2;
-                        wallSections.push(bottomSection);
+                            depth: wallDepth,
+                            x: openingX,
+                            y: -height / 2 + bottomHeight / 2,
+                            name: `wallBottomSection${i}`
+                        }, wallContainer);
                     }
                 }
 
-                // Créer le cadre approprié selon le type
-                if (openings[i].type === 2) {
-                    const frame = this.createDoorFrame(scene, openings[i], width, height);
-                    wallSections.push(frame);
-                } else {
-                    const frame = this.createWindowFrame(scene, openings[i], width, height);
-                    wallSections.push(frame);
-                }
+                // Cadre
+                const frame = opening.type === 2 ?
+                    this.createDoorFrame(scene, opening, width, height) :
+                    this.createWindowFrame(scene, opening, width, height);
+                frame.parent = wallContainer;
+
+                currentX = (opening.positionX + opening.largeur) * scale;
             }
         }
 
-        const wallContainer = new BABYLON.TransformNode("wallContainer", scene);
-
-        wallSections.forEach(section => {
-            if (section instanceof BABYLON.TransformNode) {
-                section.parent = wallContainer;
-                return;
-            }
-
-            const sectionOutside = section.clone("outside" + section.name);
-
-            section.material = this.sharedMaterials.inside;
-            sectionOutside.material = this.sharedMaterials.outside;
-
-            sectionOutside.scaling.z = -1;
-
-            section.parent = wallContainer;
-            sectionOutside.parent = wallContainer;
+        // Autres équipements
+        otherEquipments.forEach(equipment => {
+            const mesh = this.createEquipment(scene, equipment, wallContainer, width, height);
+            if (mesh) mesh.parent = wallContainer;
         });
-
-
-        // Ajouter les autres équipements
-        if (otherEquipments.length > 0) {
-            otherEquipments.forEach(equipment => {
-                const equipmentMesh = this.createEquipment(scene, equipment, wallContainer, width, height);
-                if (equipmentMesh) {
-                    equipmentMesh.parent = wallContainer;
-                }
-            });
-        }
 
         return wallContainer;
     },
 
+    createWallSection: function (scene, params, parent) {
+
+        this.initSharedMaterials(scene);
+
+
+        const section = BABYLON.MeshBuilder.CreateBox(params.name, {
+            width: params.width,
+            height: params.height,
+            depth: params.depth
+        }, scene);
+
+        // Positionner la section
+        section.position.x = params.x;
+        if (params.y) section.position.y = params.y;
+
+        // S'assurer que le clone est créé et configuré correctement
+        const sectionOutside = section.clone("outside" + params.name);
+
+        // Appliquer explicitement les matériaux
+        section.material = this.sharedMaterials.inside;
+        sectionOutside.material = this.sharedMaterials.outside;
+
+        // S'assurer que la face externe est correctement inversée
+        sectionOutside.scaling.z = -1;
+
+        section.parent = parent;
+        sectionOutside.parent = parent;
+    },
+
     createDoorFrame: function (scene, door, wallWidth, wallHeight) {
-        // Réduction encore plus importante de la marge (de 2cm à 0.5cm)
-        const doorMargin = 0.005; // 5mm de marge
+        const doorMargin = 0.005;
         const actualWidth = door.largeur * this.config.scale;
         const actualHeight = door.hauteur * this.config.scale;
         const frameWidth = actualWidth - (doorMargin * 2);
-        const frameHeight = actualHeight;
-        const frameDepth = this.config.wallDepth;
-        // Réduction de l'épaisseur du cadre
-        const frameThickness = 0.015; // 15mm d'épaisseur
-
+        const frameThickness = 0.015;
         const frame = new BABYLON.TransformNode("doorFrame", scene);
 
-        // Créer les montants du cadre avec des dimensions ajustées
         const parts = [
-            // Montant horizontal supérieur
             {
-                dimensions: { width: frameWidth + frameThickness * 2, height: frameThickness, depth: frameDepth },
-                position: new BABYLON.Vector3(0, frameHeight / 2 - frameThickness / 2, 0)
+                dimensions: {
+                    width: frameWidth + frameThickness * 2,
+                    height: frameThickness,
+                    depth: this.config.wallDepth
+                },
+                position: new BABYLON.Vector3(0, actualHeight / 2 - frameThickness / 2, 0)
             },
-            // Montant vertical gauche
             {
-                dimensions: { width: frameThickness, height: frameHeight, depth: frameDepth },
+                dimensions: {
+                    width: frameThickness,
+                    height: actualHeight,
+                    depth: this.config.wallDepth
+                },
                 position: new BABYLON.Vector3(-frameWidth / 2 - frameThickness / 2, 0, 0)
             },
-            // Montant vertical droit
             {
-                dimensions: { width: frameThickness, height: frameHeight, depth: frameDepth },
+                dimensions: {
+                    width: frameThickness,
+                    height: actualHeight,
+                    depth: this.config.wallDepth
+                },
                 position: new BABYLON.Vector3(frameWidth / 2 + frameThickness / 2, 0, 0)
             }
         ];
 
+        const frameMaterial = new BABYLON.StandardMaterial("doorFrameMaterial", scene);
+        frameMaterial.diffuseColor = new BABYLON.Color3(0.4, 0.2, 0.1);
+
         parts.forEach((part, index) => {
             const mesh = BABYLON.MeshBuilder.CreateBox("doorFramePart" + index, part.dimensions, scene);
             mesh.position = part.position;
-
-            const material = new BABYLON.StandardMaterial("doorFrameMaterial" + index, scene);
-            material.diffuseColor = new BABYLON.Color3(0.4, 0.2, 0.1);
-            material.metallic = 0.1;
-            material.roughness = 0.8;
-
-            mesh.material = material;
+            mesh.material = frameMaterial;
             mesh.parent = frame;
         });
 
-        // Ajouter la porte elle-même avec des dimensions très précises
         const door_panel = BABYLON.MeshBuilder.CreateBox("doorPanel", {
             width: frameWidth,
-            height: frameHeight - frameThickness * 2,
+            height: actualHeight - frameThickness * 2,
             depth: frameThickness
         }, scene);
 
-        const doorMaterial = new BABYLON.StandardMaterial("doorMaterial", scene);
-        doorMaterial.diffuseColor = new BABYLON.Color3(0.6, 0.4, 0.2);
-        doorMaterial.metallic = 0.1;
-        doorMaterial.roughness = 0.7;
-
-        door_panel.material = doorMaterial;
+        door_panel.material = frameMaterial;
         door_panel.parent = frame;
-        door_panel.position.z = frameDepth / 4;
+        door_panel.position.z = this.config.wallDepth / 4;
 
-        // Positionner le cadre complet avec un ajustement plus précis
         frame.position = new BABYLON.Vector3(
             -wallWidth / 2 + door.positionX * this.config.scale + actualWidth / 2,
             wallHeight / 2 - door.positionY * this.config.scale - actualHeight / 2,
@@ -242,56 +219,54 @@ var babylonInterop = {
     createWindowFrame: function (scene, window, wallWidth, wallHeight) {
         const frameWidth = window.largeur * this.config.scale;
         const frameHeight = window.hauteur * this.config.scale;
-        const frameDepth = this.config.wallDepth;
         const frameThickness = 0.02;
-
         const frame = new BABYLON.TransformNode("windowFrame", scene);
 
-        // Créer les montants du cadre
         const parts = [
-            // Montant horizontal supérieur
             {
-                dimensions: { width: frameWidth, height: frameThickness, depth: frameDepth },
+                dimensions: {
+                    width: frameWidth,
+                    height: frameThickness,
+                    depth: this.config.wallDepth
+                },
                 position: new BABYLON.Vector3(0, frameHeight / 2, 0)
             },
-            // Montant horizontal inférieur
             {
-                dimensions: { width: frameWidth, height: frameThickness, depth: frameDepth },
+                dimensions: {
+                    width: frameWidth,
+                    height: frameThickness,
+                    depth: this.config.wallDepth
+                },
                 position: new BABYLON.Vector3(0, -frameHeight / 2, 0)
             },
-            // Montant vertical gauche
             {
-                dimensions: { width: frameThickness, height: frameHeight, depth: frameDepth },
+                dimensions: {
+                    width: frameThickness,
+                    height: frameHeight,
+                    depth: this.config.wallDepth
+                },
                 position: new BABYLON.Vector3(-frameWidth / 2, 0, 0)
             },
-            // Montant vertical droit
             {
-                dimensions: { width: frameThickness, height: frameHeight, depth: frameDepth },
+                dimensions: {
+                    width: frameThickness,
+                    height: frameHeight,
+                    depth: this.config.wallDepth
+                },
                 position: new BABYLON.Vector3(frameWidth / 2, 0, 0)
             }
         ];
 
+        const frameMaterial = new BABYLON.StandardMaterial("frameMaterial", scene);
+        frameMaterial.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+
         parts.forEach((part, index) => {
             const mesh = BABYLON.MeshBuilder.CreateBox("framePart" + index, part.dimensions, scene);
             mesh.position = part.position;
-
-            const material = new BABYLON.StandardMaterial("frameMaterial" + index, scene);
-            material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-            material.metallic = 0.3;
-            material.roughness = 0.4;
-
-            mesh.material = material;
+            mesh.material = frameMaterial;
             mesh.parent = frame;
         });
 
-        // Positionner le cadre complet
-        frame.position = new BABYLON.Vector3(
-            -wallWidth / 2 + window.positionX * this.config.scale + frameWidth / 2,
-            wallHeight / 2 - window.positionY * this.config.scale - frameHeight / 2,
-            0
-        );
-
-        // Ajouter la vitre semi-transparente
         const glass = BABYLON.MeshBuilder.CreatePlane("windowGlass", {
             width: frameWidth - frameThickness * 2,
             height: frameHeight - frameThickness * 2
@@ -300,10 +275,14 @@ var babylonInterop = {
         const glassMaterial = new BABYLON.StandardMaterial("glassMaterial", scene);
         glassMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
         glassMaterial.alpha = 0.3;
-        glassMaterial.backFaceCulling = false;
-
         glass.material = glassMaterial;
         glass.parent = frame;
+
+        frame.position = new BABYLON.Vector3(
+            -wallWidth / 2 + window.positionX * this.config.scale + frameWidth / 2,
+            wallHeight / 2 - window.positionY * this.config.scale - frameHeight / 2,
+            0
+        );
 
         return frame;
     },
@@ -750,7 +729,7 @@ var babylonInterop = {
 
         const engine = new BABYLON.Engine(canvas, true);
         const scene = new BABYLON.Scene(engine);
-        scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9);
+        scene.clearColor = new BABYLON.Color3(0.3, 0.3, 0.9);
 
         let maxBuildingWidth = 0;
         let totalWidth = 0;
@@ -807,5 +786,4 @@ var babylonInterop = {
     }
 };
 
-// Exposition de l'objet babylonInterop dans la fenêtre globale
 window.babylonInterop = babylonInterop;

@@ -1,4 +1,20 @@
-﻿var babylonInterop = {
+﻿
+const createUnifiedMaterial = function (scene, name, isOutside = false) {
+    const material = new BABYLON.StandardMaterial(name, scene);
+    material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+    material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+    material.ambientColor = new BABYLON.Color3(1, 1, 1);
+    material.roughness = 0.8;
+    material.backFaceCulling = true;
+    material.alpha = isOutside ? 0.3 : 1;
+    if (isOutside) {
+        material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+    }
+    return material;
+};
+
+
+var babylonInterop = {
     config: {
         scale: 0.01,
         wallDepth: 0.10,
@@ -7,6 +23,32 @@
         buildingSpacing: 0.10, 
         roomSpacing: 0.0035,
         buildingWallThickness: 0.3
+    },
+    sharedMaterials: {
+        inside: null,
+        outside: null
+    },
+
+    initSharedMaterials: function (scene) {
+        if (!this.sharedMaterials.inside) {
+            this.sharedMaterials.inside = new BABYLON.StandardMaterial("sharedInside", scene);
+            this.sharedMaterials.inside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+            this.sharedMaterials.inside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            this.sharedMaterials.inside.ambientColor = new BABYLON.Color3(1, 1, 1);
+            this.sharedMaterials.inside.roughness = 0.8;
+            this.sharedMaterials.inside.backFaceCulling = true;
+        }
+
+        if (!this.sharedMaterials.outside) {
+            this.sharedMaterials.outside = new BABYLON.StandardMaterial("sharedOutside", scene);
+            this.sharedMaterials.outside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+            this.sharedMaterials.outside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            this.sharedMaterials.outside.ambientColor = new BABYLON.Color3(1, 1, 1);
+            this.sharedMaterials.outside.roughness = 0.8;
+            this.sharedMaterials.outside.backFaceCulling = true;
+            this.sharedMaterials.outside.alpha = 0.3;
+            this.sharedMaterials.outside.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+        }
     },
 
     createWallWithHoles: function (scene, wallData) {
@@ -94,38 +136,22 @@
 
         const wallContainer = new BABYLON.TransformNode("wallContainer", scene);
 
-    wallSections.forEach(section => {
-        if (section instanceof BABYLON.TransformNode) {
+        wallSections.forEach(section => {
+            if (section instanceof BABYLON.TransformNode) {
+                section.parent = wallContainer;
+                return;
+            }
+
+            const sectionOutside = section.clone("outside" + section.name);
+
+            section.material = this.sharedMaterials.inside;
+            sectionOutside.material = this.sharedMaterials.outside;
+
+            sectionOutside.scaling.z = -1;
+
             section.parent = wallContainer;
-            return;
-        }
-
-        const sectionOutside = section.clone("outside" + section.name);
-
-        const materialInside = new BABYLON.StandardMaterial(name + "MaterialInside", scene);
-        materialInside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-        materialInside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-        materialInside.ambientColor = new BABYLON.Color3(1, 1, 1);
-        materialInside.roughness = 0.8;
-        materialInside.backFaceCulling = true;
-        materialInside.alpha = 1;
-
-        const materialOutside = new BABYLON.StandardMaterial(name + "MaterialOutside", scene);
-        materialOutside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-        materialOutside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-        materialOutside.ambientColor = new BABYLON.Color3(1, 1, 1);
-        materialOutside.roughness = 0.8;
-        materialOutside.backFaceCulling = true;
-        materialOutside.alpha = 0.3;
-        materialOutside.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
-
-        section.material = materialInside;
-        sectionOutside.material = materialOutside;
-        sectionOutside.scaling.z = -1;
-
-        section.parent = wallContainer;
-        sectionOutside.parent = wallContainer;
-    });
+            sectionOutside.parent = wallContainer;
+        });
 
 
         // Ajouter les autres équipements
@@ -513,45 +539,30 @@
     },
 
     createCorner: function (scene, height, position, name) {
-    const cornerContainer = new BABYLON.TransformNode(name, scene);
+        this.initSharedMaterials(scene);
+        const cornerContainer = new BABYLON.TransformNode(name, scene);
 
-    const corner = BABYLON.MeshBuilder.CreateBox(name + "Inside", {
-        width: this.config.wallDepth,
-        height: height,
-        depth: this.config.wallDepth
-    }, scene);
+        const corner = BABYLON.MeshBuilder.CreateBox(name + "Inside", {
+            width: this.config.wallDepth,
+            height: height,
+            depth: this.config.wallDepth
+        }, scene);
 
-    const cornerOutside = corner.clone(name + "Outside");
+        const cornerOutside = corner.clone(name + "Outside");
 
-    const materialInside = new BABYLON.StandardMaterial(name + "MaterialInside", scene);
-    materialInside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7); // Gris clair uniforme
-    materialInside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-    materialInside.ambientColor = new BABYLON.Color3(1, 1, 1); // Ajout d'une couleur ambiante
-    materialInside.roughness = 0.8;
-    materialInside.backFaceCulling = true;
-    materialInside.alpha = 1;
+        corner.material = this.sharedMaterials.inside;
+        cornerOutside.material = this.sharedMaterials.outside;
 
-    const materialOutside = new BABYLON.StandardMaterial(name + "MaterialOutside", scene);
-    materialOutside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-    materialOutside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-    materialOutside.ambientColor = new BABYLON.Color3(1, 1, 1);
-    materialOutside.roughness = 0.8;
-    materialOutside.backFaceCulling = true;
-    materialOutside.alpha = 0.3;
-    materialOutside.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+        cornerOutside.scaling = new BABYLON.Vector3(-1, 1, -1);
 
-    corner.material = materialInside;
-    cornerOutside.material = materialOutside;
-    cornerOutside.scaling = new BABYLON.Vector3(-1, 1, -1);
+        corner.position = position;
+        cornerOutside.position = position;
 
-    corner.position = position;
-    cornerOutside.position = position;
+        corner.parent = cornerContainer;
+        cornerOutside.parent = cornerContainer;
 
-    corner.parent = cornerContainer;
-    cornerOutside.parent = cornerContainer;
-
-    return cornerContainer;
-},
+        return cornerContainer;
+    },
 
     createWallWithEdges: function (scene, wallData, position, rotation, name, addEdges = false) {
         // Suppression du paramètre addEdges dans l'appel à createWallWithHoles

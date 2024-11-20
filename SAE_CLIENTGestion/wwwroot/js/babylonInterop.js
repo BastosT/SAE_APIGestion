@@ -1,7 +1,7 @@
 ﻿
 const createUnifiedMaterial = function (scene, name, isOutside = false) {
     const material = new BABYLON.StandardMaterial(name, scene);
-    material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+    material.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
     material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
     material.ambientColor = new BABYLON.Color3(1, 1, 1);
     material.roughness = 0.8;
@@ -12,6 +12,7 @@ const createUnifiedMaterial = function (scene, name, isOutside = false) {
     }
     return material;
 };
+
 
 
 var babylonInterop = {
@@ -32,7 +33,7 @@ var babylonInterop = {
     initSharedMaterials: function (scene) {
         if (!this.sharedMaterials.inside) {
             this.sharedMaterials.inside = new BABYLON.StandardMaterial("sharedInside", scene);
-            this.sharedMaterials.inside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+            this.sharedMaterials.inside.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
             this.sharedMaterials.inside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
             this.sharedMaterials.inside.ambientColor = new BABYLON.Color3(1, 1, 1);
             this.sharedMaterials.inside.roughness = 0.8;
@@ -41,7 +42,7 @@ var babylonInterop = {
 
         if (!this.sharedMaterials.outside) {
             this.sharedMaterials.outside = new BABYLON.StandardMaterial("sharedOutside", scene);
-            this.sharedMaterials.outside.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+            this.sharedMaterials.outside.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
             this.sharedMaterials.outside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
             this.sharedMaterials.outside.ambientColor = new BABYLON.Color3(1, 1, 1);
             this.sharedMaterials.outside.roughness = 0.8;
@@ -550,8 +551,10 @@ var babylonInterop = {
 
         const cornerOutside = corner.clone(name + "Outside");
 
-        corner.material = this.sharedMaterials.inside;
-        cornerOutside.material = this.sharedMaterials.outside;
+        const cornerMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
+        cornerMaterial.diffuseColor = new BABYLON.Color3(0.725, 0.608, 0.486); // Darker beige for corners
+        corner.material = cornerMaterial;
+        cornerOutside.material = cornerMaterial;
 
         cornerOutside.scaling = new BABYLON.Vector3(-1, 1, -1);
 

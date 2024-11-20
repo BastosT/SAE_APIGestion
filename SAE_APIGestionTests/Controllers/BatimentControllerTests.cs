@@ -15,7 +15,6 @@ namespace SAE_APIGestion.Controllers.Tests
     public class BatimentControllerTests
     {
 
-        private BatimentController controller;
         private GlobalDBContext ctx;
         private IDataRepository<Batiment> dataRepository;
         private Batiment _batiment;
@@ -106,11 +105,6 @@ namespace SAE_APIGestion.Controllers.Tests
             Assert.AreEqual(_batiment, actionResult.Value as Batiment);
         }
 
-        [TestMethod()]
-        public void GetBatimentTest()
-        {
-            Assert.Fail();
-        }
 
         [TestMethod()]
         public void PutBatimentTest_moq()

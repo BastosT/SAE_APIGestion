@@ -1,16 +1,62 @@
-﻿var babylonInterop = {
+﻿
+const createUnifiedMaterial = function (scene, name, isOutside = false) {
+    const material = new BABYLON.StandardMaterial(name, scene);
+    material.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
+    material.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+    material.ambientColor = new BABYLON.Color3(1, 1, 1);
+    material.roughness = 0.8;
+    material.backFaceCulling = true;
+    material.alpha = isOutside ? 0.3 : 1;
+    if (isOutside) {
+        material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+    }
+    return material;
+};
+
+
+
+var babylonInterop = {
     config: {
         scale: 0.01,
-        wallDepth: 0.15,
+        wallDepth: 0.10,
         equipmentDepth: 0.1,
-        floorHeight: 0.1
+        floorHeight: 0.1,
+        buildingSpacing: 0.10, 
+        roomSpacing: 0.0035,
+        buildingWallThickness: 0.3
+    },
+    sharedMaterials: {
+        inside: null,
+        outside: null
     },
 
-    createWallWithHoles: function (scene, wallData, addEdges = false) {
+    initSharedMaterials: function (scene) {
+        if (!this.sharedMaterials.inside) {
+            this.sharedMaterials.inside = new BABYLON.StandardMaterial("sharedInside", scene);
+            this.sharedMaterials.inside.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
+            this.sharedMaterials.inside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            this.sharedMaterials.inside.ambientColor = new BABYLON.Color3(1, 1, 1);
+            this.sharedMaterials.inside.roughness = 0.8;
+            this.sharedMaterials.inside.backFaceCulling = true;
+        }
+
+        if (!this.sharedMaterials.outside) {
+            this.sharedMaterials.outside = new BABYLON.StandardMaterial("sharedOutside", scene);
+            this.sharedMaterials.outside.diffuseColor = new BABYLON.Color3(0.847, 0.725, 0.596); // Beige
+            this.sharedMaterials.outside.specularColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            this.sharedMaterials.outside.ambientColor = new BABYLON.Color3(1, 1, 1);
+            this.sharedMaterials.outside.roughness = 0.8;
+            this.sharedMaterials.outside.backFaceCulling = true;
+            this.sharedMaterials.outside.alpha = 0.3;
+            this.sharedMaterials.outside.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
+        }
+    },
+
+    createWallWithHoles: function (scene, wallData) {
         const width = wallData.largeur * this.config.scale;
         const height = wallData.hauteur * this.config.scale;
         const depth = this.config.wallDepth;
-        const doorMargin = 0.1; // Même marge que dans createDoorFrame
+        const doorMargin = 0.1;
 
         let wallSections = [];
         let currentX = 0;
@@ -19,9 +65,7 @@
 
         openings = openings.map(opening => ({
             ...opening,
-            // Augmenter la largeur de l'ouverture pour les portes
             largeur: opening.type === 2 ? opening.largeur + (doorMargin * 4 / this.config.scale) : opening.largeur,
-            // Ajuster la position pour centrer
             positionX: opening.type === 2 ? opening.positionX - (doorMargin * 2 / this.config.scale) : opening.positionX,
         }));
 
@@ -65,7 +109,7 @@
                     wallSections.push(topSection);
                 }
 
-                // Si c'est une fenêtre ou une porte-fenêtre, ajouter la section du bas
+                // Si c'est une fenêtre, ajouter la section du bas
                 if (openings[i].type !== 2) {
                     const bottomHeight = height - openingY - openingHeight;
                     if (bottomHeight > 0) {
@@ -101,24 +145,15 @@
 
             const sectionOutside = section.clone("outside" + section.name);
 
-            const materialInside = new BABYLON.StandardMaterial(section.name + "MaterialInside", scene);
-            materialInside.diffuseColor = new BABYLON.Color3(0.95, 0.95, 0.95);
-            materialInside.roughness = 0.8;
-            materialInside.backFaceCulling = true;
+            section.material = this.sharedMaterials.inside;
+            sectionOutside.material = this.sharedMaterials.outside;
 
-            const materialOutside = new BABYLON.StandardMaterial(section.name + "MaterialOutside", scene);
-            materialOutside.diffuseColor = new BABYLON.Color3(0.95, 0.95, 0.95);
-            materialOutside.alpha = 0.3;
-            materialOutside.roughness = 0.8;
-            materialOutside.backFaceCulling = true;
-
-            section.material = materialInside;
-            sectionOutside.material = materialOutside;
             sectionOutside.scaling.z = -1;
 
             section.parent = wallContainer;
             sectionOutside.parent = wallContainer;
         });
+
 
         // Ajouter les autres équipements
         if (otherEquipments.length > 0) {
@@ -505,109 +540,260 @@
     },
 
     createCorner: function (scene, height, position, name) {
-        const corner = BABYLON.MeshBuilder.CreateBox(name, {
+        this.initSharedMaterials(scene);
+        const cornerContainer = new BABYLON.TransformNode(name, scene);
+
+        const corner = BABYLON.MeshBuilder.CreateBox(name + "Inside", {
             width: this.config.wallDepth,
             height: height,
             depth: this.config.wallDepth
         }, scene);
 
-        corner.position = position;
-
-        const cornerMaterialInside = new BABYLON.StandardMaterial(name + "MaterialInside", scene);
-        cornerMaterialInside.diffuseColor = new BABYLON.Color3(0.95, 0.95, 0.95);
-        cornerMaterialInside.roughness = 0.8;
-        cornerMaterialInside.backFaceCulling = true;
-
-        const cornerMaterialOutside = new BABYLON.StandardMaterial(name + "MaterialOutside", scene);
-        cornerMaterialOutside.diffuseColor = new BABYLON.Color3(0.95, 0.95, 0.95);
-        cornerMaterialOutside.alpha = 0.3;
-        cornerMaterialOutside.roughness = 0.8;
-        cornerMaterialOutside.backFaceCulling = true;
-
         const cornerOutside = corner.clone(name + "Outside");
-        corner.material = cornerMaterialInside;
-        cornerOutside.material = cornerMaterialOutside;
+
+        const cornerMaterial = new BABYLON.StandardMaterial(name + "Material", scene);
+        cornerMaterial.diffuseColor = new BABYLON.Color3(0.725, 0.608, 0.486); // Darker beige for corners
+        corner.material = cornerMaterial;
+        cornerOutside.material = cornerMaterial;
+
         cornerOutside.scaling = new BABYLON.Vector3(-1, 1, -1);
 
-        return corner;
+        corner.position = position;
+        cornerOutside.position = position;
+
+        corner.parent = cornerContainer;
+        cornerOutside.parent = cornerContainer;
+
+        return cornerContainer;
     },
 
     createWallWithEdges: function (scene, wallData, position, rotation, name, addEdges = false) {
-        const wallContainer = this.createWallWithHoles(scene, wallData, addEdges);
+        // Suppression du paramètre addEdges dans l'appel à createWallWithHoles
+        const wallContainer = this.createWallWithHoles(scene, wallData, false);
         wallContainer.position = position;
         wallContainer.rotation = rotation;
         return wallContainer;
     },
 
-    initializeScene: function (canvasId, roomDataJson) {
+    calculateBuildingWidth: function (building) {
+        let totalWidth = 0;
+        building.rooms.forEach(room => {
+            totalWidth += room.walls.frontWall.largeur * this.config.scale;
+        });
+        totalWidth += (building.rooms.length - 1) * (this.config.roomSpacing / this.config.scale);
+        return totalWidth;
+    },
+
+    createRoom: function (scene, roomData, parent) {
+        const roomContainer = new BABYLON.TransformNode("room_" + roomData.name, scene);
+        roomContainer.parent = parent;
+
+        const frontWidth = roomData.walls.frontWall.largeur * this.config.scale;
+        const sideWidth = roomData.walls.leftWall.largeur * this.config.scale;
+        const height = roomData.walls.frontWall.hauteur * this.config.scale;
+        const wallDepthOffset = this.config.wallDepth / 2;
+
+        // Create floor
+        this.createFloor(scene,
+            frontWidth,
+            sideWidth,
+            new BABYLON.Vector3(0, 0, 0),
+            roomData.walls.frontWall.hauteur
+        ).parent = roomContainer;
+
+        // Create walls - notez la suppression du paramètre addEdges
+        const frontWall = this.createWallWithEdges(scene, roomData.walls.frontWall,
+            new BABYLON.Vector3(0, 0, sideWidth / 2 + wallDepthOffset),
+            new BABYLON.Vector3(0, 0, 0),
+            "frontWall"
+        );
+        frontWall.parent = roomContainer;
+
+        const entranceWall = this.createWallWithEdges(scene, roomData.walls.entranceWall,
+            new BABYLON.Vector3(0, 0, -sideWidth / 2 - wallDepthOffset),
+            new BABYLON.Vector3(0, Math.PI, 0),
+            "entranceWall"
+        );
+        entranceWall.parent = roomContainer;
+
+        const leftWall = this.createWallWithEdges(scene, roomData.walls.leftWall,
+            new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, 0),
+            new BABYLON.Vector3(0, -Math.PI / 2, 0),
+            "leftWall"
+        );
+        leftWall.parent = roomContainer;
+
+        const rightWall = this.createWallWithEdges(scene, roomData.walls.rightWall,
+            new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, 0),
+            new BABYLON.Vector3(0, Math.PI / 2, 0),
+            "rightWall"
+        );
+        rightWall.parent = roomContainer;
+
+        // Create corners
+        const corners = [
+            // Front-Left corner
+            this.createCorner(scene,
+                height,
+                new BABYLON.Vector3(
+                    -frontWidth / 2 - wallDepthOffset,
+                    0,
+                    sideWidth / 2 + wallDepthOffset
+                ),
+                "cornerFrontLeft"
+            ),
+            // Front-Right corner
+            this.createCorner(scene,
+                height,
+                new BABYLON.Vector3(
+                    frontWidth / 2 + wallDepthOffset,
+                    0,
+                    sideWidth / 2 + wallDepthOffset
+                ),
+                "cornerFrontRight"
+            ),
+            // Back-Left corner
+            this.createCorner(scene,
+                height,
+                new BABYLON.Vector3(
+                    -frontWidth / 2 - wallDepthOffset,
+                    0,
+                    -sideWidth / 2 - wallDepthOffset
+                ),
+                "cornerBackLeft"
+            ),
+            // Back-Right corner
+            this.createCorner(scene,
+                height,
+                new BABYLON.Vector3(
+                    frontWidth / 2 + wallDepthOffset,
+                    0,
+                    -sideWidth / 2 - wallDepthOffset
+                ),
+                "cornerBackRight"
+            )
+        ];
+
+        corners.forEach(corner => corner.parent = roomContainer);
+
+        return roomContainer;
+    },
+
+    createBuilding: function (scene, buildingData, position) {
+        const buildingContainer = new BABYLON.TransformNode("building_" + buildingData.name, scene);
+        buildingContainer.position = position;
+
+        // Calculer les dimensions totales du bâtiment
+        let totalWidth = 0;
+        let maxDepth = 0;
+        buildingData.rooms.forEach(room => {
+            totalWidth += room.walls.frontWall.largeur * this.config.scale;
+            maxDepth = Math.max(maxDepth, room.walls.leftWall.largeur * this.config.scale);
+        });
+        totalWidth += (buildingData.rooms.length - 1) * this.config.roomSpacing;
+
+        // Créer les murs du bâtiment
+        const buildingWalls = {
+            front: BABYLON.MeshBuilder.CreateBox("buildingFrontWall", {
+                width: totalWidth + this.config.buildingWallThickness,
+                height: buildingData.rooms[0].walls.frontWall.hauteur * this.config.scale,
+                depth: this.config.buildingWallThickness
+            }, scene),
+            back: BABYLON.MeshBuilder.CreateBox("buildingBackWall", {
+                width: totalWidth + this.config.buildingWallThickness,
+                height: buildingData.rooms[0].walls.frontWall.hauteur * this.config.scale,
+                depth: this.config.buildingWallThickness
+            }, scene),
+            left: BABYLON.MeshBuilder.CreateBox("buildingLeftWall", {
+                width: this.config.buildingWallThickness,
+                height: buildingData.rooms[0].walls.frontWall.hauteur * this.config.scale,
+                depth: maxDepth + this.config.buildingWallThickness
+            }, scene),
+            right: BABYLON.MeshBuilder.CreateBox("buildingRightWall", {
+                width: this.config.buildingWallThickness,
+                height: buildingData.rooms[0].walls.frontWall.hauteur * this.config.scale,
+                depth: maxDepth + this.config.buildingWallThickness
+            }, scene)
+        };
+
+        // Positionner les murs du bâtiment
+        buildingWalls.front.position = new BABYLON.Vector3(0, 0, maxDepth / 2 + this.config.buildingWallThickness / 2);
+        buildingWalls.back.position = new BABYLON.Vector3(0, 0, -maxDepth / 2 - this.config.buildingWallThickness / 2);
+        buildingWalls.left.position = new BABYLON.Vector3(-totalWidth / 2 - this.config.buildingWallThickness / 2, 0, 0);
+        buildingWalls.right.position = new BABYLON.Vector3(totalWidth / 2 + this.config.buildingWallThickness / 2, 0, 0);
+
+        // Matériau pour les murs du bâtiment
+        const buildingWallMaterial = new BABYLON.StandardMaterial("buildingWallMaterial", scene);
+        buildingWallMaterial.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+        buildingWallMaterial.alpha = 0.3;
+
+        Object.values(buildingWalls).forEach(wall => {
+            wall.material = buildingWallMaterial;
+            wall.parent = buildingContainer;
+        });
+
+        // Créer les salles
+        let roomX = -totalWidth / 2;
+        buildingData.rooms.forEach(room => {
+            const roomContainer = this.createRoom(scene, room, buildingContainer);
+            roomContainer.position.x = roomX;
+            roomX += room.walls.frontWall.largeur * this.config.scale + this.config.roomSpacing;
+        });
+
+        return buildingContainer;
+    },
+
+    initializeScene: function (canvasId, buildingsDataJson) {
         const canvas = document.getElementById(canvasId);
         if (!canvas) throw new Error('Canvas not found');
-        const roomData = typeof roomDataJson === 'string' ? JSON.parse(roomDataJson) : roomDataJson;
+        const buildingsData = typeof buildingsDataJson === 'string' ? JSON.parse(buildingsDataJson) : buildingsDataJson;
 
         const engine = new BABYLON.Engine(canvas, true);
         const scene = new BABYLON.Scene(engine);
         scene.clearColor = new BABYLON.Color3(0.9, 0.9, 0.9);
 
-        const frontWidth = roomData.murFace.largeur * this.config.scale;
-        const sideWidth = roomData.murGauche.largeur * this.config.scale;
-        const height = roomData.murFace.hauteur * this.config.scale;
-        const wallDepthOffset = this.config.wallDepth / 2;
+        let maxBuildingWidth = 0;
+        let totalWidth = 0;
+        buildingsData.forEach(building => {
+            
+            const buildingWidth = this.calculateBuildingWidth(building);
+            maxBuildingWidth = Math.max(maxBuildingWidth, buildingWidth);
+            totalWidth += buildingWidth;
+        });
+        totalWidth += (buildingsData.length - 1) * (this.config.buildingSpacing / this.config.scale);
 
-        this.createFloor(scene,
-            roomData.murFace.largeur * this.config.scale,
-            roomData.murGauche.largeur * this.config.scale,
-            new BABYLON.Vector3(0, 0, 0),
-            roomData.murFace.hauteur
-        );
+        let currentX = -totalWidth / 2;
 
-        this.createWallWithEdges(scene, roomData.murFace,
-            new BABYLON.Vector3(0, 0, sideWidth / 2 + wallDepthOffset),
-            new BABYLON.Vector3(0, 0, 0),
-            "murFace",
-            true);
+        buildingsData.forEach(building => {
+            const buildingContainer = new BABYLON.TransformNode("building_" + building.name, scene);
+            buildingContainer.roomCount = building.rooms.length;
+            const buildingWidth = this.calculateBuildingWidth(building);
 
-        this.createWallWithEdges(scene, roomData.murEntree,
-            new BABYLON.Vector3(0, 0, -sideWidth / 2 - wallDepthOffset),
-            new BABYLON.Vector3(0, Math.PI, 0),
-            "murEntree",
-            true);
+            buildingContainer.position.x = currentX + (buildingWidth / 2);
 
-        this.createWallWithEdges(scene, roomData.murGauche,
-            new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, 0),
-            new BABYLON.Vector3(0, -Math.PI / 2, 0),
-            "murGauche");
+            let roomX = 0;
+            building.rooms.forEach((room, index) => {
+                room.index = index;
+                const roomContainer = this.createRoom(scene, room, buildingContainer);
+                roomContainer.position.x = roomX;
+                roomX += (room.walls.frontWall.largeur * this.config.scale) + (this.config.roomSpacing / this.config.scale);
+            });
 
-        this.createWallWithEdges(scene, roomData.murDroite,
-            new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, 0),
-            new BABYLON.Vector3(0, Math.PI / 2, 0),
-            "murDroite");
-        this.createCorner(scene, height,
-            new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, sideWidth / 2 + wallDepthOffset),
-            "cornerFrontLeft"
-        );
-        this.createCorner(scene, height,
-            new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, sideWidth / 2 + wallDepthOffset),
-            "cornerFrontRight"
-        );
-        this.createCorner(scene, height,
-            new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, -sideWidth / 2 - wallDepthOffset),
-            "cornerBackLeft"
-        );
-        this.createCorner(scene, height,
-            new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, -sideWidth / 2 - wallDepthOffset),
-            "cornerBackRight"
-        );
+            currentX += buildingWidth + (this.config.buildingSpacing / this.config.scale);
+        });
 
         const camera = new BABYLON.ArcRotateCamera("camera",
             Math.PI / 4,
             Math.PI / 3,
-            15,
+            totalWidth,
             BABYLON.Vector3.Zero(),
             scene
         );
         camera.attachControl(canvas, true);
-        camera.lowerRadiusLimit = 5;
-        camera.upperRadiusLimit = 30;
+        camera.lowerRadiusLimit = totalWidth / 32;
+        camera.upperRadiusLimit = totalWidth * 2;
+        camera.wheelPrecision = 35;
+        camera.pinchPrecision = 50;
 
         const light = new BABYLON.HemisphericLight("light",
             new BABYLON.Vector3(0, 1, 0),

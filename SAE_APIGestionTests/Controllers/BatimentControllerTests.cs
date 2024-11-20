@@ -8,14 +8,21 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Moq;
+using Npgsql;
+using System.Data;
+using System.Reflection.Metadata;
+using Microsoft.EntityFrameworkCore;
+using SAE_APIGestion.Models.DataManger;
+using SAE_APIGestionTests.Controllers;
 
 namespace SAE_APIGestion.Controllers.Tests
 {
     [TestClass()]
-    public class BatimentControllerTests
+    public class BatimentControllerTests : BaseTest
     {
 
-        private GlobalDBContext ctx;
+        //private GlobalDBContext ctx;
+        private BatimentController controller;
         private IDataRepository<Batiment> dataRepository;
         private Batiment _batiment;
         private Batiment _batimentUpdate;
@@ -88,6 +95,42 @@ namespace SAE_APIGestion.Controllers.Tests
 
             // Initialisation du contrôleur avec le mock
             _batimentController = new BatimentController(_mockRepository.Object);
+
+            // pour les test unitaire 
+            
+            // Appel à l'initialisation de la classe de base
+            base.BaseInitialize();
+            dataRepository = new BatimentManager(Context);
+            controller = new BatimentController(dataRepository);
+        }
+
+
+        [TestCleanup]
+        public void Teardown()
+        {
+            // Code pour nettoyer la base de données après chaque test
+            using (var connection = new NpgsqlConnection("Server=localhost;port=5432;database=sae_rasp;uid=postgres;password=postgres"))
+            {
+                connection.Open();
+                // chnager les id a delete quand les donnees seront ok 
+                using (var command = new NpgsqlCommand("DELETE FROM t_e_batiment_bat where bat_id = 3; DELETE FROM t_e_batiment_bat where bat_id = 4;", connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        [TestMethod()]
+        public void GetBatimentsTest()
+        {
+            var expectedList = Context.Batiments.ToList();
+
+            Task<ActionResult<IEnumerable<Batiment>>> listUser = controller.GetBatiments();
+            ActionResult<IEnumerable<Batiment>> resultat = listUser.Result;
+            List<Batiment> listBatiment = resultat.Value.ToList();
+
+
+            CollectionAssert.AreEqual(expectedList, listBatiment);
         }
 
 
@@ -106,6 +149,9 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
 
+
+
+
         [TestMethod()]
         public void PutBatimentTest_moq()
         {
@@ -121,6 +167,34 @@ namespace SAE_APIGestion.Controllers.Tests
             Assert.AreEqual("Batiment Test update", _batimentUpdate.Nom, "Le nom du batiment n'a pas été mis à jour");
             Assert.AreEqual("123 Rue Test update", _batimentUpdate.Adresse, "L'adresse du batiment n'a pas été mise à jour");
         }
+
+        [TestMethod()]
+        public void PostBatimentTest()
+        {
+            var batiment = new Batiment
+            {
+                BatimentId = 3,
+                Nom = "Batiment Test 3",
+                Adresse = "123 Rue Test 3",
+                Salles = new List<Salle>() 
+            };
+
+            // Act
+            var result = controller.PostBatiment(batiment).Result; // .Result pour appeler la méthode async de manière synchrone, afin d'attendre l’ajout
+
+            // Assert
+            var batRecupere = controller.GetBatiment(batiment.BatimentId).Result;
+
+            Batiment bat = batRecupere.Value;
+            // Comparer les propriétés
+            Assert.IsNotNull(bat, "Le bâtiment récupéré ne doit pas être null");
+            Assert.AreEqual(batiment.BatimentId, bat.BatimentId, "Les IDs doivent correspondre");
+            Assert.AreEqual(batiment.Nom, bat.Nom, "Les noms doivent correspondre");
+            Assert.AreEqual(batiment.Adresse, bat.Adresse, "Les adresses doivent correspondre");
+
+        }
+
+
 
         [TestMethod()]
         public void PostBatimentTest_Moq()

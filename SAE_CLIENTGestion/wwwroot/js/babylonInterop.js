@@ -8,10 +8,6 @@
         roomSpacing: 0.25,
         buildingWallThickness: 0.3
     },
-    sharedMaterials: {
-        inside: null,
-        outside: null
-    },
 
     initSharedMaterials: function (scene) {
         const baseProperties = {

@@ -25,7 +25,7 @@ public class BabylonJSService : IBabylonJSService
 
         Capteur capteurDroite1 = new Capteur { CapteurId = 1, Nom = "Capteur D1", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 15, Hauteur = 15, PositionX = 178, PositionY = 98 };
         Capteur capteurDroite2 = new Capteur { CapteurId = 2, Nom = "Capteur D2", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 10, Hauteur = 10, PositionX = 585, PositionY = 161 };
-        
+
         Capteur capteurGauche1 = new Capteur { CapteurId = 3, Nom = "Capteur D1", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 10, Hauteur = 10, PositionX = 316, PositionY = 70 };
         Capteur capteurGauche2 = new Capteur { CapteurId = 4, Nom = "Capteur D2", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 10, Hauteur = 10, PositionX = 662, PositionY = 156 };
 
@@ -35,8 +35,8 @@ public class BabylonJSService : IBabylonJSService
         TypeEquipement typeVitre = new TypeEquipement { TypeEquipementId = 3, Nom = "Vitre" };
         TypeEquipement typePorte = new TypeEquipement { TypeEquipementId = 4, Nom = "Porte" };
 
-        Equipement radiateur1 = new Equipement { EquipementId = 1, Nom = "Radiateur 1", Longueur = 100, Hauteur = 165, PositionX = 34, PositionY = 180, TypeEquipement = typeRadiateur };
-        Equipement radiateur2 = new Equipement { EquipementId = 2, Nom = "Radiateur 2", Longueur = 100, Hauteur = 165, PositionX = 256, PositionY = 180, TypeEquipement = typeRadiateur };
+        Equipement radiateur1 = new Equipement { EquipementId = 1, Nom = "Radiateur 1", Longueur = 100, Hauteur = 80, PositionX = 34, PositionY = 180, TypeEquipement = typeRadiateur };
+        Equipement radiateur2 = new Equipement { EquipementId = 2, Nom = "Radiateur 2", Longueur = 100, Hauteur = 80, PositionX = 256, PositionY = 180, TypeEquipement = typeRadiateur };
 
         Equipement fenetre1 = new Equipement { EquipementId = 3, Nom = "Fenetre 1", Longueur = 100, Hauteur = 165, PositionX = 6, PositionY = 3, TypeEquipement = typeFenetre };
         Equipement fenetre2 = new Equipement { EquipementId = 4, Nom = "Fenetre 2", Longueur = 100, Hauteur = 165, PositionX = 345, PositionY = 3, TypeEquipement = typeFenetre };
@@ -51,7 +51,6 @@ public class BabylonJSService : IBabylonJSService
         Salle d101 = new Salle
         {
             SalleId = 1,
-            BatimentId = 1,
             Nom = "D101",
             Surface = 10,
             TypeSalle = typeSalle,
@@ -61,15 +60,36 @@ public class BabylonJSService : IBabylonJSService
             MurGauche = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Gauche", Capteurs = [capteurGauche1, capteurGauche2] },
         };
 
+        Salle d102 = new Salle
+        {
+            SalleId = 2,
+            Nom = "D102",
+            Surface = 5,
+            TypeSalle = typeSalle,
+            MurFace = new Mur { Hauteur = 270, Longueur = 575, Nom = "Mur Face", },
+            MurEntree = new Mur { Hauteur = 270, Longueur = 575, Nom = "Mur Entree", },
+            MurDroite = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Droite", },
+            MurGauche = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Gauche", },
+        };
+
         var buildings = new List<Batiment>();
         Batiment b1 = new Batiment
         {
             BatimentId = 1,
             Nom = "Bat D",
             Adresse = "jsp",
-            Salles = [d101]
+            Salles = [d101, d102]
+        };
+
+        Batiment b2 = new Batiment
+        {
+            BatimentId = 1,
+            Nom = "Bat D",
+            Adresse = "jsp",
+            Salles = [d102, d102]
         };
         buildings.Add(b1);
+        buildings.Add(b2);
 
         return buildings;
     }

@@ -52,7 +52,7 @@ namespace SAE_APIGestion.Controllers.Tests
                     EquipementId = 1,
                     Nom = "Projecteur",
                     TypeEquipement = new TypeEquipement { TypeEquipementId = 1, Nom = "Électronique" },
-                    Largeur = 0.5,
+                    Hauteur = 0.5,
                     Hauteur = 0.5,
                     PositionX = 2.0,
                     PositionY = 1.0
@@ -84,7 +84,7 @@ namespace SAE_APIGestion.Controllers.Tests
                     EquipementId = 1,
                     Nom = "Projecteur",
                     TypeEquipement = new TypeEquipement { TypeEquipementId = 1, Nom = "Électronique" },
-                    Largeur = 0.5,
+                    Hauteur = 0.5,
                     Hauteur = 0.5,
                     PositionX = 2.0,
                     PositionY = 1.0

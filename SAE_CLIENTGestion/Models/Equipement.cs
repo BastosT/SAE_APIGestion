@@ -7,7 +7,7 @@ namespace SAE_CLIENTGestion.Models
     {
         public int EquipementId { get; set; }
         public string Nom { get; set; }
-        public double Largeur { get; set; }
+        public double Hauteur { get; set; }
         public double Longueur { get; set; }
         public double PositionX { get; set; }
         public double PositionY { get; set; }

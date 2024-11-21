@@ -17,8 +17,8 @@ namespace SAE_APIGestion.Models.EntityFramework
         [StringLength(100)]
         public string Nom { get; set; }
 
-        [Column("equ_largeur")]
-        public double Largeur { get; set; }
+        [Column("equ_hauteur")]
+        public double Hauteur { get; set; }
 
         [Column("equ_longueur")]
         public double Longueur { get; set; }

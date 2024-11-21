@@ -74,7 +74,7 @@ namespace SAE_APIGestion.Controllers.Tests
                                 TypeEquipementId = 1,
                                 Nom = "Type Equipement 1"
                             },
-                            Largeur = 1.5,
+                            Hauteur = 1.5,
                             Hauteur = 2,
                             PositionX = 0.5,
                             PositionY = 0.5

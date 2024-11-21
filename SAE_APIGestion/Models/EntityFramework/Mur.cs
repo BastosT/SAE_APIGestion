@@ -26,11 +26,15 @@ namespace SAE_APIGestion.Models.EntityFramework
         public double Hauteur { get; set; }
 
         [Required]
+        [Column("mur_type")]
+        public TypeMur Type {  get; set; } 
+
+        [Required]
         [Column("sal_id")]
         public int SalleId { get; set; }
 
         [ForeignKey("SalleId")]
-        [InverseProperty(nameof(Salle.Murs))]
+        [InverseProperty(nameof(Salle))]
         public Salle Salle { get; set; }
 
         [InverseProperty(nameof(Equipement.Mur))]
@@ -38,5 +42,12 @@ namespace SAE_APIGestion.Models.EntityFramework
 
         [InverseProperty(nameof(Capteur.Mur))]
         public List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+    }
+    public enum TypeMur
+    {
+        Face,
+        Entree,
+        Gauche,
+        Droite
     }
 }

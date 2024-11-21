@@ -19,9 +19,6 @@ namespace SAE_APIGestion.Models.DataManger
         {
             return globalDBContext.Salles
                 .Include(b => b.TypeSalle)
-                .Include(b => b.Equipements)
-                .Include(b => b.Capteurs)
-                .Include(b => b.Murs)
                 .Include(b => b.Batiment)
                 .ToList();
         }
@@ -30,9 +27,10 @@ namespace SAE_APIGestion.Models.DataManger
         {
             return globalDBContext.Salles
                 .Include(b => b.TypeSalle)
-                .Include(b => b.Equipements)
-                .Include(b => b.Capteurs)
-                .Include(b => b.Murs)
+                .Include(b => b.MurDroite)
+                .Include(b => b.MurGauche)
+                .Include(b => b.MurEntree)
+                .Include(b => b.MurFace)
                 .Include(b => b.Batiment)
                 .FirstOrDefault(p => p.SalleId == id);
         }

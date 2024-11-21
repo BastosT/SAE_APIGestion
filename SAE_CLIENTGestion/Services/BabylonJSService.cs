@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using SAE_CLIENTGestion.Models;
 using System.Text.Json;
 
 public interface IBabylonJSService
@@ -16,6 +17,29 @@ public class BabylonJSService : IBabylonJSService
     {
         _jsRuntime = jsRuntime;
         _buildings = InitializeDefaultBuilding();
+    }
+
+    private List<Building> InitializeDefaultBuildingDev()
+    {
+        Salle d101 = new Salle
+        {
+            SalleId = 1,
+            BatimentId = 1,
+            Nom = "D101",
+            Surface = 10,
+
+        };
+
+        var buildings = new List<Batiment>();
+        Batiment b1 = new Batiment
+        {
+            BatimentId = 1,
+            Nom = "Bat D",
+            Adresse = "jsp",
+            
+        };
+
+        return buildings;
     }
 
     private List<Building> InitializeDefaultBuilding()

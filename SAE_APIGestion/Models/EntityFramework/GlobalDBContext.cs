@@ -46,20 +46,6 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .WithMany(p => p.Salles)
                     .HasForeignKey(d => d.TypeSalleId);
 
-                entity.HasMany(s => s.Murs)
-                    .WithOne(m => m.Salle)
-                    .HasForeignKey(m => m.SalleId)
-                    .HasConstraintName("fk_salle_mur");
-
-                entity.HasMany(s => s.Equipements)
-                    .WithOne(e => e.Salle)
-                    .HasForeignKey(e => e.SalleId)
-                    .HasConstraintName("fk_salle_equipement");
-
-                entity.HasMany(s => s.Capteurs)
-                    .WithOne(c => c.Salle)
-                    .HasForeignKey(c => c.SalleId)
-                    .HasConstraintName("fk_salle_capteur");
             });
 
             modelBuilder.Entity<Mur>(entity =>
@@ -94,10 +80,6 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_equipement_mur");
 
-                entity.HasOne(e => e.Salle)
-                    .WithMany(s => s.Equipements)
-                    .HasForeignKey(e => e.SalleId)
-                    .HasConstraintName("fk_equipement_salle");
             });
 
             modelBuilder.Entity<Capteur>(entity =>
@@ -105,10 +87,6 @@ namespace SAE_APIGestion.Models.EntityFramework
                 entity.ToTable("t_e_capteur_cap");
                 entity.HasKey(e => e.CapteurId).HasName("pk_capteur");
 
-                entity.HasOne(c => c.Salle)
-                    .WithMany(s => s.Capteurs)
-                    .HasForeignKey(c => c.SalleId)
-                    .HasConstraintName("fk_capteur_salle");
 
                 entity.HasOne(c => c.Mur)
                     .WithMany(m => m.Capteurs)

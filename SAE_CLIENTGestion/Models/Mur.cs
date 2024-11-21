@@ -6,7 +6,6 @@ namespace SAE_CLIENTGestion.Models
 {
     public class Mur
     {
-
         public int MurId { get; set; }
         public string Nom { get; set; }    // Nord, Sud, Est, Ouest
         public double Longueur { get; set; }

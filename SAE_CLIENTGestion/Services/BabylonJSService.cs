@@ -21,13 +21,21 @@ public class BabylonJSService : IBabylonJSService
 
     private List<Building> InitializeDefaultBuildingDev()
     {
+        TypeSalle typeSalle = new TypeSalle { TypeSalleId = 1, Nom = "type salle", Description = "aucune" };
+        Capteur capteur1 = new Capteur { CapteurId = 1, DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true,  };
+        Capteur capteur2 = new Capteur { CapteurId = 1, DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true };
+
         Salle d101 = new Salle
         {
             SalleId = 1,
             BatimentId = 1,
             Nom = "D101",
             Surface = 10,
-
+            TypeSalle = typeSalle,
+            MurFaceId = 1,
+            MurEntreeId = 2,
+            MurDroiteId = 3,
+            MurGaucheId = 4,
         };
 
         var buildings = new List<Batiment>();
@@ -39,7 +47,7 @@ public class BabylonJSService : IBabylonJSService
             
         };
 
-        return buildings;
+        return null;
     }
 
     private List<Building> InitializeDefaultBuilding()

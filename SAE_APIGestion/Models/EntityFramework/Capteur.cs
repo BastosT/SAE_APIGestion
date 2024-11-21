@@ -23,7 +23,15 @@ namespace SAE_APIGestion.Models.EntityFramework
        
         [Column("cap_distancefenetre")]
         public double? DistanceFenetre { get; set; }
-        
+
+        [Required]
+        [Column("cap_longueur")]
+        public double? Longeur { get; set; }
+
+        [Required]
+        [Column("cap_largeur")]
+        public double? Largeur { get; set; }
+
         [Column("cap_distanceporte")]
         public double? DistancePorte { get; set; }
         

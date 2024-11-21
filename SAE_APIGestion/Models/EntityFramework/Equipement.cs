@@ -17,18 +17,11 @@ namespace SAE_APIGestion.Models.EntityFramework
         [StringLength(100)]
         public string Nom { get; set; }
 
-        [Required]
-        [Column("tye_id")]
-        public int TypeEquipementId { get; set; }
-
-        [ForeignKey("TypeEquipementId")]
-        public virtual TypeEquipement TypeEquipement { get; set; }
-
         [Column("equ_largeur")]
         public double Largeur { get; set; }
 
-        [Column("equ_hauteur")]
-        public double Hauteur { get; set; }
+        [Column("equ_longueur")]
+        public double Longueur { get; set; }
 
         [Column("equ_positionx")]
         public double PositionX { get; set; }
@@ -36,6 +29,16 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("equ_positiony")]
         public double PositionY { get; set; }
 
+
+
+        [Required]
+        [Column("tye_id")]
+        public int TypeEquipementId { get; set; }
+
+        [ForeignKey("TypeEquipementId")]
+        public virtual TypeEquipement TypeEquipement { get; set; }
+
+        
         [Column("mur_id")]
         public int? MurId { get; set; }
 

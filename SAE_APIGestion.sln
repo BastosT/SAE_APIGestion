@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAE_APIGestion", "SAE_APIGe
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAE_CLIENTGestion", "SAE_CLIENTGestion\SAE_CLIENTGestion.csproj", "{D6ACEA2F-307F-4C45-8EBF-092414DC75DB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SAE_APIGestionTests", "SAE_APIGestionTests\SAE_APIGestionTests.csproj", "{C887A275-C207-45B5-82E0-A33EAD2B07B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SAE_APIGestionTests", "SAE_APIGestionTests\SAE_APIGestionTests.csproj", "{C887A275-C207-45B5-82E0-A33EAD2B07B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

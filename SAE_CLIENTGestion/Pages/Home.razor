@@ -6,6 +6,23 @@
     <canvas id="renderCanvas"></canvas>
 </div>
 
+<style>
+    .babylon-container {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+
+    #renderCanvas {
+        width: 100%;
+        height: 100%;
+        touch-action: none;
+        display: block;
+    }
+</style>
+
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -14,27 +31,12 @@
             try
             {
                 await BabylonService.InitializeSceneAsync("renderCanvas");
-
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error initializing scene: {ex.Message}");
-                // Optionnel : Log dans la console du navigateur
                 await JS.InvokeVoidAsync("console.log", "Error:", ex.Message);
             }
         }
     }
 }
-
-<style>
-    .babylon-container {
-        width: 100%;
-        height: 100vh;
-    }
-
-    #renderCanvas {
-        width: 100%;
-        height: 100%;
-        touch-action: none;
-    }
-</style>

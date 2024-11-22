@@ -472,6 +472,7 @@
             const sensorHeight = 0.08;
             const sensorDepth = 0.03;
 
+            // Boîtier principal du capteur avec rotation de 180 degrés par défaut
             const sensorBox = BABYLON.MeshBuilder.CreateBox("sensorBox", {
                 width: sensorWidth,
                 height: sensorHeight,
@@ -479,56 +480,86 @@
                 updatable: false
             }, scene);
 
+            // Rotation de 180 degrés autour de l'axe Y pour le boîtier de base
+            sensorBox.rotation.y = Math.PI;
+
             const boxMaterial = new BABYLON.StandardMaterial("sensorBoxMaterial", scene);
             boxMaterial.diffuseColor = new BABYLON.Color3(0.9, 0.9, 0.9);
             boxMaterial.metallic = 0.3;
             boxMaterial.roughness = 0.7;
             sensorBox.material = boxMaterial;
 
-            const ventWidth = sensorWidth * 0.7;
-            const ventHeight = sensorHeight * 0.3;
+            // Création de l'écran LCD
+            const screenWidth = sensorWidth * 0.7;
+            const screenHeight = sensorHeight * 0.5;
+            const screenDepth = 0.001;
+
+            const screen = BABYLON.MeshBuilder.CreateBox("screen", {
+                width: screenWidth,
+                height: screenHeight,
+                depth: screenDepth
+            }, scene);
+
+            // Matériau pour l'écran LCD
+            const screenMaterial = new BABYLON.StandardMaterial("screenMaterial", scene);
+            screenMaterial.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            screenMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.3, 0.4); // Lueur bleutée
+            screenMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            screen.material = screenMaterial;
+
+            // Grille de ventilation en bas
+            const ventWidth = sensorWidth * 0.6;
+            const ventHeight = sensorHeight * 0.15;
             const ventilation = BABYLON.MeshBuilder.CreatePlane("ventilation", {
                 width: ventWidth,
                 height: ventHeight
             }, scene);
 
             const ventMaterial = new BABYLON.StandardMaterial("ventMaterial", scene);
-            ventMaterial.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+            ventMaterial.diffuseColor = new BABYLON.Color3(0.3, 0.3, 0.3);
             ventMaterial.alpha = 0.8;
             ventilation.material = ventMaterial;
-            ventilation.position = new BABYLON.Vector3(0, 0, sensorDepth / 2 + 0.001);
-            ventilation.parent = sensorBox;
-
-            const ledSize = 0.005;
-            const led = BABYLON.MeshBuilder.CreateBox("led", {
-                width: ledSize,
-                height: ledSize,
-                depth: ledSize
-            }, scene);
-
-            const ledMaterial = new BABYLON.StandardMaterial("ledMaterial", scene);
-            ledMaterial.emissiveColor = new BABYLON.Color3(0.0, 0.7, 0);
-            ledMaterial.specularColor = new BABYLON.Color3(0, 0, 0);
-            led.material = ledMaterial;
-
-            led.position = new BABYLON.Vector3(
-                sensorWidth / 4,
-                -sensorHeight / 3,
-                sensorDepth / 2 + 0.001
-            );
-            led.parent = sensorBox;
 
             const xPos = equipment.positionX * this.config.scale;
             const yPos = equipment.positionY * this.config.scale;
 
+            // Position de base du capteur
             sensorBox.position = new BABYLON.Vector3(
                 -wallWidth / 2 + xPos + sensorWidth / 2,
                 wallHeight / 2 - yPos - sensorHeight / 2,
                 -(this.config.wallDepth / 2 + sensorDepth / 2)
             );
 
+            // Ajuster l'orientation en fonction de la rotation du mur parent
+            if (parentWall.rotation) {
+                const currentRotation = parentWall.rotation.y;
+
+                if (Math.abs(currentRotation) === Math.PI / 2) {
+                    // Murs latéraux
+                    const direction = Math.sign(currentRotation);
+                    sensorBox.position.x = direction * (this.config.wallDepth / 2 + sensorDepth / 2);
+                    sensorBox.position.z = -wallWidth / 2 + xPos + sensorWidth / 2;
+                    // Ajuster la rotation pour faire face à l'intérieur
+                    sensorBox.rotation.y = Math.PI + currentRotation;
+                } else if (Math.abs(currentRotation) === Math.PI) {
+                    // Mur d'entrée
+                    sensorBox.position.z = this.config.wallDepth / 2 + sensorDepth / 2;
+                    // Garder la rotation de base pour le mur d'entrée
+                } else {
+                    // Mur avant (face)
+                    sensorBox.position.z = -(this.config.wallDepth / 2 + sensorDepth / 2);
+                }
+            }
+
+            // Positionnement de l'écran et de la ventilation toujours sur la face avant du boîtier
+            screen.position = new BABYLON.Vector3(0, 0, sensorDepth / 2 + screenDepth / 2);
+            ventilation.position = new BABYLON.Vector3(0, -sensorHeight / 3, sensorDepth / 2 + 0.001);
+
+            screen.parent = sensorBox;
+            ventilation.parent = sensorBox;
             sensorBox.parent = sensorContainer;
             sensorContainer.parent = parentWall;
+
             return sensorContainer;
         }
 

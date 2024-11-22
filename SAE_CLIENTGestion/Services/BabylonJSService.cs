@@ -66,10 +66,35 @@ public class BabylonJSService : IBabylonJSService
             Nom = "D102",
             Surface = 5,
             TypeSalle = typeSalle,
-            MurFace = new Mur { Hauteur = 270, Longueur = 575, Nom = "Mur Face", Equipements = [new Equipement { Longueur = 571, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre}] },
-            MurEntree = new Mur { Hauteur = 270, Longueur = 575, Nom = "Mur Entree", Equipements = [new Equipement { Longueur = 571, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
-            MurDroite = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Droite", Equipements = [new Equipement { Longueur = 732, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
-            MurGauche = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Gauche", Equipements = [new Equipement { Longueur = 732, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
+            MurFace = new Mur { Hauteur = 270, Longueur = 775, Nom = "Mur Face", Equipements = [new Equipement { Longueur = 571, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre}] },
+            MurEntree = new Mur { Hauteur = 270, Longueur = 775, Nom = "Mur Entree", Equipements = [new Equipement { Longueur = 571, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
+            MurDroite = new Mur { Hauteur = 270, Longueur = 936, Nom = "Mur Droite", Equipements = [new Equipement { Longueur = 732, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
+            MurGauche = new Mur { Hauteur = 270, Longueur = 936, Nom = "Mur Gauche", Equipements = [new Equipement { Longueur = 732, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
+        };
+
+
+        Salle d103 = new Salle
+        {
+            SalleId = 3,
+            Nom = "D103",
+            Surface = 5,
+            TypeSalle = typeSalle,
+            MurFace = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Face", },
+            MurEntree = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Entree", },
+            MurDroite = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Droite", },
+            MurGauche = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Gauche", },
+        };
+
+        Salle d104 = new Salle
+        {
+            SalleId = 4,
+            Nom = "D104",
+            Surface = 5,
+            TypeSalle = typeSalle,
+            MurFace = new Mur { Hauteur = 20, Longueur = 900, Nom = "Mur Face", },
+            MurEntree = new Mur { Hauteur = 20, Longueur = 900, Nom = "Mur Entree", },
+            MurDroite = new Mur { Hauteur = 20, Longueur = 400, Nom = "Mur Droite", },
+            MurGauche = new Mur { Hauteur = 20, Longueur = 400, Nom = "Mur Gauche", },
         };
 
         var buildings = new List<Batiment>();
@@ -86,7 +111,7 @@ public class BabylonJSService : IBabylonJSService
             BatimentId = 1,
             Nom = "Bat D",
             Adresse = "jsp",
-            Salles = [d102, d102]
+            Salles = [d103, d104]
         };
         buildings.Add(b1);
         buildings.Add(b2);

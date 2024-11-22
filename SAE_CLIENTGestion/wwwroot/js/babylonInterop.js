@@ -8,6 +8,10 @@
         roomSpacing: 0.25,
         buildingWallThickness: 0.3
     },
+    sharedMaterials: {
+        inside: null,
+        outside: null
+    },
 
     initSharedMaterials: function (scene) {
         const baseProperties = {
@@ -556,20 +560,15 @@
         return equipmentMesh;
     },
 
-    createFloor: function (scene, width, depth, position, wallHeight) {
+    createFloor: function (scene, width, depth, wallHeight) {
         const floor = BABYLON.MeshBuilder.CreateBox("floor", {
             width: width + (this.config.wallDepth * 2),
             height: this.config.floorHeight,
             depth: depth + (this.config.wallDepth * 2)
         }, scene);
 
-        const scaledHeight = wallHeight * this.config.scale;
-
-        floor.position = new BABYLON.Vector3(
-            position.x,
-            -(scaledHeight / 2) - (this.config.floorHeight / 2),
-            position.z
-        );
+        // Positionner le sol à Y=0
+        floor.position.y = 0;
 
         const floorMaterial = new BABYLON.StandardMaterial("floorMaterial", scene);
         floorMaterial.diffuseColor = new BABYLON.Color3(0.4, 0.4, 0.4);
@@ -616,12 +615,12 @@
         const height = roomData.walls.frontWall.hauteur * this.config.scale;
         const wallDepthOffset = this.config.wallDepth / 2;
 
-        this.createFloor(scene,
-            frontWidth,
-            sideWidth,
-            new BABYLON.Vector3(0, 0, 0),
-            roomData.walls.frontWall.hauteur
-        ).parent = roomContainer;
+        // Créer le sol au niveau 0
+        const floor = this.createFloor(scene, frontWidth, sideWidth, height);
+        floor.parent = roomContainer;
+
+        // Les murs commencent au niveau du sol (Y=0) et montent vers le haut
+        const wallsStartY = this.config.floorHeight / 2;  // Commencer juste au-dessus du sol
 
         const walls = {
             front: this.createWallWithHoles(scene, roomData.walls.frontWall),
@@ -630,28 +629,64 @@
             right: this.createWallWithHoles(scene, roomData.walls.rightWall)
         };
 
-        walls.front.position = new BABYLON.Vector3(0, 0, sideWidth / 2 + wallDepthOffset);
-        walls.entrance.position = new BABYLON.Vector3(0, 0, -sideWidth / 2 - wallDepthOffset);
+        // Positionner tous les murs avec leur base au niveau du sol
+        walls.front.position = new BABYLON.Vector3(
+            0,
+            height / 2 + wallsStartY,
+            sideWidth / 2 + wallDepthOffset
+        );
+        walls.entrance.position = new BABYLON.Vector3(
+            0,
+            height / 2 + wallsStartY,
+            -sideWidth / 2 - wallDepthOffset
+        );
         walls.entrance.rotation = new BABYLON.Vector3(0, Math.PI, 0);
-        walls.left.position = new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, 0);
+
+        walls.left.position = new BABYLON.Vector3(
+            -frontWidth / 2 - wallDepthOffset,
+            height / 2 + wallsStartY,
+            0
+        );
         walls.left.rotation = new BABYLON.Vector3(0, -Math.PI / 2, 0);
-        walls.right.position = new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, 0);
+
+        walls.right.position = new BABYLON.Vector3(
+            frontWidth / 2 + wallDepthOffset,
+            height / 2 + wallsStartY,
+            0
+        );
         walls.right.rotation = new BABYLON.Vector3(0, Math.PI / 2, 0);
 
         Object.values(walls).forEach(wall => wall.parent = roomContainer);
 
+        // Positionner les coins au même niveau que les murs
         const corners = [
             this.createCorner(scene, height,
-                new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, sideWidth / 2 + wallDepthOffset),
+                new BABYLON.Vector3(
+                    -frontWidth / 2 - wallDepthOffset,
+                    height / 2 + wallsStartY,
+                    sideWidth / 2 + wallDepthOffset
+                ),
                 "cornerFrontLeft"),
             this.createCorner(scene, height,
-                new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, sideWidth / 2 + wallDepthOffset),
+                new BABYLON.Vector3(
+                    frontWidth / 2 + wallDepthOffset,
+                    height / 2 + wallsStartY,
+                    sideWidth / 2 + wallDepthOffset
+                ),
                 "cornerFrontRight"),
             this.createCorner(scene, height,
-                new BABYLON.Vector3(-frontWidth / 2 - wallDepthOffset, 0, -sideWidth / 2 - wallDepthOffset),
+                new BABYLON.Vector3(
+                    -frontWidth / 2 - wallDepthOffset,
+                    height / 2 + wallsStartY,
+                    -sideWidth / 2 - wallDepthOffset
+                ),
                 "cornerBackLeft"),
             this.createCorner(scene, height,
-                new BABYLON.Vector3(frontWidth / 2 + wallDepthOffset, 0, -sideWidth / 2 - wallDepthOffset),
+                new BABYLON.Vector3(
+                    frontWidth / 2 + wallDepthOffset,
+                    height / 2 + wallsStartY,
+                    -sideWidth / 2 - wallDepthOffset
+                ),
                 "cornerBackRight")
         ];
 
@@ -660,32 +695,53 @@
         return roomContainer;
     },
 
+    findMaxBuildingHeight: function (buildingsData) {
+        let maxHeight = 0;
+        buildingsData.forEach(building => {
+            const buildingHeight = this.calculateBuildingHeight(building);
+            maxHeight = Math.max(maxHeight, buildingHeight);
+        });
+        return maxHeight;
+    },
+
+    calculateBuildingHeight: function (building) {
+        let maxHeight = 0;
+        building.rooms.forEach(room => {
+            const roomHeight = room.walls.frontWall.hauteur * this.config.scale;
+            maxHeight = Math.max(maxHeight, roomHeight);
+        });
+        return maxHeight;
+    },
+
     calculateBuildingWidth: function (building) {
         let totalWidth = 0;
-        building.rooms.forEach(room => {
-            totalWidth += room.walls.frontWall.largeur * this.config.scale;
+        building.rooms.forEach((room, index) => {
+            // Ajouter la largeur de la salle
+            totalWidth += (room.walls.frontWall.largeur * this.config.scale);
+            // Ajouter l'espacement entre les salles, sauf pour la dernière salle
+            if (index < building.rooms.length - 1) {
+                totalWidth += this.config.roomSpacing + (this.config.wallDepth * 2);
+            }
         });
-        totalWidth += (building.rooms.length - 1) * this.config.roomSpacing;
         return totalWidth;
     },
 
     createBuilding: function (scene, buildingData, position) {
         const buildingContainer = new BABYLON.TransformNode("building_" + buildingData.name, scene);
-        buildingContainer.position = position;
+        buildingContainer.position = new BABYLON.Vector3(position.x, 0, position.z);
 
-        let totalWidth = 0;
-        let maxDepth = 0;
-        buildingData.rooms.forEach(room => {
-            totalWidth += room.walls.frontWall.largeur * this.config.scale;
-            maxDepth = Math.max(maxDepth, room.walls.leftWall.largeur * this.config.scale);
-        });
-        totalWidth += (buildingData.rooms.length - 1) * this.config.roomSpacing;
+        let totalWidth = this.calculateBuildingWidth(buildingData);
+        let currentX = -totalWidth / 2;
 
-        let roomX = -totalWidth / 2;
-        buildingData.rooms.forEach(room => {
+        buildingData.rooms.forEach((room, index) => {
+            const roomWidth = room.walls.frontWall.largeur * this.config.scale;
             const roomContainer = this.createRoom(scene, room, buildingContainer);
-            roomContainer.position.x = roomX;
-            roomX += room.walls.frontWall.largeur * this.config.scale + this.config.roomSpacing;
+            roomContainer.position.x = currentX + (roomWidth / 2);
+
+            currentX += roomWidth;
+            if (index < buildingData.rooms.length - 1) {
+                currentX += this.config.roomSpacing + (this.config.wallDepth * 2);
+            }
         });
 
         return buildingContainer;
@@ -695,9 +751,7 @@
         const canvas = document.getElementById(canvasId);
         if (!canvas) throw new Error('Canvas not found');
 
-        // Conversion du modèle C# vers le format attendu
         const buildingsData = this.convertToNewModel(JSON.parse(buildingsDataJson));
-
         const engine = new BABYLON.Engine(canvas, true);
         const scene = new BABYLON.Scene(engine);
         scene.clearColor = new BABYLON.Color3(0.3, 0.3, 0.9);
@@ -712,8 +766,11 @@
         let currentX = -totalWidth / 2;
         buildingsData.forEach(building => {
             const buildingWidth = this.calculateBuildingWidth(building);
-            const buildingContainer = this.createBuilding(scene, building,
-                new BABYLON.Vector3(currentX + (buildingWidth / 2), 0, 0));
+            const buildingContainer = this.createBuilding(
+                scene,
+                building,
+                new BABYLON.Vector3(currentX + (buildingWidth / 2), 0, 0)
+            );
             currentX += buildingWidth + this.config.buildingSpacing;
         });
 

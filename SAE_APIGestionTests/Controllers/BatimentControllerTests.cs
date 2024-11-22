@@ -53,33 +53,45 @@ namespace SAE_APIGestion.Controllers.Tests
                         Nom = "Type Salle 1",
                         Description = "Description Type Salle 1"
                     },
-                    Murs = new List<Mur>
-                    {
-                        new Mur
-                        {
-                            MurId = 1,
-                            Nom = "Mur Nord",
-                            Longueur = 10,
-                            Hauteur = 3
-                        }
-                    },
-                    Equipements = new List<Equipement>
-                    {
-                        new Equipement
-                        {
-                            EquipementId = 1,
-                            Nom = "Equipement 1",
-                            TypeEquipement = new TypeEquipement
-                            {
-                                TypeEquipementId = 1,
-                                Nom = "Type Equipement 1"
-                            },
-                            Hauteur = 1.5,
-                            Hauteur = 2,
-                            PositionX = 0.5,
-                            PositionY = 0.5
-                        }
-                    }
+                     BatimentId = 1,
+                Batiment = new Batiment
+                {
+                    BatimentId = 1,
+                    Nom = "Bâtiment Principal",
+                    Adresse = "123 Rue Test"
+                },
+                MurFaceId = 1,
+                MurFace = new Mur
+                {
+                    MurId = 1,
+                    Nom = "Mur Nord",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurEntreeId = 2,
+                MurEntree = new Mur
+                {
+                    MurId = 2,
+                    Nom = "Mur Sud",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurGaucheId = 3,
+                MurGauche = new Mur
+                {
+                    MurId = 3,
+                    Nom = "Mur Ouest",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurDroiteId = 4,
+                MurDroite = new Mur
+                {
+                    MurId = 4,
+                    Nom = "Mur Est",
+                    Longueur = 10,
+                    Hauteur = 3
+                }
                 }
             }
             };
@@ -105,20 +117,20 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
 
-        [TestCleanup]
-        public void Teardown()
-        {
-            // Code pour nettoyer la base de données après chaque test
-            using (var connection = new NpgsqlConnection("Server=localhost;port=5432;database=sae_rasp;uid=postgres;password=postgres"))
-            {
-                connection.Open();
-                // chnager les id a delete quand les donnees seront ok 
-                using (var command = new NpgsqlCommand("DELETE FROM t_e_batiment_bat where bat_id = 3; DELETE FROM t_e_batiment_bat where bat_id = 4;", connection))
-                {
-                    command.ExecuteNonQuery();
-                }
-            }
-        }
+        //[TestCleanup]
+        //public void Teardown()
+        //{
+        //    // Code pour nettoyer la base de données après chaque test
+        //    using (var connection = new NpgsqlConnection("Server=localhost;port=5432;database=sae_rasp;uid=postgres;password=postgres"))
+        //    {
+        //        connection.Open();
+        //        // chnager les id a delete quand les donnees seront ok 
+        //        using (var command = new NpgsqlCommand("DELETE FROM t_e_batiment_bat where bat_id = 3; DELETE FROM t_e_batiment_bat where bat_id = 4;", connection))
+        //        {
+        //            command.ExecuteNonQuery();
+        //        }
+        //    }
+        //}
 
         [TestMethod()]
         public void GetBatimentsTest()

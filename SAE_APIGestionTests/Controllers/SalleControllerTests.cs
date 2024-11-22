@@ -32,65 +32,111 @@ namespace SAE_APIGestion.Controllers.Tests
             _salle = new Salle
             {
                 SalleId = 1,
-                Nom = "Salle de Conférence",
-                Surface = 45.0,
+                Nom = "Salle de réunion",
+                Surface = 45.5,
+                TypeSalleId = 1,
                 TypeSalle = new TypeSalle
                 {
                     TypeSalleId = 1,
-                    Nom = "Conférence",
-                    Description = "Salle équipée pour des conférences et des réunions"
+                    Nom = "Réunion",
+                    Description = "Salle équipée pour des réunions d'équipe"
                 },
-                Murs = new List<Mur>
+                BatimentId = 1,
+                Batiment = new Batiment
                 {
-                    new Mur { MurId = 1, Nom = "Mur Est", Longueur = 12.0, Hauteur = 3.0 },
-                    new Mur { MurId = 2, Nom = "Mur Ouest", Longueur = 12.0, Hauteur = 3.0 }
+                    BatimentId = 1,
+                    Nom = "Bâtiment Principal",
+                    Adresse = "123 Rue Test"
                 },
-                Equipements = new List<Equipement>
+                MurFaceId = 1,
+                MurFace = new Mur
                 {
-                new Equipement
+                    MurId = 1,
+                    Nom = "Mur Nord",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurEntreeId = 2,
+                MurEntree = new Mur
                 {
-                    EquipementId = 1,
-                    Nom = "Projecteur",
-                    TypeEquipement = new TypeEquipement { TypeEquipementId = 1, Nom = "Électronique" },
-                    Hauteur = 0.5,
-                    Hauteur = 0.5,
-                    PositionX = 2.0,
-                    PositionY = 1.0
-                }
+                    MurId = 2,
+                    Nom = "Mur Sud",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurGaucheId = 3,
+                MurGauche = new Mur
+                {
+                    MurId = 3,
+                    Nom = "Mur Ouest",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurDroiteId = 4,
+                MurDroite = new Mur
+                {
+                    MurId = 4,
+                    Nom = "Mur Est",
+                    Longueur = 10,
+                    Hauteur = 3
                 }
             };
+
 
             // update salle 
             _salleUpdate = new Salle
             {
                 SalleId = 1,
-                Nom = "Salle de Conférence update",
-                Surface = 46.0,
+                Nom = "Salle de réunion update",
+                Surface = 46,
+                TypeSalleId = 1,
                 TypeSalle = new TypeSalle
                 {
                     TypeSalleId = 1,
-                    Nom = "Conférence",
-                    Description = "Salle équipée pour des conférences et des réunions"
+                    Nom = "Réunion",
+                    Description = "Salle équipée pour des réunions d'équipe"
                 },
-                Murs = new List<Mur>
+                BatimentId = 1,
+                Batiment = new Batiment
                 {
-                    new Mur { MurId = 1, Nom = "Mur Est", Longueur = 12.0, Hauteur = 3.0 },
-                    new Mur { MurId = 2, Nom = "Mur Ouest", Longueur = 12.0, Hauteur = 3.0 }
+                    BatimentId = 1,
+                    Nom = "Bâtiment Principal",
+                    Adresse = "123 Rue Test"
                 },
-                Equipements = new List<Equipement>
+                MurFaceId = 1,
+                MurFace = new Mur
                 {
-                new Equipement
+                    MurId = 1,
+                    Nom = "Mur Nord",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurEntreeId = 2,
+                MurEntree = new Mur
                 {
-                    EquipementId = 1,
-                    Nom = "Projecteur",
-                    TypeEquipement = new TypeEquipement { TypeEquipementId = 1, Nom = "Électronique" },
-                    Hauteur = 0.5,
-                    Hauteur = 0.5,
-                    PositionX = 2.0,
-                    PositionY = 1.0
-                }
+                    MurId = 2,
+                    Nom = "Mur Sud",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurGaucheId = 3,
+                MurGauche = new Mur
+                {
+                    MurId = 3,
+                    Nom = "Mur Ouest",
+                    Longueur = 10,
+                    Hauteur = 3
+                },
+                MurDroiteId = 4,
+                MurDroite = new Mur
+                {
+                    MurId = 4,
+                    Nom = "Mur Est",
+                    Longueur = 10,
+                    Hauteur = 3
                 }
             };
+
 
 
 
@@ -128,7 +174,7 @@ namespace SAE_APIGestion.Controllers.Tests
             Assert.IsInstanceOfType(actionResult, typeof(NoContentResult), "Pas un NoContentResult"); // Test du type de retour
 
             // Vérification que la mise à jour a bien été faite 
-            Assert.AreEqual("Salle de Conférence update", _salleUpdate.Nom, "Le nom de la salle n'a pas été mis à jour");
+            Assert.AreEqual("Salle de réunion update", _salleUpdate.Nom, "Le nom de la salle n'a pas été mis à jour");
             Assert.AreEqual(46, _salleUpdate.Surface, "La surface n'a pas été mis à jour");
 
         }

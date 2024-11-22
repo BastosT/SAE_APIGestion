@@ -23,8 +23,6 @@ namespace SAE_APIGestion.Models.EntityFramework
         public double Surface { get; set; }
 
 
-
-
         [Required]
         [Column("tys_id")]
         public int TypeSalleId { get; set; }
@@ -33,16 +31,12 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual TypeSalle TypeSalle { get; set; }
 
 
-
-
         [Required]
         [Column("bat_id")]
         public int BatimentId { get; set; }
 
         [ForeignKey("BatimentId")]
         public virtual Batiment Batiment { get; set; }
-
-
 
 
         [Required]

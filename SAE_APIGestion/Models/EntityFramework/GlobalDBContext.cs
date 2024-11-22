@@ -36,23 +36,42 @@ namespace SAE_APIGestion.Models.EntityFramework
                 entity.ToTable("t_e_salle_sal");
                 entity.HasKey(e => e.SalleId).HasName("pk_salle");
 
-                entity.HasOne(d => d.Batiment)
-                    .WithMany(p => p.Salles)
-                    .HasForeignKey(d => d.BatimentId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("fk_salle_batiment");
+                // Relations avec les murs
+                entity.HasOne(s => s.MurFace)
+                    .WithOne()
+                    .HasForeignKey<Salle>(s => s.MurFaceId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_salle_murface");
 
-                entity.HasOne(d => d.TypeSalle)
-                    .WithMany(p => p.Salles)
-                    .HasForeignKey(d => d.TypeSalleId);
+                entity.HasOne(s => s.MurEntree)
+                    .WithOne()
+                    .HasForeignKey<Salle>(s => s.MurEntreeId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_salle_murentree");
 
+                entity.HasOne(s => s.MurGauche)
+                    .WithOne()
+                    .HasForeignKey<Salle>(s => s.MurGaucheId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_salle_murgauche");
+
+                entity.HasOne(s => s.MurDroite)
+                    .WithOne()
+                    .HasForeignKey<Salle>(s => s.MurDroiteId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_salle_murdroite");
             });
 
             modelBuilder.Entity<Mur>(entity =>
             {
-
                 entity.ToTable("t_e_mur_mur");
                 entity.HasKey(e => e.MurId).HasName("pk_mur");
+
+                entity.HasOne(m => m.Salle)
+                    .WithMany()  // Pas de collection inverse dans Salle car on a déjà les 4 propriétés spécifiques
+                    .HasForeignKey(m => m.SalleId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .HasConstraintName("fk_mur_salle");
 
                 entity.HasMany(m => m.Equipements)
                     .WithOne(e => e.Mur)

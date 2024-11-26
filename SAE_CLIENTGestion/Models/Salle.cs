@@ -9,13 +9,10 @@ namespace SAE_CLIENTGestion.Models
         public int SalleId { get; set; }
         public string Nom { get; set; }
         public double Surface { get; set; }
-        
-        
+
+
         public int TypeSalleId { get; set; }
         public virtual TypeSalle TypeSalle { get; set; }
-
-
-
         public int BatimentId { get; set; }
         public virtual Batiment Batiment { get; set; }
 

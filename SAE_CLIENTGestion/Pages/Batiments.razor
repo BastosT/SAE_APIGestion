@@ -1,0 +1,43 @@
+﻿@page "/batiments"
+@using SAE_CLIENTGestion.ViewModels;
+@inject BatimentsViewModel ViewModel
+
+<PageTitle>Batiments</PageTitle>
+
+<h3>Liste des Batiments</h3>
+
+@if (ViewModel.IsLoading)
+{
+    <p><em>Chargement des batiments...</em></p>
+}
+else if (ViewModel.Batiments.Count == 0)
+{
+    <p>Aucun batiment trouvé.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Adresse</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var batiment in ViewModel.Batiments)
+            {
+                <tr>
+                    <td>@batiment.Nom</td>
+                    <td>@batiment.Adresse</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ViewModel.LoadDataAsync();
+    }
+}

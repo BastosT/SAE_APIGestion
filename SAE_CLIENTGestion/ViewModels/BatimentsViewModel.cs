@@ -4,25 +4,25 @@ using SAE_CLIENTGestion.Services;
 
 namespace SAE_CLIENTGestion.ViewModels
 {
-    public partial class EquipementsViewModel : ObservableObject
+    public partial class BatimentsViewModel : ObservableObject
     {
 
-        private readonly IService<Equipement> _equipementService;
+        private readonly IService<Batiment> _batimentService;
 
-        public EquipementsViewModel(IService<Equipement> equipementService)
+        public BatimentsViewModel(IService<Batiment> batimentService)
         {
-            _equipementService = equipementService;
+            _batimentService = batimentService;
         }
 
         [ObservableProperty] private bool _isLoading;
-        [ObservableProperty] private List<Equipement> _equipements = new List<Equipement>();
+        [ObservableProperty] private List<Batiment> _batiments = new List<Batiment>();
 
         public async Task LoadDataAsync()
         {
             IsLoading = true;
             try
             {
-                Equipements = await _equipementService.GetAllAsync();
+                Batiments = await _batimentService.GetAllAsync();
             }
             finally
             {

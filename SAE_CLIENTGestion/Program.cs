@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SAE_CLIENTGestion.Models;
 using SAE_CLIENTGestion.Services;
 using SAE_CLIENTGestion.ViewModels;
+using TD1Client.Services;
 
 namespace SAE_CLIENTGestion
 {
@@ -15,11 +16,12 @@ namespace SAE_CLIENTGestion
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
             builder.Services.AddScoped<IBabylonJSService, BabylonJSService>();
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-            builder.Services.AddScoped<IService<Equipement>, WSServiceEquipement>();
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7155/") });
 
-            builder.Services.AddScoped<EquipementsViewModel>();
+            builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();
+
+            builder.Services.AddScoped<BatimentsViewModel>();
 
             builder.Services.AddScoped<IBabylonJSService, BabylonJSService>();
 

@@ -29,13 +29,6 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Column("mur_type")]
         public TypeMur Type { get; set; }
 
-        [Required]
-        [Column("sal_id")]
-        public int SalleId { get; set; }
-
-        [ForeignKey("SalleId")]
-        public virtual Salle Salle { get; set; }
-
         [InverseProperty(nameof(Equipement.Mur))]
         public virtual List<Equipement> Equipements { get; set; } = new List<Equipement>();
 

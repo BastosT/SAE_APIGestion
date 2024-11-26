@@ -19,7 +19,6 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Mur>>> GetAllAsync()
         {
             return await dbContext.Murs
-                .Include(b => b.Salle)
                 .Include(b => b.Equipements)
                 .Include(b => b.Capteurs)
                 .ToListAsync();
@@ -28,7 +27,6 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<Mur>> GetByIdAsync(int id)
         {
             return await dbContext.Murs
-                .Include(b => b.Salle)
                 .Include(b => b.Equipements)
                 .Include(b => b.Capteurs)
                 .FirstOrDefaultAsync(u => u.MurId == id);
@@ -55,8 +53,6 @@ namespace SAE_APIGestion.Models.DataManger
             enseignant.Nom = entity.Nom;
             enseignant.Longueur = entity.Longueur;
             enseignant.Hauteur = entity.Hauteur;
-            enseignant.SalleId = entity.SalleId;
-            enseignant.Salle = entity.Salle;
             enseignant.Equipements = entity.Equipements;
             enseignant.Capteurs = entity.Capteurs;
 

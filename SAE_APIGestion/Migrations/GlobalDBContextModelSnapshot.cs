@@ -226,18 +226,12 @@ namespace SAE_APIGestion.Migrations
                         .HasColumnType("varchar(25)")
                         .HasColumnName("mur_nom");
 
-                    b.Property<int>("SalleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("sal_id");
-
                     b.Property<int>("Type")
                         .HasColumnType("integer")
                         .HasColumnName("mur_type");
 
                     b.HasKey("MurId")
                         .HasName("pk_mur");
-
-                    b.HasIndex("SalleId");
 
                     b.ToTable("t_e_mur_mur", (string)null);
                 });
@@ -444,18 +438,6 @@ namespace SAE_APIGestion.Migrations
                     b.Navigation("Salle");
 
                     b.Navigation("TypeEquipement");
-                });
-
-            modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Mur", b =>
-                {
-                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
-                        .WithMany()
-                        .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("fk_mur_salle");
-
-                    b.Navigation("Salle");
                 });
 
             modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Salle", b =>

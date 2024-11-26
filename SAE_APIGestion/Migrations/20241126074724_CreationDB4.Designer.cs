@@ -12,8 +12,8 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Migrations
 {
     [DbContext(typeof(GlobalDBContext))]
-    [Migration("20241126070521_CreationBD2")]
-    partial class CreationBD2
+    [Migration("20241126074724_CreationDB4")]
+    partial class CreationDB4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,9 +77,30 @@ namespace SAE_APIGestion.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("cap_estactif");
 
+                    b.Property<double?>("Hauteur")
+                        .HasColumnType("double precision")
+                        .HasColumnName("cap_hauteur");
+
+                    b.Property<double?>("Longeur")
+                        .HasColumnType("double precision")
+                        .HasColumnName("cap_longueur");
+
                     b.Property<int?>("MurId")
                         .HasColumnType("integer")
                         .HasColumnName("mur_id");
+
+                    b.Property<string>("Nom")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cap_nom");
+
+                    b.Property<double>("PositionX")
+                        .HasColumnType("double precision")
+                        .HasColumnName("cap_positionx");
+
+                    b.Property<double>("PositionY")
+                        .HasColumnType("double precision")
+                        .HasColumnName("cap_positiony");
 
                     b.Property<int>("SalleId")
                         .HasColumnType("integer")
@@ -143,9 +164,9 @@ namespace SAE_APIGestion.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("equ_hauteur");
 
-                    b.Property<double>("Largeur")
+                    b.Property<double>("Longueur")
                         .HasColumnType("double precision")
-                        .HasColumnName("equ_largeur");
+                        .HasColumnName("equ_longueur");
 
                     b.Property<int?>("MurId")
                         .HasColumnType("integer")
@@ -208,14 +229,12 @@ namespace SAE_APIGestion.Migrations
                         .HasColumnType("varchar(25)")
                         .HasColumnName("mur_nom");
 
-                    b.Property<int>("SalleId")
+                    b.Property<int>("Type")
                         .HasColumnType("integer")
-                        .HasColumnName("sal_id");
+                        .HasColumnName("mur_type");
 
                     b.HasKey("MurId")
                         .HasName("pk_mur");
-
-                    b.HasIndex("SalleId");
 
                     b.ToTable("t_e_mur_mur", (string)null);
                 });
@@ -232,6 +251,22 @@ namespace SAE_APIGestion.Migrations
                     b.Property<int>("BatimentId")
                         .HasColumnType("integer")
                         .HasColumnName("bat_id");
+
+                    b.Property<int>("MurDroiteId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mur_droiteid");
+
+                    b.Property<int>("MurEntreeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mur_entreeid");
+
+                    b.Property<int>("MurFaceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mur_faceid");
+
+                    b.Property<int>("MurGaucheId")
+                        .HasColumnType("integer")
+                        .HasColumnName("mur_gaucheid");
 
                     b.Property<string>("Nom")
                         .IsRequired()
@@ -251,6 +286,18 @@ namespace SAE_APIGestion.Migrations
                         .HasName("pk_salle");
 
                     b.HasIndex("BatimentId");
+
+                    b.HasIndex("MurDroiteId")
+                        .IsUnique();
+
+                    b.HasIndex("MurEntreeId")
+                        .IsUnique();
+
+                    b.HasIndex("MurFaceId")
+                        .IsUnique();
+
+                    b.HasIndex("MurGaucheId")
+                        .IsUnique();
 
                     b.HasIndex("TypeSalleId");
 
@@ -314,7 +361,7 @@ namespace SAE_APIGestion.Migrations
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(250)
-                        .HasColumnType("varachar(250)")
+                        .HasColumnType("varchar(250)")
                         .HasColumnName("tys_description");
 
                     b.Property<string>("Nom")
@@ -338,11 +385,10 @@ namespace SAE_APIGestion.Migrations
                         .HasConstraintName("fk_capteur_mur");
 
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
-                        .WithMany("Capteurs")
+                        .WithMany()
                         .HasForeignKey("SalleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_capteur_salle");
+                        .IsRequired();
 
                     b.Navigation("Mur");
 
@@ -379,11 +425,10 @@ namespace SAE_APIGestion.Migrations
                         .HasConstraintName("fk_equipement_mur");
 
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
-                        .WithMany("Equipements")
+                        .WithMany()
                         .HasForeignKey("SalleId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_equipement_salle");
+                        .IsRequired();
 
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.TypeEquipement", "TypeEquipement")
                         .WithMany("Equipements")
@@ -398,25 +443,41 @@ namespace SAE_APIGestion.Migrations
                     b.Navigation("TypeEquipement");
                 });
 
-            modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Mur", b =>
-                {
-                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
-                        .WithMany("Murs")
-                        .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_salle_mur");
-
-                    b.Navigation("Salle");
-                });
-
             modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Salle", b =>
                 {
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Batiment", "Batiment")
                         .WithMany("Salles")
                         .HasForeignKey("BatimentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Mur", "MurDroite")
+                        .WithOne()
+                        .HasForeignKey("SAE_APIGestion.Models.EntityFramework.Salle", "MurDroiteId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("fk_salle_batiment");
+                        .HasConstraintName("fk_salle_murdroite");
+
+                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Mur", "MurEntree")
+                        .WithOne()
+                        .HasForeignKey("SAE_APIGestion.Models.EntityFramework.Salle", "MurEntreeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_salle_murentree");
+
+                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Mur", "MurFace")
+                        .WithOne()
+                        .HasForeignKey("SAE_APIGestion.Models.EntityFramework.Salle", "MurFaceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_salle_murface");
+
+                    b.HasOne("SAE_APIGestion.Models.EntityFramework.Mur", "MurGauche")
+                        .WithOne()
+                        .HasForeignKey("SAE_APIGestion.Models.EntityFramework.Salle", "MurGaucheId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_salle_murgauche");
 
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.TypeSalle", "TypeSalle")
                         .WithMany("Salles")
@@ -425,6 +486,14 @@ namespace SAE_APIGestion.Migrations
                         .IsRequired();
 
                     b.Navigation("Batiment");
+
+                    b.Navigation("MurDroite");
+
+                    b.Navigation("MurEntree");
+
+                    b.Navigation("MurFace");
+
+                    b.Navigation("MurGauche");
 
                     b.Navigation("TypeSalle");
                 });
@@ -444,15 +513,6 @@ namespace SAE_APIGestion.Migrations
                     b.Navigation("Capteurs");
 
                     b.Navigation("Equipements");
-                });
-
-            modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.Salle", b =>
-                {
-                    b.Navigation("Capteurs");
-
-                    b.Navigation("Equipements");
-
-                    b.Navigation("Murs");
                 });
 
             modelBuilder.Entity("SAE_APIGestion.Models.EntityFramework.TypeDonneesCapteur", b =>

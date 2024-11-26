@@ -67,12 +67,6 @@ namespace SAE_APIGestion.Models.EntityFramework
                 entity.ToTable("t_e_mur_mur");
                 entity.HasKey(e => e.MurId).HasName("pk_mur");
 
-                entity.HasOne(m => m.Salle)
-                    .WithMany()  // Pas de collection inverse dans Salle car on a déjà les 4 propriétés spécifiques
-                    .HasForeignKey(m => m.SalleId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_mur_salle");
-
                 entity.HasMany(m => m.Equipements)
                     .WithOne(e => e.Mur)
                     .HasForeignKey(e => e.MurId)

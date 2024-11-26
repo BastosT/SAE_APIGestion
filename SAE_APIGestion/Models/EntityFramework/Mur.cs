@@ -13,9 +13,9 @@ namespace SAE_APIGestion.Models.EntityFramework
         public int MurId { get; set; }
 
         [Required]
-        [Column("mur_nom" , TypeName ="varchar(25)")]
+        [Column("mur_nom", TypeName = "varchar(25)")]
         [StringLength(25)]
-        public string Nom { get; set; }    // Nord, Sud, Est, Ouest
+        public string Nom { get; set; }
 
         [Required]
         [Column("mur_longueur")]
@@ -26,17 +26,29 @@ namespace SAE_APIGestion.Models.EntityFramework
         public double Hauteur { get; set; }
 
         [Required]
+        [Column("mur_type")]
+        public TypeMur Type { get; set; }
+
+        [Required]
         [Column("sal_id")]
         public int SalleId { get; set; }
 
         [ForeignKey("SalleId")]
-        [InverseProperty(nameof(Salle.Murs))]
-        public Salle Salle { get; set; }
+        public virtual Salle Salle { get; set; }
 
         [InverseProperty(nameof(Equipement.Mur))]
-        public List<Equipement> Equipements { get; set; } = new List<Equipement>();
+        public virtual List<Equipement> Equipements { get; set; } = new List<Equipement>();
 
         [InverseProperty(nameof(Capteur.Mur))]
-        public List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+        public virtual List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+    }
+
+
+    public enum TypeMur
+    {
+        Face,
+        Entree,
+        Gauche,
+        Droite
     }
 }

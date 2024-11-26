@@ -47,7 +47,7 @@ namespace SAE_APIGestion.Models.DataManger
             globalDbContext.Entry(equipement).State = EntityState.Modified;
             equipement.Nom = entity.Nom;
             equipement.TypeEquipementId = entity.TypeEquipementId;
-            equipement.Largeur = entity.Largeur;
+            equipement.Hauteur = entity.Hauteur;
             equipement.Hauteur = entity.Hauteur;
             equipement.PositionX = entity.PositionX;
             equipement.PositionY = entity.PositionY;

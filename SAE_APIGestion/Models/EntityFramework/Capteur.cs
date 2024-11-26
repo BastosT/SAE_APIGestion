@@ -16,14 +16,29 @@ namespace SAE_APIGestion.Models.EntityFramework
         [Key]
         [Column("cap_id")]
         public int CapteurId { get; set; }
-       
+
+        [Column("cap_nom")]
+        public string Nom { get; set; }
+
         [Required]
         [Column("cap_estactif")]
         public bool EstActif { get; set; }
        
         [Column("cap_distancefenetre")]
         public double? DistanceFenetre { get; set; }
-        
+
+        [Column("cap_longueur")]
+        public double? Longeur { get; set; }
+
+        [Column("cap_hauteur")]
+        public double? Hauteur { get; set; }
+
+        [Column("cap_positionx")]
+        public double PositionX { get; set; }
+
+        [Column("cap_positiony")]
+        public double PositionY { get; set; }
+
         [Column("cap_distanceporte")]
         public double? DistancePorte { get; set; }
         
@@ -41,52 +56,5 @@ namespace SAE_APIGestion.Models.EntityFramework
         [ForeignKey("SalleId")]
         public virtual Salle Salle { get; set; }
         public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
-    }
-
-    [Table("t_e_typedonneescapteur_tdc")]
-    public class TypeDonneesCapteur
-    {
-        public TypeDonneesCapteur()
-        {
-            DonneesCapteurs = new HashSet<DonneesCapteur>();
-        }
-
-        [Key]
-        [Column("tdc_id")]
-        public int TypeDonneesCapteurId { get; set; }
-        
-        [Required]
-        [Column("tdc_nom")]
-        public string Nom { get; set; }
-        
-        [Required]
-        [Column("tdc_unite")]
-        public string Unite { get; set; }
-        public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
-    }
-
-    [Table("t_e_donneescapteur_dcp")]
-    public class DonneesCapteur
-    {
-        [Key]
-        [Column("dcp_id")]
-        public int DonneesCapteurId { get; set; }
-        
-        [Column("cap_id")]
-        public int CapteurId { get; set; }
-        
-        [Column("tdc_id")]
-        public int TypeDonneesId { get; set; }
-        
-        [Column("dc_valeur")]
-        public double Valeur { get; set; }
-        
-        [Column("dc_timestamp")]
-        public DateTime Timestamp { get; set; }
-
-        [ForeignKey("CapteurId")]
-        public virtual Capteur Capteur { get; set; }
-        [ForeignKey("TypeDonneesId")]
-        public virtual TypeDonneesCapteur TypeDonnees { get; set; }
     }
 }

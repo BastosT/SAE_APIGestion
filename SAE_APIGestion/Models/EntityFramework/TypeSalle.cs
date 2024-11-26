@@ -23,7 +23,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         public string Nom { get; set; }
 
         [Required]
-        [Column("tys_description" , TypeName ="varachar(250)")]
+        [Column("tys_description" , TypeName ="varchar(250)")]
         [StringLength(250)]
         public string Description { get; set; }
 

@@ -20,8 +20,10 @@ namespace SAE_CLIENTGestion
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7155/") });
 
             builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();
+            builder.Services.AddScoped<IService<Salle>, WSServiceSalle>();
 
             builder.Services.AddScoped<BatimentsViewModel>();
+            builder.Services.AddScoped<SallesViewModel>();
 
             builder.Services.AddScoped<IBabylonJSService, BabylonJSService>();
 

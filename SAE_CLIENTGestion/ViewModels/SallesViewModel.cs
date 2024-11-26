@@ -4,17 +4,23 @@ using SAE_CLIENTGestion.Services;
 
 namespace SAE_CLIENTGestion.ViewModels
 {
-    public partial class BatimentsViewModel : ObservableObject
+    public partial class SallesViewModel : ObservableObject
     {
-        private readonly IService<Batiment> _batimentService;
+        private readonly IService<Salle> _salleService;
 
-        public BatimentsViewModel(IService<Batiment> batimentService)
+        public SallesViewModel(IService<Salle> salleService)
         {
-            _batimentService = batimentService;
+            _salleService = salleService;
         }
 
         [ObservableProperty]
         private bool _isLoading;
+
+        [ObservableProperty]
+        private List<Salle> _salles = new List<Salle>();
+
+        [ObservableProperty]
+        private List<TypeSalle> _typesSalle = new List<TypeSalle>();
 
         [ObservableProperty]
         private List<Batiment> _batiments = new List<Batiment>();
@@ -30,13 +36,18 @@ namespace SAE_CLIENTGestion.ViewModels
             IsLoading = true;
             try
             {
-                Batiments = await _batimentService.GetAllAsync();
+                var tasks = new List<Task>
+                {
+                    LoadSallesAsync(),
+                };
+
+                await Task.WhenAll(tasks);
                 SuccessMessage = null;
                 ErrorMessage = null;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors du chargement des bâtiments : {ex.Message}";
+                ErrorMessage = $"Erreur lors du chargement des données : {ex.Message}";
                 SuccessMessage = null;
             }
             finally
@@ -45,20 +56,32 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> AddBatimentAsync(Batiment batiment)
+        private async Task LoadSallesAsync()
+        {
+            try
+            {
+                Salles = await _salleService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des salles : {ex.Message}";
+            }
+        }
+
+        public async Task<bool> AddSalleAsync(Salle salle)
         {
             IsLoading = true;
             try
             {
-                await _batimentService.PostAsync(batiment);
-                await LoadDataAsync();
-                SuccessMessage = "Bâtiment ajouté avec succès";
+                await _salleService.PostAsync(salle);
+                await LoadSallesAsync();
+                SuccessMessage = "Salle ajoutée avec succès";
                 ErrorMessage = null;
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de l'ajout du bâtiment : {ex.Message}";
+                ErrorMessage = $"Erreur lors de l'ajout de la salle : {ex.Message}";
                 SuccessMessage = null;
                 return false;
             }
@@ -68,20 +91,20 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateBatimentAsync(Batiment batiment)
+        public async Task<bool> UpdateSalleAsync(Salle salle)
         {
             IsLoading = true;
             try
             {
-                await _batimentService.PutAsync(batiment.BatimentId, batiment);
-                await LoadDataAsync();
-                SuccessMessage = "Bâtiment modifié avec succès";
+                await _salleService.PutAsync(salle.SalleId, salle);
+                await LoadSallesAsync();
+                SuccessMessage = "Salle modifiée avec succès";
                 ErrorMessage = null;
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de la modification du bâtiment : {ex.Message}";
+                ErrorMessage = $"Erreur lors de la modification de la salle : {ex.Message}";
                 SuccessMessage = null;
                 return false;
             }
@@ -91,20 +114,20 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> DeleteBatimentAsync(int id)
+        public async Task<bool> DeleteSalleAsync(int id)
         {
             IsLoading = true;
             try
             {
-                await _batimentService.DeleteAsync(id);
-                await LoadDataAsync();
-                SuccessMessage = "Bâtiment supprimé avec succès";
+                await _salleService.DeleteAsync(id);
+                await LoadSallesAsync();
+                SuccessMessage = "Salle supprimée avec succès";
                 ErrorMessage = null;
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de la suppression du bâtiment : {ex.Message}";
+                ErrorMessage = $"Erreur lors de la suppression de la salle : {ex.Message}";
                 SuccessMessage = null;
                 return false;
             }

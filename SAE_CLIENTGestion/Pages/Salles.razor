@@ -1,12 +1,12 @@
-﻿@page "/batiments"
+﻿@page "/salles"
 @using SAE_CLIENTGestion.Models
 @using SAE_CLIENTGestion.ViewModels;
-@inject BatimentsViewModel ViewModel
+@inject SallesViewModel ViewModel
 
-<PageTitle>Batiments</PageTitle>
+<PageTitle>Salles</PageTitle>
 
 <div class="container">
-    <h3>Liste des Batiments</h3>
+    <h3>Liste des Salles</h3>
 
     @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
     {
@@ -25,17 +25,17 @@
     }
 
     <!-- Bouton Ajouter -->
-    <button class="btn btn-primary mb-3" @onclick="() => { currentBatiment = new(); showModal = true; isNewBatiment = true; }">
-        Ajouter un bâtiment
+    <button class="btn btn-primary mb-3" @onclick="() => { currentSalle = new(); showModal = true; isNewSalle = true; }">
+        Ajouter une Salle
     </button>
 
     @if (ViewModel.IsLoading)
     {
-        <p><em>Chargement des batiments...</em></p>
+        <p><em>Chargement des salles...</em></p>
     }
-    else if (ViewModel.Batiments.Count == 0)
+    else if (ViewModel.Salles.Count == 0)
     {
-        <p>Aucun bâtiment trouvé.</p>
+        <p>Aucune salle trouvée.</p>
     }
     else
     {
@@ -44,22 +44,26 @@
                 <tr>
                     <th>Id</th>
                     <th>Nom</th>
-                    <th>Adresse</th>
+                    <th>Surface</th>
+                    <th>Type</th>
+                    <th>Bâtiment</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach (var batiment in ViewModel.Batiments)
+                @foreach (var salle in ViewModel.Salles)
                 {
                     <tr>
-                        <td>@batiment.BatimentId</td>
-                        <td>@batiment.Nom</td>
-                        <td>@batiment.Adresse</td>
+                        <td>@salle.SalleId</td>
+                        <td>@salle.Nom</td>
+                        <td>@salle.Surface m²</td>
+                        <td>@salle.TypeSalleId</td>
+                        <td>@salle.BatimentId</td>
                         <td>
-                            <button class="btn btn-warning btn-sm" @onclick="() => EditBatiment(batiment)">
+                            <button class="btn btn-warning btn-sm" @onclick="() => EditSalle(salle)">
                                 Modifier
                             </button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteBatiment(batiment)">
+                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteSalle(salle)">
                                 Supprimer
                             </button>
                         </td>
@@ -76,24 +80,46 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">@(isNewBatiment ? "Ajouter un bâtiment" : "Modifier le bâtiment")</h5>
+                        <h5 class="modal-title">@(isNewSalle ? "Ajouter une salle" : "Modifier la salle")</h5>
                         <button type="button" class="btn-close" @onclick="CloseModal"></button>
                     </div>
                     <div class="modal-body">
-                        <EditForm Model="@currentBatiment" OnValidSubmit="HandleValidSubmit">
+                        <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
 
                             <div class="mb-3">
                                 <label for="nom" class="form-label">Nom</label>
-                                <InputText id="nom" class="form-control" @bind-Value="currentBatiment.Nom" />
-                                <ValidationMessage For="@(() => currentBatiment.Nom)" />
+                                <InputText id="nom" class="form-control" @bind-Value="currentSalle.Nom" />
+                                <ValidationMessage For="@(() => currentSalle.Nom)" />
                             </div>
 
                             <div class="mb-3">
-                                <label for="adresse" class="form-label">Adresse</label>
-                                <InputText id="adresse" class="form-control" @bind-Value="currentBatiment.Adresse" />
-                                <ValidationMessage For="@(() => currentBatiment.Adresse)" />
+                                <label for="surface" class="form-label">Surface (m²)</label>
+                                <InputNumber id="surface" class="form-control" @bind-Value="currentSalle.Surface" />
+                                <ValidationMessage For="@(() => currentSalle.Surface)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="typeSalle" class="form-label">Type de Salle</label>
+                                <InputSelect id="typeSalle" class="form-control" @bind-Value="currentSalle.TypeSalleId">
+                                    @foreach (var type in ViewModel.TypesSalle)
+                                    {
+                                        <option value="@type.TypeSalleId">@type.Nom</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="batiment" class="form-label">Bâtiment</label>
+                                <InputSelect id="batiment" class="form-control" @bind-Value="currentSalle.BatimentId">
+                                    @foreach (var batiment in ViewModel.Batiments)
+                                    {
+                                        <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => currentSalle.BatimentId)" />
                             </div>
 
                             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -117,7 +143,7 @@
                         <button type="button" class="btn-close" @onclick="() => showDeleteConfirmation = false"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Êtes-vous sûr de vouloir supprimer ce bâtiment ?</p>
+                        <p>Êtes-vous sûr de vouloir supprimer cette salle ?</p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" @onclick="() => showDeleteConfirmation = false">Annuler</button>
@@ -133,38 +159,40 @@
 @code {
     private bool showModal = false;
     private bool showDeleteConfirmation = false;
-    private bool isNewBatiment = false;
-    private Batiment currentBatiment = new();
-    private Batiment batimentToDelete;
+    private bool isNewSalle = false;
+    private Salle currentSalle = new();
+    private Salle salleToDelete;
 
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadDataAsync();
     }
 
-    private void EditBatiment(Batiment batiment)
+    private void EditSalle(Salle salle)
     {
-        currentBatiment = new Batiment
+        currentSalle = new Salle
             {
-                BatimentId = batiment.BatimentId,
-                Nom = batiment.Nom,
-                Adresse = batiment.Adresse
+                SalleId = salle.SalleId,
+                Nom = salle.Nom,
+                Surface = salle.Surface,
+                TypeSalleId = salle.TypeSalleId,
+                BatimentId = salle.BatimentId
             };
-        isNewBatiment = false;
+        isNewSalle = false;
         showModal = true;
     }
 
-    private void DeleteBatiment(Batiment batiment)
+    private void DeleteSalle(Salle salle)
     {
-        batimentToDelete = batiment;
+        salleToDelete = salle;
         showDeleteConfirmation = true;
     }
 
     private async Task ConfirmDelete()
     {
-        if (batimentToDelete != null)
+        if (salleToDelete != null)
         {
-            if (await ViewModel.DeleteBatimentAsync(batimentToDelete.BatimentId))
+            if (await ViewModel.DeleteSalleAsync(salleToDelete.SalleId))
             {
                 showDeleteConfirmation = false;
             }
@@ -174,13 +202,13 @@
     private async Task HandleValidSubmit()
     {
         bool success;
-        if (isNewBatiment)
+        if (isNewSalle)
         {
-            success = await ViewModel.AddBatimentAsync(currentBatiment);
+            success = await ViewModel.AddSalleAsync(currentSalle);
         }
         else
         {
-            success = await ViewModel.UpdateBatimentAsync(currentBatiment);
+            success = await ViewModel.UpdateSalleAsync(currentSalle);
         }
 
         if (success)
@@ -192,7 +220,7 @@
     private void CloseModal()
     {
         showModal = false;
-        currentBatiment = new();
+        currentSalle = new();
         ViewModel.ErrorMessage = null;
         ViewModel.SuccessMessage = null;
     }

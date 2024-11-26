@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SAE_APIGestion.Migrations
 {
     /// <inheritdoc />
-    public partial class CreationDB4 : Migration
+    public partial class CreationBDSAE : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -218,10 +218,10 @@ namespace SAE_APIGestion.Migrations
                 {
                     dcp_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    dcp_valeur = table.Column<double>(type: "double precision", nullable: false),
+                    dcp_timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     cap_id = table.Column<int>(type: "integer", nullable: false),
-                    tdc_id = table.Column<int>(type: "integer", nullable: false),
-                    dc_valeur = table.Column<double>(type: "double precision", nullable: false),
-                    dc_timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    tdc_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

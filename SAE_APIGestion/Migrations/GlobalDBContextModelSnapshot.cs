@@ -128,7 +128,7 @@ namespace SAE_APIGestion.Migrations
 
                     b.Property<DateTime>("Timestamp")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("dc_timestamp");
+                        .HasColumnName("dcp_timestamp");
 
                     b.Property<int>("TypeDonneesId")
                         .HasColumnType("integer")
@@ -136,7 +136,7 @@ namespace SAE_APIGestion.Migrations
 
                     b.Property<double>("Valeur")
                         .HasColumnType("double precision")
-                        .HasColumnName("dc_valeur");
+                        .HasColumnName("dcp_valeur");
 
                     b.HasKey("DonneesCapteurId")
                         .HasName("pk_donnees_capteur");

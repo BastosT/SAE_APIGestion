@@ -52,10 +52,10 @@
                             <h5 class="mb-0">@salle.Nom</h5>
                             <div>
                                 <button class="btn btn-warning btn-sm me-2" @onclick="() => EditSalle(salle)">
-                                    <i class="fas fa-edit"></i>
+                                    <i class="bi bi-pencil-square"></i>
                                 </button>
                                 <button class="btn btn-danger btn-sm" @onclick="() => DeleteSalle(salle)">
-                                    <i class="fas fa-trash"></i>
+                                    <i class="bi bi-trash"></i>
                                 </button>
                             </div>
                         </div>
@@ -397,8 +397,8 @@
     }
 
     .wall {
-        background-color: #f8f9fa;
-        border: 1px solid #dee2e6;
+        background-color: #2b3035; /* Fond foncé */
+        border: 1px solid #1a1d20; /* Bordure plus foncée */
         padding: 0.75rem;
         text-align: center;
         cursor: pointer;
@@ -408,12 +408,13 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
+        color: #ffffff; /* Texte blanc pour meilleur contraste */
     }
 
-    .wall:hover {
-            background-color: #e9ecef;
+        .wall:hover {
+            background-color: #373b3e; /* Couleur hover légèrement plus claire */
             transform: scale(1.02);
-    }
+        }
 
     .wall-middle-container {
         display: flex;
@@ -438,16 +439,16 @@
 
     .wall-name {
         font-weight: 500;
-        color: #495057;
+        color: #e9ecef; /* Couleur claire pour le nom */
     }
 
     .wall-dimensions {
-        color: #6c757d;
+        color: #adb5bd; /* Gris clair pour les dimensions */
         font-size: 0.85rem;
     }
 
     .wall-details {
-        color: #6c757d;
+        color: #adb5bd; /* Gris clair pour les détails */
         font-size: 0.8rem;
     }
 
@@ -456,7 +457,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #e9ecef;
+        background-color: #212529; /* Centre plus foncé */
+        color: #ffffff; /* Texte blanc */
         border-radius: 4px;
         padding: 1.5rem;
     }
@@ -465,11 +467,17 @@
         font-weight: bold;
         display: block;
         margin-bottom: 0.25rem;
+        color: #ffffff; /* Texte blanc pour les labels */
     }
 
     .wall small {
         display: block;
-        color: #6c757d;
+        color: #adb5bd; /* Gris clair pour le texte small */
+    }
+
+    /* Pour le texte "Non défini" */
+    .wall .text-muted {
+        color: #6c757d !important; /* Gris plus visible sur fond foncé */
     }
 </style>
 

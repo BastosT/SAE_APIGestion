@@ -7,10 +7,14 @@ namespace SAE_CLIENTGestion.ViewModels
     public partial class SallesViewModel : ObservableObject
     {
         private readonly IService<Salle> _salleService;
+        private readonly IService<Batiment> _batimentService;
 
-        public SallesViewModel(IService<Salle> salleService)
+        public SallesViewModel(
+            IService<Salle> salleService,
+            IService<Batiment> batimentService)
         {
             _salleService = salleService;
+            _batimentService = batimentService;
         }
 
         [ObservableProperty]
@@ -19,8 +23,6 @@ namespace SAE_CLIENTGestion.ViewModels
         [ObservableProperty]
         private List<Salle> _salles = new List<Salle>();
 
-        [ObservableProperty]
-        private List<TypeSalle> _typesSalle = new List<TypeSalle>();
 
         [ObservableProperty]
         private List<Batiment> _batiments = new List<Batiment>();
@@ -39,6 +41,7 @@ namespace SAE_CLIENTGestion.ViewModels
                 var tasks = new List<Task>
                 {
                     LoadSallesAsync(),
+                    LoadBatimentsAsync()
                 };
 
                 await Task.WhenAll(tasks);
@@ -65,6 +68,18 @@ namespace SAE_CLIENTGestion.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors du chargement des salles : {ex.Message}";
+            }
+        }
+
+        private async Task LoadBatimentsAsync()
+        {
+            try
+            {
+                Batiments = await _batimentService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des bâtiments : {ex.Message}";
             }
         }
 

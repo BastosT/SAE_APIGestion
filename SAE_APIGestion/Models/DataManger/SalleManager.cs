@@ -20,6 +20,32 @@ namespace SAE_APIGestion.Models.DataManger
             return globalDBContext.Salles
                 .Include(b => b.TypeSalle)
                 .Include(b => b.Batiment)
+
+                .Include(s => s.MurDroite)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurDroite)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+                .Include(s => s.MurGauche)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurGauche)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+                .Include(s => s.MurEntree)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurEntree)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+                .Include(s => s.MurFace)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurFace)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+
                 .ToList();
         }
 
@@ -27,11 +53,32 @@ namespace SAE_APIGestion.Models.DataManger
         {
             return globalDBContext.Salles
                 .Include(b => b.TypeSalle)
-                .Include(b => b.MurDroite)
-                .Include(b => b.MurGauche)
-                .Include(b => b.MurEntree)
-                .Include(b => b.MurFace)
                 .Include(b => b.Batiment)
+
+                .Include(s => s.MurDroite)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurDroite)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+                .Include(s => s.MurGauche)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurGauche)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+                .Include(s => s.MurEntree)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurEntree)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
+                .Include(s => s.MurFace)
+                    .ThenInclude(m => m.Equipements)
+                        .ThenInclude(e => e.TypeEquipement)
+                .Include(s => s.MurFace)
+                    .ThenInclude(m => m.Capteurs)
+                        .ThenInclude(c => c.DonneesCapteurs)
                 .FirstOrDefault(p => p.SalleId == id);
         }
 

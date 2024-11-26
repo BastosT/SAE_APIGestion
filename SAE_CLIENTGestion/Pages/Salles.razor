@@ -1,13 +1,11 @@
 ﻿@page "/salles"
 @using SAE_CLIENTGestion.Models
-@using SAE_CLIENTGestion.ViewModels;
+@using SAE_CLIENTGestion.ViewModels
 @inject SallesViewModel ViewModel
 
-<PageTitle>Salles</PageTitle>
+<PageTitle>Gestion des Salles</PageTitle>
 
-<div class="container">
-    <h3>Liste des Salles</h3>
-
+<div class="container-fluid">
     @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -24,63 +22,164 @@
         </div>
     }
 
-    <!-- Bouton Ajouter -->
-    <button class="btn btn-primary mb-3" @onclick="() => { currentSalle = new(); showModal = true; isNewSalle = true; }">
-        Ajouter une Salle
-    </button>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Gestion des Salles</h2>
+        <button class="btn btn-primary" @onclick="() => { currentSalle = new(); showModal = true; isNewSalle = true; }">
+            <i class="fas fa-plus"></i> Nouvelle Salle
+        </button>
+    </div>
 
     @if (ViewModel.IsLoading)
     {
-        <p><em>Chargement des salles...</em></p>
+        <div class="d-flex justify-content-center">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Chargement...</span>
+            </div>
+        </div>
     }
     else if (ViewModel.Salles.Count == 0)
     {
-        <p>Aucune salle trouvée.</p>
+        <div class="alert alert-info">Aucune salle n'a été créée.</div>
     }
     else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Nom</th>
-                    <th>Surface</th>
-                    <th>Type</th>
-                    <th>Bâtiment</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var salle in ViewModel.Salles)
-                {
-                    <tr>
-                        <td>@salle.SalleId</td>
-                        <td>@salle.Nom</td>
-                        <td>@salle.Surface m²</td>
-                        <td>@salle.TypeSalleId</td>
-                        <td>@salle.BatimentId</td>
-                        <td>
-                            <button class="btn btn-warning btn-sm" @onclick="() => EditSalle(salle)">
-                                Modifier
-                            </button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => DeleteSalle(salle)">
-                                Supprimer
-                            </button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+            @foreach (var salle in ViewModel.Salles)
+            {
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@salle.Nom</h5>
+                            <div>
+                                <button class="btn btn-warning btn-sm me-2" @onclick="() => EditSalle(salle)">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteSalle(salle)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <strong>Surface:</strong> @salle.Surface m²<br>
+                                <strong>Bâtiment:</strong> @salle.Batiment.Nom<br>
+                                <strong>Type:</strong> @salle.TypeSalleId
+                            </div>
+
+                            <div class="room-walls-container">
+                                <!-- Visualisation schématique de la salle -->
+                                <div class="room-layout">
+                                    <!-- Mur du Haut (Face) -->
+                                    <div class="wall wall-top" @onclick="() => EditWall(salle.MurFace)">
+                                        <span class="wall-label">Mur Face</span>
+                                        @if (salle.MurFace != null)
+                                        {
+                                            <div class="wall-info">
+                                                <small class="wall-name">@salle.MurFace.Nom</small>
+                                                <small class="wall-dimensions">
+                                                    L: @salle.MurFace.Longueur m × H: @salle.MurFace.Hauteur m
+                                                </small>
+                                                <small class="wall-details">
+                                                    @salle.MurFace.Equipements?.Count équipements
+                                                    @salle.MurFace.Capteurs?.Count capteurs
+                                                </small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">Non défini</small>
+                                        }
+                                    </div>
+
+                                    <div class="wall-middle-container">
+                                        <!-- Mur Gauche -->
+                                        <div class="wall wall-left" @onclick="() => EditWall(salle.MurGauche)">
+                                            <span class="wall-label">Mur Gauche</span>
+                                            @if (salle.MurGauche != null)
+                                            {
+                                                <div class="wall-info">
+                                                    <small class="wall-name">@salle.MurGauche.Nom</small>
+                                                    <small class="wall-dimensions">
+                                                        L: @salle.MurGauche.Longueur m × H: @salle.MurGauche.Hauteur m
+                                                    </small>
+                                                    <small class="wall-details">
+                                                        @salle.MurGauche.Equipements?.Count équipements
+                                                        @salle.MurGauche.Capteurs?.Count capteurs
+                                                    </small>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <small class="text-muted">Non défini</small>
+                                            }
+                                        </div>
+
+                                        <!-- Zone centrale -->
+                                        <div class="room-center">
+                                            <span>@salle.Nom</span>
+                                        </div>
+
+                                        <!-- Mur Droit -->
+                                        <div class="wall wall-right" @onclick="() => EditWall(salle.MurDroite)">
+                                            <span class="wall-label">Mur Droit</span>
+                                            @if (salle.MurDroite != null)
+                                            {
+                                                <div class="wall-info">
+                                                    <small class="wall-name">@salle.MurDroite.Nom</small>
+                                                    <small class="wall-dimensions">
+                                                        L: @salle.MurDroite.Longueur m × H: @salle.MurDroite.Hauteur m
+                                                    </small>
+                                                    <small class="wall-details">
+                                                        @salle.MurDroite.Equipements?.Count équipements
+                                                        @salle.MurDroite.Capteurs?.Count capteurs
+                                                    </small>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <small class="text-muted">Non défini</small>
+                                            }
+                                        </div>
+                                    </div>
+
+                                    <!-- Mur du Bas (Entrée) -->
+                                    <div class="wall wall-bottom" @onclick="() => EditWall(salle.MurEntree)">
+                                        <span class="wall-label">Mur Entrée</span>
+                                        @if (salle.MurEntree != null)
+                                        {
+                                            <div class="wall-info">
+                                                <small class="wall-name">@salle.MurEntree.Nom</small>
+                                                <small class="wall-dimensions">
+                                                    L: @salle.MurEntree.Longueur m × H: @salle.MurEntree.Hauteur m
+                                                </small>
+                                                <small class="wall-details">
+                                                    @salle.MurEntree.Equipements?.Count équipements
+                                                    @salle.MurEntree.Capteurs?.Count capteurs
+                                                </small>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <small class="text-muted">Non défini</small>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
     }
 
-    <!-- Modal pour Ajout/Modification -->
+    <!-- Modal pour Ajout/Modification de Salle -->
     @if (showModal)
     {
         <div class="modal fade show" style="display: block;" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">@(isNewSalle ? "Ajouter une salle" : "Modifier la salle")</h5>
+                        <h5 class="modal-title">@(isNewSalle ? "Nouvelle Salle" : "Modifier la Salle")</h5>
                         <button type="button" class="btn-close" @onclick="CloseModal"></button>
                     </div>
                     <div class="modal-body">
@@ -88,42 +187,116 @@
                             <DataAnnotationsValidator />
                             <ValidationSummary />
 
-                            <div class="mb-3">
-                                <label for="nom" class="form-label">Nom</label>
-                                <InputText id="nom" class="form-control" @bind-Value="currentSalle.Nom" />
-                                <ValidationMessage For="@(() => currentSalle.Nom)" />
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nom</label>
+                                    <InputText class="form-control" @bind-Value="currentSalle.Nom" />
+                                    <ValidationMessage For="@(() => currentSalle.Nom)" />
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Surface (m²)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentSalle.Surface" />
+                                    <ValidationMessage For="@(() => currentSalle.Surface)" />
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Bâtiment</label>
+                                    <InputSelect class="form-control" @bind-Value="currentSalle.BatimentId">
+                                        @foreach (var batiment in ViewModel.Batiments)
+                                        {
+                                            <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+
+                                <div class="col-12">
+                                    <h6 class="mb-3">Configuration des Murs</h6>
+
+                                    <div class="row g-3">
+                                        <!-- Mur Face -->
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">Mur Face</div>
+                                                <div class="card-body">
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Type</label>
+                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurFaceId">
+                                                            <option value="">Sélectionner un type</option>
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
+                                                            {
+                                                                <option value="@type">@type</option>
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mur Entrée -->
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">Mur Entrée</div>
+                                                <div class="card-body">
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Type</label>
+                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurEntreeId">
+                                                            <option value="">Sélectionner un type</option>
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
+                                                            {
+                                                                <option value="@type">@type</option>
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mur Gauche -->
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">Mur Gauche</div>
+                                                <div class="card-body">
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Type</label>
+                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurGaucheId">
+                                                            <option value="">Sélectionner un type</option>
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
+                                                            {
+                                                                <option value="@type">@type</option>
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Mur Droit -->
+                                        <div class="col-md-6">
+                                            <div class="card">
+                                                <div class="card-header">Mur Droit</div>
+                                                <div class="card-body">
+                                                    <div class="mb-2">
+                                                        <label class="form-label">Type</label>
+                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurDroiteId">
+                                                            <option value="">Sélectionner un type</option>
+                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
+                                                            {
+                                                                <option value="@type">@type</option>
+                                                            }
+                                                        </InputSelect>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label for="surface" class="form-label">Surface (m²)</label>
-                                <InputNumber id="surface" class="form-control" @bind-Value="currentSalle.Surface" />
-                                <ValidationMessage For="@(() => currentSalle.Surface)" />
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuler</button>
                             </div>
-
-                            <div class="mb-3">
-                                <label for="typeSalle" class="form-label">Type de Salle</label>
-                                <InputSelect id="typeSalle" class="form-control" @bind-Value="currentSalle.TypeSalleId">
-                                    @foreach (var type in ViewModel.TypesSalle)
-                                    {
-                                        <option value="@type.TypeSalleId">@type.Nom</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="batiment" class="form-label">Bâtiment</label>
-                                <InputSelect id="batiment" class="form-control" @bind-Value="currentSalle.BatimentId">
-                                    @foreach (var batiment in ViewModel.Batiments)
-                                    {
-                                        <option value="@batiment.BatimentId">@batiment.Nom</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="@(() => currentSalle.BatimentId)" />
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                            <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuler</button>
                         </EditForm>
                     </div>
                 </div>
@@ -154,14 +327,160 @@
         </div>
         <div class="modal-backdrop fade show"></div>
     }
+
+    @if (showWallModal)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modifier le Mur</h5>
+                        <button type="button" class="btn-close" @onclick="CloseWallModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentMur" OnValidSubmit="HandleWallSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentMur.Nom" />
+                                <ValidationMessage For="@(() => currentMur.Nom)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Longueur (m)</label>
+                                <InputNumber class="form-control" @bind-Value="currentMur.Longueur" />
+                                <ValidationMessage For="@(() => currentMur.Longueur)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Hauteur (m)</label>
+                                <InputNumber class="form-control" @bind-Value="currentMur.Hauteur" />
+                                <ValidationMessage For="@(() => currentMur.Hauteur)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Type de Mur</label>
+                                <InputSelect class="form-control" @bind-Value="currentMur.Type">
+                                    @foreach (var type in Enum.GetValues(typeof(TypeMur)))
+                                    {
+                                        <option value="@type">@type</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseWallModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
 </div>
+
+<style>
+    .room-walls-container {
+        padding: 1rem;
+    }
+
+    .room-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        max-width: 400px;
+        margin: 0 auto;
+    }
+
+    .wall {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        padding: 0.75rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        border-radius: 4px;
+        min-height: 85px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .wall:hover {
+            background-color: #e9ecef;
+            transform: scale(1.02);
+    }
+
+    .wall-middle-container {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+        align-items: stretch;
+        min-height: 120px;
+    }
+
+    .wall-left, .wall-right {
+        width: 100px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .wall-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .wall-name {
+        font-weight: 500;
+        color: #495057;
+    }
+
+    .wall-dimensions {
+        color: #6c757d;
+        font-size: 0.85rem;
+    }
+
+    .wall-details {
+        color: #6c757d;
+        font-size: 0.8rem;
+    }
+
+    .room-center {
+        flex-grow: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #e9ecef;
+        border-radius: 4px;
+        padding: 1.5rem;
+    }
+
+    .wall-label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .wall small {
+        display: block;
+        color: #6c757d;
+    }
+</style>
 
 @code {
     private bool showModal = false;
+    private bool showWallModal = false;
     private bool showDeleteConfirmation = false;
     private bool isNewSalle = false;
     private Salle currentSalle = new();
     private Salle salleToDelete;
+    private Mur currentMur;
 
     protected override async Task OnInitializedAsync()
     {
@@ -176,7 +495,11 @@
                 Nom = salle.Nom,
                 Surface = salle.Surface,
                 TypeSalleId = salle.TypeSalleId,
-                BatimentId = salle.BatimentId
+                BatimentId = salle.BatimentId,
+                MurFaceId = salle.MurFaceId,
+                MurEntreeId = salle.MurEntreeId,
+                MurGaucheId = salle.MurGaucheId,
+                MurDroiteId = salle.MurDroiteId
             };
         isNewSalle = false;
         showModal = true;
@@ -199,6 +522,33 @@
         }
     }
 
+    private void EditWall(Mur mur)
+    {
+        if (mur != null)
+        {
+            currentMur = new Mur
+                {
+                    MurId = mur.MurId,
+                    Nom = mur.Nom,
+                    Longueur = mur.Longueur,
+                    Hauteur = mur.Hauteur,
+                    Type = mur.Type,
+                    Equipements = new List<Equipement>(mur.Equipements),
+                    Capteurs = new List<Capteur>(mur.Capteurs)
+                };
+            showWallModal = true;
+        }
+        else
+        {
+            currentMur = new Mur
+                {
+                    Equipements = new List<Equipement>(),
+                    Capteurs = new List<Capteur>()
+                };
+            showWallModal = true;
+        }
+    }
+
     private async Task HandleValidSubmit()
     {
         bool success;
@@ -217,11 +567,23 @@
         }
     }
 
+    private async Task HandleWallSubmit()
+    {
+    }
+
     private void CloseModal()
     {
         showModal = false;
+        showWallModal = false;
         currentSalle = new();
         ViewModel.ErrorMessage = null;
         ViewModel.SuccessMessage = null;
+    }
+
+    private void CloseWallModal()
+    {
+        showWallModal = false;
+        currentMur = null;
+        ViewModel.ErrorMessage = null;
     }
 }

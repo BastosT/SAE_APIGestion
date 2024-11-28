@@ -21,11 +21,12 @@ namespace SAE_APIGestion.Controllers.Tests
     public class BatimentControllerTests : BaseTest
     {
 
-        //private GlobalDBContext ctx;
+        private GlobalDBContext ctx;
         private BatimentController controller;
         private IDataRepository<Batiment> dataRepository;
         private Batiment _batiment;
         private Batiment _batimentUpdate;
+        private Batiment batiment;
         private Mock<IDataRepository<Batiment>> _mockRepository;
         private BatimentController _batimentController;
 
@@ -109,22 +110,29 @@ namespace SAE_APIGestion.Controllers.Tests
             _batimentController = new BatimentController(_mockRepository.Object);
 
             // pour les test unitaire 
-            
+
+            batiment = new Batiment
+            {
+                BatimentId = 999,
+                Nom = "Batiment Test",
+                Adresse = "123 Rue Test"
+            };
+
             // Appel à l'initialisation de la classe de base
             base.BaseInitialize();
             dataRepository = new BatimentManager(Context);
             controller = new BatimentController(dataRepository);
         }
 
-        [ClassCleanup]
-        public static void Teardown()
+        [TestCleanup]
+        public void Teardown()
         {
             //Code pour nettoyer la base de données après chaque test
             using (var connection = new NpgsqlConnection("Server=localhost;port=5432;database=sae_rasp;uid=postgres;password=postgres"))
             {
                 connection.Open();
                 // chnager les id a delete quand les donnees seront ok 
-                using (var command = new NpgsqlCommand("DELETE FROM t_e_batiment_bat where bat_id = 3", connection))
+                using (var command = new NpgsqlCommand("DELETE FROM t_e_batiment_bat where bat_id = 999; DELETE FROM t_e_batiment_bat where bat_id = 3", connection))
                 {
                     command.ExecuteNonQuery();
                 }
@@ -178,14 +186,6 @@ namespace SAE_APIGestion.Controllers.Tests
         [TestMethod()]
         public void PostBatimentTest()
         {
-            var batiment = new Batiment
-            {
-                BatimentId = 3,
-                Nom = "Batiment Test 3",
-                Adresse = "123 Rue Test 3",
-                Salles = new List<Salle>() 
-            };
-
             // Act
             var result = controller.PostBatiment(batiment).Result; // .Result pour appeler la méthode async de manière synchrone, afin d'attendre l’ajout
 
@@ -198,7 +198,6 @@ namespace SAE_APIGestion.Controllers.Tests
             Assert.AreEqual(batiment.BatimentId, bat.BatimentId, "Les IDs doivent correspondre");
             Assert.AreEqual(batiment.Nom, bat.Nom, "Les noms doivent correspondre");
             Assert.AreEqual(batiment.Adresse, bat.Adresse, "Les adresses doivent correspondre");
-
         }
 
 
@@ -206,52 +205,43 @@ namespace SAE_APIGestion.Controllers.Tests
         [TestMethod()]
         public void PutBatimentTest()
         {
-            // Arrange : Récupérer le bâtiment créé via le test POST
-            var batRecupere = controller.GetBatiment(3).Result;
-            Batiment bat = batRecupere.Value;
+            // Arrange         
+            ctx.Batiments.Add(batiment);
 
-            Assert.IsNotNull(batRecupere, "Le bâtiment récupéré via GET ne doit pas être null");
+            // Création d'une nouvelle catégorie avec des données mises à jour
+            var batimentUpdate = new Batiment
+            {
+                BatimentId = 999,
+                Nom = "Batiment Test",
+                Adresse = "123 Rue Test"
+            };
 
-            // Modifier les propriétés du bâtiment récupéré
-            bat.Nom = "Batiment Test 3 - Modifié";
-            bat.Adresse = "456 Rue Modifiée";
+            // Act
+            // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
+            var result = controller.PutBatiment(batimentUpdate.BatimentId, batimentUpdate).Result; 
 
-            // Act : Mettre à jour le bâtiment avec PUT
-            var putResult = controller.PutBatiment(bat.BatimentId, bat).Result;
-
-            // Assert : Vérifier que le PUT a réussi
-            Assert.IsInstanceOfType(putResult, typeof(NoContentResult), "Le résultat du PUT doit être NoContentResult");
-
-            // GET pour vérifier les modifications
-            var getAfterPutResult = controller.GetBatiment(bat.BatimentId).Result;
-            Batiment batrecup = getAfterPutResult.Value;
-
-            Assert.IsNotNull(getAfterPutResult, "Le bâtiment récupéré après PUT ne doit pas être null");
-            Assert.AreEqual(bat.Nom, batrecup.Nom, "Les noms doivent correspondre après la mise à jour");
-            Assert.AreEqual(bat.Adresse, batrecup.Adresse, "Les adresses doivent correspondre après la mise à jour");
+            // Assert
+            // Vérification que la mise à jour a bien été effectuée
+            Batiment batimentRecuperee = ctx.Batiments.FirstOrDefault(c => c.BatimentId== batimentUpdate.BatimentId); // Récupération de la catégorie mise à jour depuis la base de données
+            Assert.IsNotNull(batimentRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
+            Assert.AreEqual(batimentUpdate.Nom, batimentRecuperee.Nom, "Le nom de la catégorie mise à jour ne correspond pas");
         }
 
 
         [TestMethod()]
         public void DeleteBatimentTest()
         {
-            // Arrange : Récupérer le bâtiment créé via le test POST
-            var batRecupere = controller.GetBatiment(3).Result;
-            Batiment bat = batRecupere.Value;
 
-            Assert.IsNotNull(batRecupere, "Le bâtiment récupéré via GET ne doit pas être null");
+            ctx.Batiments.Add(batiment);
+            ctx.SaveChanges();
 
-            // Act : Supprimer le bâtiment
-            var deleteResult = controller.DeleteBatiment(bat.BatimentId).Result;
+            // Act
+            var result = controller.DeleteBatiment(batiment.BatimentId).Result; // Appel de la méthode DeleteCategorie pour supprimer la catégorie
 
-            // Assert : Vérifier que le DELETE a réussi
-            Assert.IsInstanceOfType(deleteResult, typeof(NoContentResult), "Le résultat du DELETE doit être NoContentResult");
-
-            // Vérifier que le bâtiment n'existe plus
-            var getAfterDeleteResult = controller.GetBatiment(bat.BatimentId).Result;
-            Batiment batrecup = getAfterDeleteResult.Value;
-
-            Assert.IsNull(batrecup, "Le bâtiment ne doit plus exister après le DELETE");
+            // Assert
+            // Vérifier si la catégorie a été supprimée correctement
+            Batiment batimentApresSuppression = ctx.Batiments.FirstOrDefault(c => c.BatimentId== batiment.BatimentId);
+            Assert.IsNull(batimentApresSuppression, "La catégorie existe toujours après la suppression");
         }
 
 

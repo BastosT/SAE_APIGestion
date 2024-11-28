@@ -14,14 +14,13 @@ using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
 using SAE_APIGestion.Models.DataManger;
 using SAE_APIGestionTests.Controllers;
+using Microsoft.Extensions.Options;
 
 namespace SAE_APIGestion.Controllers.Tests
 {
     [TestClass()]
     public class BatimentControllerTests : BaseTest
     {
-
-        private GlobalDBContext ctx;
         private BatimentController controller;
         private IDataRepository<Batiment> dataRepository;
         private Batiment _batiment;
@@ -206,7 +205,7 @@ namespace SAE_APIGestion.Controllers.Tests
         public void PutBatimentTest()
         {
             // Arrange         
-            ctx.Batiments.Add(batiment);
+            controller.PostBatiment(batiment);
 
             // Création d'une nouvelle catégorie avec des données mises à jour
             var batimentUpdate = new Batiment
@@ -222,7 +221,8 @@ namespace SAE_APIGestion.Controllers.Tests
 
             // Assert
             // Vérification que la mise à jour a bien été effectuée
-            Batiment batimentRecuperee = ctx.Batiments.FirstOrDefault(c => c.BatimentId== batimentUpdate.BatimentId); // Récupération de la catégorie mise à jour depuis la base de données
+            Batiment batimentRecuperee = Context.Batiments.FirstOrDefault(c => c.BatimentId == batimentUpdate.BatimentId);
+            //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
             Assert.IsNotNull(batimentRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
             Assert.AreEqual(batimentUpdate.Nom, batimentRecuperee.Nom, "Le nom de la catégorie mise à jour ne correspond pas");
         }
@@ -232,15 +232,14 @@ namespace SAE_APIGestion.Controllers.Tests
         public void DeleteBatimentTest()
         {
 
-            ctx.Batiments.Add(batiment);
-            ctx.SaveChanges();
+            controller.PostBatiment(batiment);
 
             // Act
             var result = controller.DeleteBatiment(batiment.BatimentId).Result; // Appel de la méthode DeleteCategorie pour supprimer la catégorie
 
             // Assert
             // Vérifier si la catégorie a été supprimée correctement
-            Batiment batimentApresSuppression = ctx.Batiments.FirstOrDefault(c => c.BatimentId== batiment.BatimentId);
+            Batiment batimentApresSuppression = Context.Batiments.FirstOrDefault(c => c.BatimentId == batiment.BatimentId);
             Assert.IsNull(batimentApresSuppression, "La catégorie existe toujours après la suppression");
         }
 

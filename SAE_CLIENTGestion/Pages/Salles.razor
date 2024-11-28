@@ -331,49 +331,202 @@
     @if (showWallModal)
     {
         <div class="modal fade show" style="display: block;" tabindex="-1">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Modifier le Mur</h5>
                         <button type="button" class="btn-close" @onclick="CloseWallModal"></button>
                     </div>
                     <div class="modal-body">
-                        <EditForm Model="@currentMur" OnValidSubmit="HandleWallSubmit">
+                        <div class="accordion" id="wallAccordion">
+                            <!-- Informations générales du mur -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#generalInfo">
+                                        Informations générales
+                                    </button>
+                                </h2>
+                                <div id="generalInfo" class="accordion-collapse collapse show">
+                                    <div class="accordion-body">
+                                        <EditForm Model="@currentMur" OnValidSubmit="HandleWallSubmit">
+                                            <DataAnnotationsValidator />
+                                            <ValidationSummary />
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Nom</label>
+                                                <InputText class="form-control" @bind-Value="currentMur.Nom" />
+                                                <ValidationMessage For="@(() => currentMur.Nom)" />
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Longueur (m)</label>
+                                                <InputNumber class="form-control" @bind-Value="currentMur.Longueur" />
+                                                <ValidationMessage For="@(() => currentMur.Longueur)" />
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Hauteur (m)</label>
+                                                <InputNumber class="form-control" @bind-Value="currentMur.Hauteur" />
+                                                <ValidationMessage For="@(() => currentMur.Hauteur)" />
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Type de Mur</label>
+                                                <InputSelect class="form-control" @bind-Value="currentMur.Type">
+                                                    @foreach (var type in Enum.GetValues(typeof(TypeMur)))
+                                                    {
+                                                        <option value="@type">@type</option>
+                                                    }
+                                                </InputSelect>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                                        </EditForm>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gestion des Capteurs -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#capteurs">
+                                        Capteurs (@(currentMur.Capteurs?.Count ?? 0))
+                                    </button>
+                                </h2>
+                                <div id="capteurs" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <h6>Liste des capteurs</h6>
+                                            <button class="btn btn-sm btn-primary" @onclick="() => AddNewCapteur()">
+                                                <i class="fas fa-plus"></i> Ajouter un capteur
+                                            </button>
+                                        </div>
+
+                                        @if (currentMur.Capteurs?.Any() != true)
+                                        {
+                                            <div class="alert alert-info">Aucun capteur installé sur ce mur.</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="list-group">
+                                                @foreach (var capteur in currentMur.Capteurs)
+                                                {
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <h6 class="mb-1">@capteur.Nom</h6>
+                                                                <small>Position: X:@capteur.PositionX m, Y:@capteur.PositionY m</small>
+                                                            </div>
+                                                            <div>
+                                                                <button class="btn btn-sm btn-warning me-2" @onclick="() => EditCapteur(capteur)">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteCapteur(capteur)">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Gestion des Équipements -->
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#equipements">
+                                        Équipements (@(currentMur.Equipements?.Count ?? 0))
+                                    </button>
+                                </h2>
+                                <div id="equipements" class="accordion-collapse collapse">
+                                    <div class="accordion-body">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <h6>Liste des équipements</h6>
+                                            <button class="btn btn-sm btn-primary" @onclick="() => AddNewEquipement()">
+                                                <i class="fas fa-plus"></i> Ajouter un équipement
+                                            </button>
+                                        </div>
+
+                                        @if (currentMur.Equipements?.Any() != true)
+                                        {
+                                            <div class="alert alert-info">Aucun équipement installé sur ce mur.</div>
+                                        }
+                                        else
+                                        {
+                                            <div class="list-group">
+                                                @foreach (var equipement in currentMur.Equipements)
+                                                {
+                                                    <div class="list-group-item">
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <div>
+                                                                <h6 class="mb-1">@equipement.Nom</h6>
+                                                                <small>Position: X:@equipement.PositionX m, Y:@equipement.PositionY m</small>
+                                                            </div>
+                                                            <div>
+                                                                <button class="btn btn-sm btn-warning me-2" @onclick="() => EditEquipement(equipement)">
+                                                                    <i class="bi bi-pencil"></i>
+                                                                </button>
+                                                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteEquipement(equipement)">
+                                                                    <i class="bi bi-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" @onclick="CloseWallModal">Fermer</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
+    <!-- Modal pour l'édition/ajout de capteur -->
+    @if (showCapteurModal)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewCapteur ? "Nouveau capteur" : "Modifier le capteur")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseCapteurModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
 
                             <div class="mb-3">
                                 <label class="form-label">Nom</label>
-                                <InputText class="form-control" @bind-Value="currentMur.Nom" />
-                                <ValidationMessage For="@(() => currentMur.Nom)" />
+                                <InputText class="form-control" @bind-Value="currentCapteur.Nom" />
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Longueur (m)</label>
-                                <InputNumber class="form-control" @bind-Value="currentMur.Longueur" />
-                                <ValidationMessage For="@(() => currentMur.Longueur)" />
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Position X (m)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentCapteur.PositionX" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Position Y (m)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
+                                </div>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label">Hauteur (m)</label>
-                                <InputNumber class="form-control" @bind-Value="currentMur.Hauteur" />
-                                <ValidationMessage For="@(() => currentMur.Hauteur)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Type de Mur</label>
-                                <InputSelect class="form-control" @bind-Value="currentMur.Type">
-                                    @foreach (var type in Enum.GetValues(typeof(TypeMur)))
-                                    {
-                                        <option value="@type">@type</option>
-                                    }
-                                </InputSelect>
-                            </div>
-
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseWallModal">Annuler</button>
-                            </div>
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseCapteurModal">Annuler</button>
                         </EditForm>
                     </div>
                 </div>
@@ -381,6 +534,48 @@
         </div>
         <div class="modal-backdrop fade show"></div>
     }
+
+    <!-- Modal pour l'édition/ajout d'équipement -->
+    @if (showEquipementModal)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewEquipement ? "Nouvel équipement" : "Modifier l'équipement")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseEquipementModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentEquipement" OnValidSubmit="HandleEquipementSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentEquipement.Nom" />
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Position X (m)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentEquipement.PositionX" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Position Y (m)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentEquipement.PositionY" />
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseEquipementModal">Annuler</button>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
 </div>
 
 <style>
@@ -457,7 +652,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: #212529; /* Centre plus foncé */
+        background-color: #6F7377; /* Centre plus foncé */
         color: #ffffff; /* Texte blanc */
         border-radius: 4px;
         padding: 1.5rem;
@@ -485,10 +680,16 @@
     private bool showModal = false;
     private bool showWallModal = false;
     private bool showDeleteConfirmation = false;
+    private bool showCapteurModal = false;
+    private bool showEquipementModal = false;
     private bool isNewSalle = false;
+    private bool isNewCapteur = false;
+    private bool isNewEquipement = false;
     private Salle currentSalle = new();
     private Salle salleToDelete;
     private Mur currentMur;
+    private Capteur currentCapteur = new();
+    private Equipement currentEquipement = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -541,8 +742,8 @@
                     Longueur = mur.Longueur,
                     Hauteur = mur.Hauteur,
                     Type = mur.Type,
-                    Equipements = new List<Equipement>(mur.Equipements),
-                    Capteurs = new List<Capteur>(mur.Capteurs)
+                    Equipements = new List<Equipement>(mur.Equipements ?? new List<Equipement>()),
+                    Capteurs = new List<Capteur>(mur.Capteurs ?? new List<Capteur>())
                 };
             showWallModal = true;
         }
@@ -568,7 +769,6 @@
         {
             success = await ViewModel.UpdateSalleAsync(currentSalle);
         }
-
         if (success)
         {
             showModal = false;
@@ -577,6 +777,120 @@
 
     private async Task HandleWallSubmit()
     {
+        if (currentMur != null)
+        {
+            await ViewModel.UpdateMurAsync(currentMur);
+            await ViewModel.LoadDataAsync(); // Recharger les données
+            showWallModal = false;
+        }
+    }
+
+    private void AddNewCapteur()
+    {
+        currentCapteur = new Capteur { MurId = currentMur.MurId };
+        isNewCapteur = true;
+        showCapteurModal = true;
+    }
+
+    private void EditCapteur(Capteur capteur)
+    {
+        currentCapteur = new Capteur
+            {
+                CapteurId = capteur.CapteurId,
+                Nom = capteur.Nom,
+                PositionX = capteur.PositionX,
+                PositionY = capteur.PositionY,
+                MurId = capteur.MurId
+            };
+        isNewCapteur = false;
+        showCapteurModal = true;
+    }
+
+    private async Task DeleteCapteur(Capteur capteur)
+    {
+        if (await ViewModel.DeleteCapteurAsync(capteur.CapteurId))
+        {
+            currentMur.Capteurs.Remove(capteur);
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleCapteurSubmit()
+    {
+        if (isNewCapteur)
+        {
+            if (await ViewModel.AddCapteurAsync(currentCapteur))
+            {
+                currentMur.Capteurs.Add(currentCapteur);
+                showCapteurModal = false;
+            }
+        }
+        else
+        {
+            if (await ViewModel.UpdateCapteurAsync(currentCapteur))
+            {
+                var index = currentMur.Capteurs.FindIndex(c => c.CapteurId == currentCapteur.CapteurId);
+                if (index != -1)
+                {
+                    currentMur.Capteurs[index] = currentCapteur;
+                }
+                showCapteurModal = false;
+            }
+        }
+    }
+
+    private void AddNewEquipement()
+    {
+        currentEquipement = new Equipement { MurId = currentMur.MurId };
+        isNewEquipement = true;
+        showEquipementModal = true;
+    }
+
+    private void EditEquipement(Equipement equipement)
+    {
+        currentEquipement = new Equipement
+            {
+                EquipementId = equipement.EquipementId,
+                Nom = equipement.Nom,
+                PositionX = equipement.PositionX,
+                PositionY = equipement.PositionY,
+                MurId = equipement.MurId
+            };
+        isNewEquipement = false;
+        showEquipementModal = true;
+    }
+
+    private async Task DeleteEquipement(Equipement equipement)
+    {
+        if (await ViewModel.DeleteEquipementAsync(equipement.EquipementId))
+        {
+            currentMur.Equipements.Remove(equipement);
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleEquipementSubmit()
+    {
+        if (isNewEquipement)
+        {
+            if (await ViewModel.AddEquipementAsync(currentEquipement))
+            {
+                currentMur.Equipements.Add(currentEquipement);
+                showEquipementModal = false;
+            }
+        }
+        else
+        {
+            if (await ViewModel.UpdateEquipementAsync(currentEquipement))
+            {
+                var index = currentMur.Equipements.FindIndex(e => e.EquipementId == currentEquipement.EquipementId);
+                if (index != -1)
+                {
+                    currentMur.Equipements[index] = currentEquipement;
+                }
+                showEquipementModal = false;
+            }
+        }
     }
 
     private void CloseModal()
@@ -592,6 +906,20 @@
     {
         showWallModal = false;
         currentMur = null;
+        ViewModel.ErrorMessage = null;
+    }
+
+    private void CloseCapteurModal()
+    {
+        showCapteurModal = false;
+        currentCapteur = new();
+        ViewModel.ErrorMessage = null;
+    }
+
+    private void CloseEquipementModal()
+    {
+        showEquipementModal = false;
+        currentEquipement = new();
         ViewModel.ErrorMessage = null;
     }
 }

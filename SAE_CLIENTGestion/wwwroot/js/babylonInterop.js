@@ -12,6 +12,10 @@
         inside: null,
         outside: null
     },
+    scene: null,
+    engine: null,
+    renderLoop: null,
+    resizeListener: null,
 
     initSharedMaterials: function (scene) {
         const baseProperties = {
@@ -778,14 +782,42 @@
         return buildingContainer;
     },
 
+    cleanup: function () {
+        if (this.renderLoop && this.engine) {
+            this.engine.stopRenderLoop(this.renderLoop);
+        }
+
+        if (this.resizeListener) {
+            window.removeEventListener("resize", this.resizeListener);
+            this.resizeListener = null;
+        }
+
+        if (this.scene) {
+            this.scene.dispose();
+            this.scene = null;
+        }
+
+        if (this.engine) {
+            this.engine.dispose();
+            this.engine = null;
+        }
+
+        this.sharedMaterials = {
+            inside: null,
+            outside: null
+        };
+    },
+
     initializeScene: function (canvasId, buildingsDataJson) {
+        this.cleanup();
+
         const canvas = document.getElementById(canvasId);
         if (!canvas) throw new Error('Canvas not found');
 
         const buildingsData = this.convertToNewModel(JSON.parse(buildingsDataJson));
-        const engine = new BABYLON.Engine(canvas, true);
-        const scene = new BABYLON.Scene(engine);
-        scene.clearColor = new BABYLON.Color3(0.3, 0.3, 0.9);
+        this.engine = new BABYLON.Engine(canvas, true);
+        this.scene = new BABYLON.Scene(this.engine);
+        this.scene.clearColor = new BABYLON.Color3(0.3, 0.3, 0.9);
 
         let totalWidth = 0;
         buildingsData.forEach(building => {
@@ -824,10 +856,26 @@
         );
         light.intensity = 0.8;
 
-        engine.runRenderLoop(() => scene.render());
-        window.addEventListener("resize", () => engine.resize());
+        this.engine.runRenderLoop(() => {
+            if (this.scene) {
+                this.scene.render();
+            }
+        });
 
-        return scene;
+        const resizeHandler = () => {
+            if (this.engine) {
+                this.engine.resize();
+            }
+        };
+
+        window.addEventListener("resize", resizeHandler);
+
+        // Nettoyer l'event listener quand la scène est disposée
+        this.scene.onDisposeObservable.add(() => {
+            window.removeEventListener("resize", resizeHandler);
+        });
+
+        return this.scene;
     }
 };
 

@@ -1,136 +1,96 @@
 ﻿using Microsoft.JSInterop;
-using SAE_CLIENTGestion.Models;
 using System.Text.Json;
+using SAE_CLIENTGestion.Models;
+using SAE_CLIENTGestion.Services;
 
 public interface IBabylonJSService
 {
     ValueTask InitializeSceneAsync(string canvasId);
-    List<Batiment> GetBuildings();
+    Task<List<Batiment>> GetBuildingsAsync();
 }
 
 public class BabylonJSService : IBabylonJSService
 {
     private readonly IJSRuntime _jsRuntime;
-    private readonly List<Batiment> _buildings;
+    private readonly IService<Batiment> _batimentService;
+    private List<Batiment> _cachedBuildings;
+    private bool _isInitialized = false;
 
-    public BabylonJSService(IJSRuntime jsRuntime)
+    public BabylonJSService(
+        IJSRuntime jsRuntime,
+        IService<Batiment> batimentService)
     {
         _jsRuntime = jsRuntime;
-        _buildings = InitializeDefaultBuilding();
+        _batimentService = batimentService;
+        _cachedBuildings = new List<Batiment>();
     }
 
-    private List<Batiment> InitializeDefaultBuilding()
+    public async Task<List<Batiment>> GetBuildingsAsync()
     {
-        TypeSalle typeSalle = new TypeSalle { TypeSalleId = 1, Nom = "type salle", Description = "aucune" };
-
-        Capteur capteurDroite1 = new Capteur { CapteurId = 1, Nom = "Capteur D1", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 15, Hauteur = 15, PositionX = 178, PositionY = 98 };
-        Capteur capteurDroite2 = new Capteur { CapteurId = 2, Nom = "Capteur D2", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 10, Hauteur = 10, PositionX = 585, PositionY = 161 };
-
-        Capteur capteurGauche1 = new Capteur { CapteurId = 3, Nom = "Capteur D1", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 10, Hauteur = 10, PositionX = 316, PositionY = 70 };
-        Capteur capteurGauche2 = new Capteur { CapteurId = 4, Nom = "Capteur D2", DistanceChauffage = 0, DistanceFenetre = 0, DistancePorte = 0, EstActif = true, Longeur = 10, Hauteur = 10, PositionX = 662, PositionY = 156 };
-
-
-        TypeEquipement typeRadiateur = new TypeEquipement { TypeEquipementId = 1, Nom = "Radiateur" };
-        TypeEquipement typeFenetre = new TypeEquipement { TypeEquipementId = 2, Nom = "Fenetre" };
-        TypeEquipement typeVitre = new TypeEquipement { TypeEquipementId = 3, Nom = "Vitre" };
-        TypeEquipement typePorte = new TypeEquipement { TypeEquipementId = 4, Nom = "Porte" };
-
-        Equipement radiateur1 = new Equipement { EquipementId = 1, Nom = "Radiateur 1", Longueur = 100, Hauteur = 80, PositionX = 34, PositionY = 180, TypeEquipement = typeRadiateur };
-        Equipement radiateur2 = new Equipement { EquipementId = 2, Nom = "Radiateur 2", Longueur = 100, Hauteur = 80, PositionX = 256, PositionY = 180, TypeEquipement = typeRadiateur };
-
-        Equipement fenetre1 = new Equipement { EquipementId = 3, Nom = "Fenetre 1", Longueur = 100, Hauteur = 165, PositionX = 6, PositionY = 3, TypeEquipement = typeFenetre };
-        Equipement fenetre2 = new Equipement { EquipementId = 4, Nom = "Fenetre 2", Longueur = 100, Hauteur = 165, PositionX = 345, PositionY = 3, TypeEquipement = typeFenetre };
-
-        Equipement vitre1 = new Equipement { EquipementId = 5, Nom = "Fenetre 1", Longueur = 89, Hauteur = 161, PositionX = 125, PositionY = 6, TypeEquipement = typeVitre };
-        Equipement vitre2 = new Equipement { EquipementId = 6, Nom = "Fenetre 2", Longueur = 89, Hauteur = 161, PositionX = 237, PositionY = 6, TypeEquipement = typeVitre };
-        Equipement vitre3 = new Equipement { EquipementId = 7, Nom = "Fenetre 3", Longueur = 89, Hauteur = 161, PositionX = 482, PositionY = 6, TypeEquipement = typeVitre };
-
-        Equipement porte = new Equipement { EquipementId = 8, Nom = "Porte", Longueur = 93, Hauteur = 205, PositionX = 55, PositionY = 67, TypeEquipement = typePorte };
-
-
-        Salle d101 = new Salle
+        try
         {
-            SalleId = 1,
-            Nom = "D101",
-            Surface = 10,
-            TypeSalle = typeSalle,
-            MurFace = new Mur { Hauteur = 270, Longueur = 575, Nom = "Mur Face", Equipements = [fenetre1, fenetre2, vitre1, vitre2, vitre3, radiateur1, radiateur2] },
-            MurEntree = new Mur { Hauteur = 270, Longueur = 575, Nom = "Mur Entree", Equipements = [porte] },
-            MurDroite = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Droite", Capteurs = [capteurDroite1, capteurDroite2] },
-            MurGauche = new Mur { Hauteur = 270, Longueur = 736, Nom = "Mur Gauche", Capteurs = [capteurGauche1, capteurGauche2] },
-        };
-
-        Salle d102 = new Salle
+            // Rafraîchit le cache si nécessaire
+            if (!_cachedBuildings.Any())
+            {
+                _cachedBuildings = await _batimentService.GetAllAsync();
+            }
+            return _cachedBuildings;
+        }
+        catch (Exception ex)
         {
-            SalleId = 2,
-            Nom = "D102",
-            Surface = 5,
-            TypeSalle = typeSalle,
-            MurFace = new Mur { Hauteur = 270, Longueur = 775, Nom = "Mur Face", Equipements = [new Equipement { Longueur = 571, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre}] },
-            MurEntree = new Mur { Hauteur = 270, Longueur = 775, Nom = "Mur Entree", Equipements = [new Equipement { Longueur = 571, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
-            MurDroite = new Mur { Hauteur = 270, Longueur = 936, Nom = "Mur Droite", Equipements = [new Equipement { Longueur = 732, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
-            MurGauche = new Mur { Hauteur = 270, Longueur = 936, Nom = "Mur Gauche", Equipements = [new Equipement { Longueur = 732, Hauteur = 266, PositionX = 2, PositionY = 2, TypeEquipement = typeVitre }] },
-        };
-
-
-        Salle d103 = new Salle
-        {
-            SalleId = 3,
-            Nom = "D103",
-            Surface = 5,
-            TypeSalle = typeSalle,
-            MurFace = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Face", },
-            MurEntree = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Entree", },
-            MurDroite = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Droite", },
-            MurGauche = new Mur { Hauteur = 500, Longueur = 100, Nom = "Mur Gauche", },
-        };
-
-        Salle d104 = new Salle
-        {
-            SalleId = 4,
-            Nom = "D104",
-            Surface = 5,
-            TypeSalle = typeSalle,
-            MurFace = new Mur { Hauteur = 20, Longueur = 900, Nom = "Mur Face", },
-            MurEntree = new Mur { Hauteur = 20, Longueur = 900, Nom = "Mur Entree", },
-            MurDroite = new Mur { Hauteur = 20, Longueur = 400, Nom = "Mur Droite", },
-            MurGauche = new Mur { Hauteur = 20, Longueur = 400, Nom = "Mur Gauche", },
-        };
-
-        var buildings = new List<Batiment>();
-        Batiment b1 = new Batiment
-        {
-            BatimentId = 1,
-            Nom = "Bat D",
-            Adresse = "jsp",
-            Salles = [d101, d102]
-        };
-
-        Batiment b2 = new Batiment
-        {
-            BatimentId = 1,
-            Nom = "Bat D",
-            Adresse = "jsp",
-            Salles = [d103, d104]
-        };
-        buildings.Add(b1);
-        buildings.Add(b2);
-
-        return buildings;
+            // Log l'erreur si nécessaire
+            throw new Exception($"Erreur lors de la récupération des bâtiments: {ex.Message}", ex);
+        }
     }
 
-    public List<Batiment> GetBuildings()
+    private async Task CleanupAsync()
     {
-        return _buildings;
+        try
+        {
+            bool cleanupExists = await _jsRuntime.InvokeAsync<bool>(
+                "eval",
+                "typeof babylonInterop !== 'undefined' && typeof babylonInterop.cleanup === 'function'"
+            );
+
+            if (cleanupExists)
+            {
+                await _jsRuntime.InvokeVoidAsync("babylonInterop.cleanup");
+            }
+            _isInitialized = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur lors du nettoyage de la scène: {ex.Message}");
+        }
     }
 
     public async ValueTask InitializeSceneAsync(string canvasId)
     {
-        var options = new JsonSerializerOptions
+        try
         {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        };
-        string buildingsJson = JsonSerializer.Serialize(_buildings, options);
-        await _jsRuntime.InvokeVoidAsync("babylonInterop.initializeScene", canvasId, buildingsJson);
+            if (_isInitialized)
+            {
+                await CleanupAsync();
+            }
+
+            var buildings = await GetBuildingsAsync();
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+            string buildingsJson = JsonSerializer.Serialize(buildings, options);
+
+            await _jsRuntime.InvokeVoidAsync("babylonInterop.initializeScene", canvasId, buildingsJson);
+            _isInitialized = true;
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Erreur lors de l'initialisation de la scène: {ex.Message}", ex);
+        }
+    }
+
+    public void Dispose()
+    {
+        _ = CleanupAsync();
     }
 }

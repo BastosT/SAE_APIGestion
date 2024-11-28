@@ -34,13 +34,6 @@ namespace SAE_APIGestion.Controllers.Tests
                 Nom = "Mur Nord",
                 Longueur = 10.0,
                 Hauteur = 3.0,
-                SalleId = 1,
-                Salle = new Salle
-                {
-                    SalleId = 1,
-                    Nom = "Salle Test",
-                    Surface = 50.0
-                }
              };
 
             _murUpdate = new Mur
@@ -49,13 +42,6 @@ namespace SAE_APIGestion.Controllers.Tests
                 Nom = "Mur Update",
                 Longueur = 11.0,
                 Hauteur = 3.0,
-                SalleId = 1,
-                Salle = new Salle
-                {
-                    SalleId = 1,
-                    Nom = "Salle Test",
-                    Surface = 50.0
-                }
             };
 
             // Initialisation du contrôleur avec le mock

@@ -523,6 +523,14 @@
                                     <label class="form-label">Position Y (m)</label>
                                     <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
                                 </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Longueur</label>
+                                    <InputNumber class="form-control" @bind-Value="currentCapteur.Longeur" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Hauteur</label>
+                                    <InputNumber class="form-control" @bind-Value="currentCapteur.Hauteur" />
+                                </div>
                             </div>
 
                             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -563,6 +571,14 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Position Y (m)</label>
                                     <InputNumber class="form-control" @bind-Value="currentEquipement.PositionY" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Longueur</label>
+                                    <InputNumber class="form-control" @bind-Value="currentEquipement.Longueur" />
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Hauteur</label>
+                                    <InputNumber class="form-control" @bind-Value="currentEquipement.Hauteur" />
                                 </div>
                             </div>
 
@@ -800,6 +816,8 @@
                 Nom = capteur.Nom,
                 PositionX = capteur.PositionX,
                 PositionY = capteur.PositionY,
+                Hauteur = capteur.Hauteur,
+                Longeur = capteur.Longeur,
                 MurId = capteur.MurId
             };
         isNewCapteur = false;
@@ -854,7 +872,11 @@
                 Nom = equipement.Nom,
                 PositionX = equipement.PositionX,
                 PositionY = equipement.PositionY,
-                MurId = equipement.MurId
+                Hauteur = equipement.Hauteur,
+                Longueur = equipement.Longueur,
+                MurId = equipement.MurId,
+                SalleId = equipement.SalleId,
+                TypeEquipementId = equipement.TypeEquipementId,
             };
         isNewEquipement = false;
         showEquipementModal = true;

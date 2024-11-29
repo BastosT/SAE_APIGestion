@@ -2,7 +2,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using SAE_APIGestion.Controllers;
+using SAE_APIGestion.Models.DataManger;
 using SAE_APIGestion.Models.EntityFramework;
+using SAE_APIGestionTests.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +14,13 @@ using System.Threading.Tasks;
 namespace SAE_APIGestion.Controllers.Tests
 {
     [TestClass()]
-    public class EquipementControllerTests
+    public class EquipementControllerTests : BaseTest
     {
-        private GlobalDBContext ctx;
+        private EquipementController controller;
         private IDataRepository<Equipement> dataRepository;
         private Equipement _equipement;
         private Equipement _equipementUpdate;
+        private Equipement equipement;
         private Mock<IDataRepository<Equipement>> _mockRepository;
         private EquipementController _equipementController;
 
@@ -29,7 +32,7 @@ namespace SAE_APIGestion.Controllers.Tests
 
 
             _equipement= new Equipement
-             {
+            {
                 EquipementId = 1,
                 Nom = "Projecteur 1",
                 TypeEquipementId = 1,
@@ -39,7 +42,7 @@ namespace SAE_APIGestion.Controllers.Tests
                 PositionY = 10.0,
                 MurId = 1,
                 SalleId = 1,
-             };
+            };
 
             _equipementUpdate = new Equipement
             {
@@ -56,6 +59,27 @@ namespace SAE_APIGestion.Controllers.Tests
 
             // Initialisation du contrôleur avec le mock
             _equipementController = new EquipementController(_mockRepository.Object);
+
+            // pour les test unitaire 
+
+            equipement = new Equipement
+            {
+                EquipementId = 1,
+                Nom = "Projecteur 1",
+                TypeEquipementId = 1,
+                Hauteur = 2.0,
+                Longueur = 1.0,
+                PositionX = 5.0,
+                PositionY = 10.0,
+                MurId = 1,
+                SalleId = 1,
+            };
+
+            // Appel à l'initialisation de la classe de base
+            base.BaseInitialize();
+            dataRepository = new EquipementManager(Context);
+            controller = new EquipementController(dataRepository);
+
         }
 
 

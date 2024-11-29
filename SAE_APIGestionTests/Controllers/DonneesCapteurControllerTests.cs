@@ -1,8 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Npgsql;
 using SAE_APIGestion.Controllers;
+using SAE_APIGestion.Models.DataManger;
 using SAE_APIGestion.Models.EntityFramework;
+using SAE_APIGestionTests.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,12 +15,13 @@ using System.Threading.Tasks;
 namespace SAE_APIGestion.Controllers.Tests
 {
     [TestClass()]
-    public class DonneesCapteurControllerTests
+    public class DonneesCapteurControllerTests : BaseTest
     {
 
 
-        private GlobalDBContext ctx;
+        private DonneesCapteurController controller;
         private IDataRepository<DonneesCapteur> dataRepository;
+        private DonneesCapteur donneesCapteur;
         private DonneesCapteur _donneesCapteur;
         private DonneesCapteur _donneesCapteurUpdate;
         private Mock<IDataRepository<DonneesCapteur>> _mockRepository;
@@ -50,10 +54,56 @@ namespace SAE_APIGestion.Controllers.Tests
             // Initialisation du contrôleur avec le mock
             _donneesCapteurController = new DonneesCapteurController(_mockRepository.Object);
 
+            // pour les test unitaire 
+
+            donneesCapteur = new DonneesCapteur
+            {
+                DonneesCapteurId = 999,
+                Valeur = 23, 
+                Timestamp = DateTime.UtcNow,
+                CapteurId = 1,
+                TypeDonneesId = 1,
+            };
+
+            // Appel à l'initialisation de la classe de base
+            base.BaseInitialize();
+            dataRepository = new DonneesCapteurManager (Context);
+            controller = new DonneesCapteurController(dataRepository);
         }
 
+
+        [TestCleanup]
+        public void Teardown()
+        {
+            //Code pour nettoyer la base de données après chaque test
+            using (var connection = new NpgsqlConnection("Server=localhost;port=5432;database=sae_rasp;uid=postgres;password=postgres"))
+            {
+                connection.Open();
+                // chnager les id a delete quand les donnees seront ok 
+                using (var command = new NpgsqlCommand("DELETE FROM t_e_donneescapteur_dcp where dcp_id = 999", connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
         [TestMethod()]
-        public void GetDonneesCapteurTest()
+        public void GetDonneesCapteursTest()
+        {
+            var expectedList = Context.DonneesCapteurs.ToList();
+
+            Task<ActionResult<IEnumerable<DonneesCapteur>>> listdonnees = controller.GetDonneesCapteurs();
+            ActionResult<IEnumerable<DonneesCapteur>> resultat = listdonnees.Result;
+            List<DonneesCapteur> listDonnescapteur = resultat.Value.ToList();
+
+
+            CollectionAssert.AreEqual(expectedList, listDonnescapteur);
+        }
+
+
+        [TestMethod()]
+        public void GetDonneesCapteurTest_moq()
         {
 
             _mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(_donneesCapteur);
@@ -68,8 +118,75 @@ namespace SAE_APIGestion.Controllers.Tests
 
         }
 
+
         [TestMethod()]
-        public void PutDonneesCapteurTest()
+        public void PostDonnesCapteurTest()
+        {
+            // Act
+            var result = controller.PostDonneesCapteur(donneesCapteur).Result; // .Result pour appeler la méthode async de manière synchrone, afin d'attendre l’ajout
+
+            // Assert
+            var donnesRecupere = controller.GetDonneesCapteur(donneesCapteur.DonneesCapteurId).Result;
+            DonneesCapteur donnees = donnesRecupere.Value;
+
+            // Comparer les propriétés
+            Assert.IsNotNull(donnees, "Le bâtiment récupéré ne doit pas être null");
+            Assert.AreEqual(donneesCapteur.DonneesCapteurId, donnees.DonneesCapteurId, "Les IDs doivent correspondre");
+            Assert.AreEqual(donneesCapteur.Valeur, donnees.Valeur, "Les valeurs doivent correspondre");
+        }
+
+
+
+        [TestMethod()]
+        public void PutDonnesCapteurTest()
+        {
+            // Arrange         
+            controller.PostDonneesCapteur(donneesCapteur);
+
+            // Création d'une nouvelle donnes avec des données mises à jour
+
+            var donneesCapteurUpdate = new DonneesCapteur
+            {
+                DonneesCapteurId = 999,
+                Valeur = 42.5, 
+                Timestamp = DateTime.UtcNow,
+                CapteurId = 1,
+                TypeDonneesId = 1,
+            };
+
+
+            // Act
+            // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
+            var result = controller.PutDonneesCapteur(donneesCapteurUpdate.DonneesCapteurId, donneesCapteurUpdate).Result;
+
+            // Assert
+            // Vérification que la mise à jour a bien été effectuée
+            DonneesCapteur donnesRecuperee = Context.DonneesCapteurs.FirstOrDefault(c => c.DonneesCapteurId == donneesCapteurUpdate.DonneesCapteurId);
+            //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
+            Assert.IsNotNull(donnesRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
+            Assert.AreEqual(donneesCapteurUpdate.Valeur, donnesRecuperee.Valeur, "Le nom de la catégorie mise à jour ne correspond pas");
+        }
+
+
+        [TestMethod()]
+        public void DeleteDonnesCapteurTest()
+        {
+
+            controller.PostDonneesCapteur(donneesCapteur);
+
+            // Act
+            var result = controller.DeleteDonneesCapteur(donneesCapteur.DonneesCapteurId).Result; // Appel de la méthode DeleteCategorie pour supprimer la catégorie
+
+            // Assert
+            // Vérifier si la catégorie a été supprimée correctement
+            DonneesCapteur donnesApresSuppression = Context.DonneesCapteurs.FirstOrDefault(c => c.DonneesCapteurId== donneesCapteur.DonneesCapteurId);
+            Assert.IsNull(donnesApresSuppression, "La catégorie existe toujours après la suppression");
+        }
+
+
+
+        [TestMethod()]
+        public void PutDonneesCapteurTest_moq()
         {
             _mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(_donneesCapteurUpdate);
 
@@ -84,7 +201,7 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
         [TestMethod()]
-        public void PostDonneesCapteurTest()
+        public void PostDonneesCapteurTest_moq()
         {
             // Act 
             var actionResult = _donneesCapteurController.PostDonneesCapteur(_donneesCapteur).Result;
@@ -99,7 +216,7 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
         [TestMethod()]
-        public void DeleteDonneesCapteurTest()
+        public void DeleteDonneesCapteurTest_moq()
         {
             _mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(_donneesCapteur);
             // Act

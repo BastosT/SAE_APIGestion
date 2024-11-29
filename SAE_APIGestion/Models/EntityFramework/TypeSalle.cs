@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace SAE_APIGestion.Models.EntityFramework
 {
@@ -27,6 +28,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         [StringLength(250)]
         public string Description { get; set; }
 
+        [JsonIgnore]
         public virtual ICollection<Salle> Salles { get; set; }
     }
 }

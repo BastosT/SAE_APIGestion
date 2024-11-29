@@ -21,6 +21,7 @@ namespace SAE_CLIENTGestion
 
             builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();
             builder.Services.AddScoped<IService<Salle>, WSServiceSalle>();
+            builder.Services.AddScoped<IService<TypeSalle>, WSServiceTypeSalle>();
             builder.Services.AddScoped<IService<Capteur>, WSServiceCapteur>();
             builder.Services.AddScoped<IService<Equipement>, WSServiceEquipement>();
             builder.Services.AddScoped<IService<Mur>, WSServiceMur>();

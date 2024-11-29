@@ -22,6 +22,123 @@
         </div>
     }
 
+    <!-- Section Types de Salle -->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Types de Salle</h3>
+            <button class="btn btn-primary" @onclick="() => { currentTypeSalle = new(); showTypeSalleModal = true; isNewTypeSalle = true; }">
+                <i class="fas fa-plus"></i> Nouveau Type de Salle
+            </button>
+        </div>
+
+        @if (ViewModel.IsLoading)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+            </div>
+        }
+        else if (!ViewModel.TypesSalle.Any())
+        {
+            <div class="alert alert-info">Aucun type de salle n'a été créé.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var typeSalle in ViewModel.TypesSalle)
+                        {
+                            <tr>
+                                <td>@typeSalle.Nom</td>
+                                <td>@typeSalle.Description</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditTypeSalle(typeSalle)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteTypeSalle(typeSalle)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    <!-- Modal pour Ajout/Modification de Type de Salle -->
+    @if (showTypeSalleModal)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewTypeSalle ? "Nouveau Type de Salle" : "Modifier le Type de Salle")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseTypeSalleModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentTypeSalle" OnValidSubmit="HandleTypeSalleSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentTypeSalle.Nom" />
+                                <ValidationMessage For="@(() => currentTypeSalle.Nom)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <InputText class="form-control" @bind-Value="currentTypeSalle.Description" />
+                                <ValidationMessage For="@(() => currentTypeSalle.Description)" />
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseTypeSalleModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
+    <!-- Modal de confirmation pour la suppression de Type de Salle -->
+    @if (showDeleteTypeSalleConfirmation)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmer la suppression</h5>
+                        <button type="button" class="btn-close" @onclick="() => showDeleteTypeSalleConfirmation = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir supprimer ce type de salle ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showDeleteTypeSalleConfirmation = false">Annuler</button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteTypeSalle">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
+    <!-- Section existante pour les Salles -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestion des Salles</h2>
         <button class="btn btn-primary" @onclick="() => { currentSalle = new(); showModal = true; isNewSalle = true; }">
@@ -63,7 +180,7 @@
                             <div class="mb-3">
                                 <strong>Surface:</strong> @salle.Surface m²<br>
                                 <strong>Bâtiment:</strong> @salle.Batiment.Nom<br>
-                                <strong>Type:</strong> @salle.TypeSalleId
+                                <strong>Type:</strong> @salle.TypeSalle.Nom
                             </div>
 
                             <div class="room-walls-container">
@@ -186,7 +303,6 @@
                         <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
-
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nom</label>
@@ -203,96 +319,27 @@
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Bâtiment</label>
                                     <InputSelect class="form-control" @bind-Value="currentSalle.BatimentId">
+                                        <option value="">Sélectionner un bâtiment</option>
                                         @foreach (var batiment in ViewModel.Batiments)
                                         {
                                             <option value="@batiment.BatimentId">@batiment.Nom</option>
                                         }
                                     </InputSelect>
+                                    <ValidationMessage For="@(() => currentSalle.BatimentId)" />
                                 </div>
 
-                                <div class="col-12">
-                                    <h6 class="mb-3">Configuration des Murs</h6>
-
-                                    <div class="row g-3">
-                                        <!-- Mur Face -->
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header">Mur Face</div>
-                                                <div class="card-body">
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Type</label>
-                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurFaceId">
-                                                            <option value="">Sélectionner un type</option>
-                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
-                                                            {
-                                                                <option value="@type">@type</option>
-                                                            }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Mur Entrée -->
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header">Mur Entrée</div>
-                                                <div class="card-body">
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Type</label>
-                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurEntreeId">
-                                                            <option value="">Sélectionner un type</option>
-                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
-                                                            {
-                                                                <option value="@type">@type</option>
-                                                            }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Mur Gauche -->
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header">Mur Gauche</div>
-                                                <div class="card-body">
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Type</label>
-                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurGaucheId">
-                                                            <option value="">Sélectionner un type</option>
-                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
-                                                            {
-                                                                <option value="@type">@type</option>
-                                                            }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Mur Droit -->
-                                        <div class="col-md-6">
-                                            <div class="card">
-                                                <div class="card-header">Mur Droit</div>
-                                                <div class="card-body">
-                                                    <div class="mb-2">
-                                                        <label class="form-label">Type</label>
-                                                        <InputSelect class="form-control" @bind-Value="currentSalle.MurDroiteId">
-                                                            <option value="">Sélectionner un type</option>
-                                                            @foreach (var type in Enum.GetValues(typeof(TypeMur)))
-                                                            {
-                                                                <option value="@type">@type</option>
-                                                            }
-                                                        </InputSelect>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Type de Salle</label>
+                                    <InputSelect class="form-control" @bind-Value="currentSalle.TypeSalleId">
+                                        <option value="">Sélectionner un type de salle</option>
+                                        @foreach (var typeSalle in ViewModel.TypesSalle)
+                                        {
+                                            <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
                                 </div>
                             </div>
-
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
                                 <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuler</button>
@@ -328,6 +375,7 @@
         <div class="modal-backdrop fade show"></div>
     }
 
+    <!-- Modal pour l'édition/ajout de mur' -->
     @if (showWallModal)
     {
         <div class="modal fade show" style="display: block;" tabindex="-1">
@@ -698,14 +746,26 @@
     private bool showDeleteConfirmation = false;
     private bool showCapteurModal = false;
     private bool showEquipementModal = false;
+    private bool showTypeSalleModal = false;
+    private bool showDeleteTypeSalleConfirmation = false;
+
+
+
     private bool isNewSalle = false;
     private bool isNewCapteur = false;
     private bool isNewEquipement = false;
+    private bool isNewTypeSalle = false;
+
+
     private Salle currentSalle = new();
     private Salle salleToDelete;
     private Mur currentMur;
     private Capteur currentCapteur = new();
     private Equipement currentEquipement = new();
+    private TypeSalle currentTypeSalle = new();
+    private TypeSalle typeSalleToDelete;
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -913,6 +973,61 @@
                 showEquipementModal = false;
             }
         }
+    }
+
+    private void EditTypeSalle(TypeSalle typeSalle)
+    {
+        currentTypeSalle = new TypeSalle
+            {
+                TypeSalleId = typeSalle.TypeSalleId,
+                Nom = typeSalle.Nom,
+                Description = typeSalle.Description,
+                Salles = typeSalle.Salles,
+            };
+        isNewTypeSalle = false;
+        showTypeSalleModal = true;
+    }
+
+    private void DeleteTypeSalle(TypeSalle typeSalle)
+    {
+        typeSalleToDelete = typeSalle;
+        showDeleteTypeSalleConfirmation = true;
+    }
+
+    private async Task ConfirmDeleteTypeSalle()
+    {
+        if (typeSalleToDelete != null)
+        {
+            if (await ViewModel.DeleteTypeSalleAsync(typeSalleToDelete.TypeSalleId))
+            {
+                showDeleteTypeSalleConfirmation = false;
+            }
+        }
+    }
+
+    private async Task HandleTypeSalleSubmit()
+    {
+        bool success;
+        if (isNewTypeSalle)
+        {
+            success = await ViewModel.AddTypeSalleAsync(currentTypeSalle);
+        }
+        else
+        {
+            success = await ViewModel.UpdateTypeSalleAsync(currentTypeSalle);
+        }
+        if (success)
+        {
+            showTypeSalleModal = false;
+        }
+    }
+
+    private void CloseTypeSalleModal()
+    {
+        showTypeSalleModal = false;
+        currentTypeSalle = new();
+        ViewModel.ErrorMessage = null;
+        ViewModel.SuccessMessage = null;
     }
 
     private void CloseModal()

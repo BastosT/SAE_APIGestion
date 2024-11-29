@@ -11,19 +11,22 @@ namespace SAE_CLIENTGestion.ViewModels
         private readonly IService<Mur> _murService;
         private readonly IService<Capteur> _capteurService;
         private readonly IService<Equipement> _equipementService;
+        private readonly IService<TypeSalle> _typeSalleService;
 
         public SallesViewModel(
             IService<Salle> salleService,
             IService<Batiment> batimentService,
             IService<Capteur> capteurService,
             IService<Mur> murService,
-            IService<Equipement> equipementService)
+            IService<Equipement> equipementService,
+            IService<TypeSalle> typeSalleService)
         {
             _salleService = salleService;
             _batimentService = batimentService;
             _capteurService = capteurService;
             _murService = murService;
             _equipementService = equipementService;
+            _typeSalleService = typeSalleService;
         }
 
         [ObservableProperty]
@@ -42,10 +45,15 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<Equipement> _equipementsSalle = new List<Equipement>();
 
         [ObservableProperty]
+        private List<TypeSalle> _typesSalle = new List<TypeSalle>();
+
+        [ObservableProperty]
         private string? _successMessage;
 
         [ObservableProperty]
         private string? _errorMessage;
+
+        // Loaders
 
         public async Task LoadDataAsync()
         {
@@ -55,7 +63,8 @@ namespace SAE_CLIENTGestion.ViewModels
                 var tasks = new List<Task>
                 {
                     LoadSallesAsync(),
-                    LoadBatimentsAsync()
+                    LoadBatimentsAsync(),
+                    LoadTypesSalleAsync()
                 };
 
                 await Task.WhenAll(tasks);
@@ -122,6 +131,21 @@ namespace SAE_CLIENTGestion.ViewModels
                 ErrorMessage = $"Erreur lors du chargement des bâtiments : {ex.Message}";
             }
         }
+
+        private async Task LoadTypesSalleAsync()
+        {
+            try
+            {
+                TypesSalle = await _typeSalleService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des types de salle : {ex.Message}";
+            }
+        }
+
+
+        // CRUD SALLE
 
         public async Task<bool> AddSalleAsync(Salle salle)
         {
@@ -257,6 +281,8 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        // CRUD CAPTEUR
+
         public async Task<bool> AddCapteurAsync(Capteur capteur)
         {
             try
@@ -308,7 +334,10 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        // CRUD Équipements
+
+        // CRUD EQUIPEMENT
+
+
         public async Task<bool> AddEquipementAsync(Equipement equipement)
         {
             try
@@ -360,6 +389,9 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+
+        // CRUD MUR
+
         public async Task<bool> UpdateMurAsync(Mur mur)
         {
             try
@@ -375,6 +407,77 @@ namespace SAE_CLIENTGestion.ViewModels
                 ErrorMessage = $"Erreur lors de la modification du mur : {ex.Message}";
                 SuccessMessage = null;
                 return false;
+            }
+        }
+
+        // CRUD TYPESALLE
+
+        public async Task<bool> AddTypeSalleAsync(TypeSalle typeSalle)
+        {
+            IsLoading = true;
+            try
+            {
+                await _typeSalleService.PostAsync(typeSalle);
+                await LoadTypesSalleAsync();
+                SuccessMessage = "Type de salle ajouté avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de l'ajout du type de salle : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task<bool> UpdateTypeSalleAsync(TypeSalle typeSalle)
+        {
+            IsLoading = true;
+            try
+            {
+                await _typeSalleService.PutAsync(typeSalle.TypeSalleId, typeSalle);
+                await LoadTypesSalleAsync();
+                SuccessMessage = "Type de salle modifié avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la modification du type de salle : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task<bool> DeleteTypeSalleAsync(int typeSalleId)
+        {
+            IsLoading = true;
+            try
+            {
+                await _typeSalleService.DeleteAsync(typeSalleId);
+                await LoadTypesSalleAsync();
+                SuccessMessage = "Type de salle supprimé avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la suppression du type de salle : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
     }

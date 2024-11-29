@@ -28,27 +28,6 @@ namespace SAE_APIGestion.Controllers
             return await dataRepository.GetAllAsync();
         }
 
-        // GET: api/Salles/automapper
-        [HttpGet("automapper")]
-        public async Task<ActionResult<IEnumerable<SalleDTO>>> GetSallesAutomapper()
-        {
-            // Récupération des produits
-            var result = await dataRepository.GetAllAsync();
-            var salles = result.Value;
-
-            // Vérifie si la liste est vide
-            if (salles == null || !salles.Any())
-            {
-                return NotFound();
-            }
-
-            // Mappage de la liste des produits vers ProduitDto
-            var produitsDto = _mapper.Map<IEnumerable<SalleDTO>>(salles);
-
-            // Retourne la liste des DTO
-            return Ok(produitsDto);
-        }
-
         [HttpGet("{id}")]
         public async Task<ActionResult<Salle>> GetSalle(int id)
         {
@@ -116,6 +95,58 @@ namespace SAE_APIGestion.Controllers
 
             return NoContent();
         }
+
+
+
+
+        // =====================================================================================
+        //DTO
+        // =====================================================================================
+
+        [HttpGet("dto")]
+        public async Task<ActionResult<IEnumerable<SalleDTO>>> GetSallesDTO()
+        {
+            var result = await dataRepository.GetAllAsync();
+            var salles = result.Value;
+            if (salles == null || !salles.Any())
+            {
+                return NotFound();
+            }
+            var sallesDto = _mapper.Map<IEnumerable<SalleDTO>>(salles);
+            return Ok(sallesDto);
+        }
+
+        [HttpGet("dto/{id}")]
+        public async Task<ActionResult<SalleDTO>> GetSalleDTO(int id)
+        {
+            var salle = await dataRepository.GetByIdAsync(id);
+            if (salle == null)
+            {
+                return NotFound();
+            }
+            var salleDto = _mapper.Map<SalleDTO>(salle.Value);
+            return Ok(salleDto);
+        }
+
+        [HttpPut("dto/{id}")]
+        public async Task<IActionResult> PutSalleDTO(int id, SalleDTO salleDto)
+        {
+            if (id != salleDto.SalleId)
+            {
+                return BadRequest();
+            }
+
+            var salleToUpdate = await dataRepository.GetByIdAsync(id);
+            if (salleToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            var salle = _mapper.Map<Salle>(salleDto);
+            await dataRepository.UpdateAsync(salleToUpdate.Value, salle);
+            return NoContent();
+        }
+
 
     }
 }

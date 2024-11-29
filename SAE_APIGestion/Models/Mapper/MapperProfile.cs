@@ -10,9 +10,12 @@ namespace SAE_APIGestion.Models.Mapper
         public MapperProfile() {
             CreateMap<SalleDTO, Salle>()
                 .ReverseMap()
-                .ForMember(dest => dest.TypeSalle, opt => opt.MapFrom(src => src.TypeSalle));
+                .ForMember(dest => dest.TypeSalle, opt => opt.MapFrom(src => src.TypeSalle))
+                .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null)); //Permet de ne pas override les champs non présent dans le DTO et de perdre des infos
 
-            CreateMap<TypeSalleDTO, TypeSalle>().ReverseMap();
+            CreateMap<TypeSalleDTO, TypeSalle>()
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
         }
     }
 

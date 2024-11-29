@@ -30,27 +30,6 @@ namespace SAE_APIGestion.Controllers
         }
 
 
-        // GET: api/Typesalles/automapper
-        [HttpGet("automapper")]
-        public async Task<ActionResult<IEnumerable<TypeSalleDTO>>> GetTypeSallesAutomapper()
-        {
-            // Récupération des produits
-            var result = await dataRepository.GetAllAsync();
-            var types = result.Value;
-
-            // Vérifie si la liste est vide
-            if (types == null || !types.Any())
-            {
-                return NotFound();
-            }
-
-            // Mappage de la liste des produits vers ProduitDto
-            var typesDto = _mapper.Map<IEnumerable<TypeSalleDTO>>(types);
-
-            // Retourne la liste des DTO
-            return Ok(typesDto);
-        }
-
         // GET: api/Typesalles/5
         [HttpGet("{id}")]
         public async Task<ActionResult<TypeSalle>> GetTypeSalle(int id)
@@ -122,6 +101,64 @@ namespace SAE_APIGestion.Controllers
 
             return NoContent();
         }
+
+
+        // =====================================================================================
+        //DTO
+        // =====================================================================================
+
+
+        // GET: api/Typesalles
+        [HttpGet("dto")]
+        public async Task<ActionResult<IEnumerable<TypeSalleDTO>>> GetTypeSallesDTO()
+        {
+            var result = await dataRepository.GetAllAsync();
+            var types = result.Value;
+            if (types == null || !types.Any())
+            {
+                return NotFound();
+            }
+            var typesDto = _mapper.Map<IEnumerable<TypeSalleDTO>>(types);
+            return Ok(typesDto);
+        }
+
+
+        // GET: api/Typesalles/5
+        [HttpGet("dto/{id}")]
+        public async Task<ActionResult<TypeSalleDTO>> GetTypeSalleDTO(int id)
+        {
+            var type = await dataRepository.GetByIdAsync(id);
+            if (type == null)
+            {
+                return NotFound();
+            }
+            var salleDto = _mapper.Map<TypeSalleDTO>(type.Value);
+            return Ok(salleDto);
+        }
+
+
+        [HttpPut("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> PutTypeSalleDTO(int id, TypeSalleDTO typeSalleDto)
+        {
+            if (id != typeSalleDto.TypeSalleId)
+            {
+                return BadRequest();
+            }
+
+            var typeToUpdate = await dataRepository.GetByIdAsync(id);
+            if (typeToUpdate == null)
+            {
+                return NotFound();
+            }
+
+            var type = _mapper.Map<TypeSalle>(typeSalleDto);
+            await dataRepository.UpdateAsync(typeToUpdate.Value, type);
+            return NoContent();
+        }
+
 
 
     }

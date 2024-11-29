@@ -7,7 +7,6 @@
         public string Nom { get; set; }
         public double Surface { get; set; }
         public int TypeSalleId { get; set; }
-        public virtual TypeSalle TypeSalle { get; set; }
         public int BatimentId { get; set; }
         public int MurFaceId { get; set; }
         public int MurEntreeId { get; set; }

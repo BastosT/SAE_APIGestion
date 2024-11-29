@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SAE_CLIENTGestion.Models;
+using SAE_CLIENTGestion.Models.DTO;
 using SAE_CLIENTGestion.Services;
 
 namespace SAE_CLIENTGestion.ViewModels
@@ -7,21 +8,24 @@ namespace SAE_CLIENTGestion.ViewModels
     public partial class SallesViewModel : ObservableObject
     {
         private readonly IService<Salle> _salleService;
+        private readonly IService<SalleDTO> _salleServiceDTO;
         private readonly IService<Batiment> _batimentService;
         private readonly IService<Mur> _murService;
         private readonly IService<Capteur> _capteurService;
         private readonly IService<Equipement> _equipementService;
-        private readonly IService<TypeSalle> _typeSalleService;
+        private readonly IService<TypeSalleDTO> _typeSalleService;
 
         public SallesViewModel(
             IService<Salle> salleService,
+            IService<SalleDTO> salleServiceDTO,
             IService<Batiment> batimentService,
             IService<Capteur> capteurService,
             IService<Mur> murService,
             IService<Equipement> equipementService,
-            IService<TypeSalle> typeSalleService)
+            IService<TypeSalleDTO> typeSalleService)
         {
             _salleService = salleService;
+            _salleServiceDTO = salleServiceDTO;
             _batimentService = batimentService;
             _capteurService = capteurService;
             _murService = murService;
@@ -45,7 +49,7 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<Equipement> _equipementsSalle = new List<Equipement>();
 
         [ObservableProperty]
-        private List<TypeSalle> _typesSalle = new List<TypeSalle>();
+        private List<TypeSalleDTO> _typesSalle = new List<TypeSalleDTO>();
 
         [ObservableProperty]
         private string? _successMessage;
@@ -147,12 +151,12 @@ namespace SAE_CLIENTGestion.ViewModels
 
         // CRUD SALLE
 
-        public async Task<bool> AddSalleAsync(Salle salle)
+        public async Task<bool> AddSalleAsync(SalleDTO salle)
         {
             IsLoading = true;
             try
             {
-                await _salleService.PostAsync(salle);
+                await _salleServiceDTO.PostAsync(salle);
                 await LoadSallesAsync();
                 SuccessMessage = "Salle ajoutée avec succès";
                 ErrorMessage = null;
@@ -170,29 +174,14 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateSalleAsync(Salle salle)
+        public async Task<bool> UpdateSalleAsync(SalleDTO salle)
         {
             IsLoading = true;
             try
             {
-                // Chargement des capteurs et équipements actuels
-                await LoadCapteursSalleAsync(salle.SalleId);
-                await LoadEquipementsSalleAsync(salle.SalleId);
 
                 // Mise à jour de la salle
-                await _salleService.PutAsync(salle.SalleId, salle);
-
-                // Mise à jour des capteurs
-                foreach (var capteur in CapteursSalle)
-                {
-                    await _capteurService.PutAsync(capteur.CapteurId, capteur);
-                }
-
-                // Mise à jour des équipements
-                foreach (var equipement in EquipementsSalle)
-                {
-                    await _equipementService.PutAsync(equipement.EquipementId, equipement);
-                }
+                await _salleServiceDTO.PutAsync(salle.SalleId, salle);
 
                 await LoadSallesAsync();
                 SuccessMessage = "Salle et ses éléments modifiés avec succès";
@@ -412,7 +401,7 @@ namespace SAE_CLIENTGestion.ViewModels
 
         // CRUD TYPESALLE
 
-        public async Task<bool> AddTypeSalleAsync(TypeSalle typeSalle)
+        public async Task<bool> AddTypeSalleAsync(TypeSalleDTO typeSalle)
         {
             IsLoading = true;
             try
@@ -435,7 +424,7 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateTypeSalleAsync(TypeSalle typeSalle)
+        public async Task<bool> UpdateTypeSalleAsync(TypeSalleDTO typeSalle)
         {
             IsLoading = true;
             try

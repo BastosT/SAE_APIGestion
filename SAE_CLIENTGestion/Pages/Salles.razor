@@ -1,6 +1,8 @@
 ﻿@page "/salles"
 @using SAE_CLIENTGestion.Models
+@using SAE_CLIENTGestion.Models.DTO
 @using SAE_CLIENTGestion.ViewModels
+@inject IJSRuntime JS
 @inject SallesViewModel ViewModel
 
 <PageTitle>Gestion des Salles</PageTitle>
@@ -757,13 +759,13 @@
     private bool isNewTypeSalle = false;
 
 
-    private Salle currentSalle = new();
+    private SalleDTO currentSalle = new();
     private Salle salleToDelete;
     private Mur currentMur;
     private Capteur currentCapteur = new();
     private Equipement currentEquipement = new();
-    private TypeSalle currentTypeSalle = new();
-    private TypeSalle typeSalleToDelete;
+    private TypeSalleDTO currentTypeSalle = new();
+    private TypeSalleDTO typeSalleToDelete;
 
 
 
@@ -774,22 +776,13 @@
 
     private void EditSalle(Salle salle)
     {
-        currentSalle = new Salle
+        currentSalle = new SalleDTO
             {
                 SalleId = salle.SalleId,
                 Nom = salle.Nom,
                 Surface = salle.Surface,
                 TypeSalleId = salle.TypeSalleId,
                 BatimentId = salle.BatimentId,
-                Batiment = salle.Batiment,
-                MurFaceId = salle.MurFaceId,
-                MurFace = salle.MurFace,
-                MurEntreeId = salle.MurEntreeId,
-                MurEntree = salle.MurEntree,
-                MurGaucheId = salle.MurGaucheId,
-                MurGauche = salle.MurGauche,
-                MurDroiteId = salle.MurDroiteId,
-                MurDroite = salle.MurDroite
             };
         isNewSalle = false;
         showModal = true;
@@ -980,20 +973,19 @@
         }
     }
 
-    private void EditTypeSalle(TypeSalle typeSalle)
+    private void EditTypeSalle(TypeSalleDTO typeSalle)
     {
-        currentTypeSalle = new TypeSalle
+        currentTypeSalle = new TypeSalleDTO
             {
                 TypeSalleId = typeSalle.TypeSalleId,
                 Nom = typeSalle.Nom,
                 Description = typeSalle.Description,
-                Salles = typeSalle.Salles,
             };
         isNewTypeSalle = false;
         showTypeSalleModal = true;
     }
 
-    private void DeleteTypeSalle(TypeSalle typeSalle)
+    private void DeleteTypeSalle(TypeSalleDTO typeSalle)
     {
         typeSalleToDelete = typeSalle;
         showDeleteTypeSalleConfirmation = true;

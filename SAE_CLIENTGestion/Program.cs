@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using SAE_CLIENTGestion.Models;
+using SAE_CLIENTGestion.Models.DTO;
 using SAE_CLIENTGestion.Services;
+using SAE_CLIENTGestion.Services.DTO;
 using SAE_CLIENTGestion.ViewModels;
 using TD1Client.Services;
 
@@ -21,7 +23,9 @@ namespace SAE_CLIENTGestion
 
             builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();
             builder.Services.AddScoped<IService<Salle>, WSServiceSalle>();
+            builder.Services.AddScoped<IService<SalleDTO>, WSServiceSalleDTO>();
             builder.Services.AddScoped<IService<TypeSalle>, WSServiceTypeSalle>();
+            builder.Services.AddScoped<IService<TypeSalleDTO>, WSServiceTypeSalleDTO>();
             builder.Services.AddScoped<IService<Capteur>, WSServiceCapteur>();
             builder.Services.AddScoped<IService<Equipement>, WSServiceEquipement>();
             builder.Services.AddScoped<IService<Mur>, WSServiceMur>();

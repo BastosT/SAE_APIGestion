@@ -159,7 +159,41 @@ namespace SAE_APIGestion.Controllers
             return NoContent();
         }
 
+        [HttpPost("dto")]
+        public async Task<ActionResult<TypeSalleDTO>> PostTypeSalleDTO(TypeSalleDTO typeSalleDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
 
+            // Mapper le DTO vers l'entité
+            var typeSalle = _mapper.Map<TypeSalle>(typeSalleDto);
+
+            // Ajouter l'entité
+            await dataRepository.AddAsync(typeSalle);
+
+            // Mapper l'entité retournée vers un DTO pour la réponse
+            var resultDto = _mapper.Map<TypeSalleDTO>(typeSalle);
+
+            return CreatedAtAction("GetTypeSalle", new { id = resultDto.TypeSalleId }, resultDto);
+        }
+
+        // DELETE: api/typeSalles/5
+        [HttpDelete("dto/{id}")]
+        public async Task<IActionResult> DeleteTypeSalleDTO(int id)
+        {
+            var typeSalle = await dataRepository.GetByIdAsync(id);
+            if (typeSalle == null)
+            {
+                return NotFound();
+            }
+
+            await dataRepository.DeleteAsync(typeSalle.Value);
+
+
+            return NoContent();
+        }
 
     }
 }

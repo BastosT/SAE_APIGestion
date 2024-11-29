@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using SAE_APIGestion.Models.DTO;
 using SAE_APIGestion.Models.EntityFramework;
 
 namespace SAE_APIGestion.Controllers
@@ -9,10 +11,13 @@ namespace SAE_APIGestion.Controllers
     {
 
         private readonly IDataRepository<Salle> dataRepository;
+        private readonly IMapper _mapper;
 
-        public SalleController(IDataRepository<Salle> dataRepo)
+
+        public SalleController(IDataRepository<Salle> dataRepo, IMapper mapper = null)
         {
             dataRepository = dataRepo;
+            _mapper = mapper;
         }
 
 
@@ -21,6 +26,27 @@ namespace SAE_APIGestion.Controllers
         public async Task<ActionResult<IEnumerable<Salle>>> GetSalles()
         {
             return await dataRepository.GetAllAsync();
+        }
+
+        // GET: api/Salles/automapper
+        [HttpGet("automapper")]
+        public async Task<ActionResult<IEnumerable<SalleDTO>>> GetSallesAutomapper()
+        {
+            // Récupération des produits
+            var result = await dataRepository.GetAllAsync();
+            var salles = result.Value;
+
+            // Vérifie si la liste est vide
+            if (salles == null || !salles.Any())
+            {
+                return NotFound();
+            }
+
+            // Mappage de la liste des produits vers ProduitDto
+            var produitsDto = _mapper.Map<IEnumerable<SalleDTO>>(salles);
+
+            // Retourne la liste des DTO
+            return Ok(produitsDto);
         }
 
         [HttpGet("{id}")]

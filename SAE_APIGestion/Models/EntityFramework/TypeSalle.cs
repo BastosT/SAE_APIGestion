@@ -28,7 +28,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         [StringLength(250)]
         public string Description { get; set; }
 
-        [JsonIgnore]
+        
         public virtual ICollection<Salle> Salles { get; set; }
     }
 }

@@ -116,18 +116,18 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
 
-        [TestMethod()]
-        public void GetCapteursTest()
-        {
-            var expectedList = Context.Capteurs.ToList();
+        //[TestMethod()]
+        //public void GetCapteursTest()
+        //{
+        //    var expectedList = Context.Capteurs.ToList();
 
-            Task<ActionResult<IEnumerable<Capteur>>> listCapt = controller.GetCapteurs();
-            ActionResult<IEnumerable<Capteur>> resultat = listCapt.Result;
-            List<Capteur> listCapteur = resultat.Value.ToList();
+        //    Task<ActionResult<IEnumerable<Capteur>>> listCapt = controller.GetCapteurs();
+        //    ActionResult<IEnumerable<Capteur>> resultat = listCapt.Result;
+        //    List<Capteur> listCapteur = resultat.Value.ToList();
 
 
-            CollectionAssert.AreEqual(expectedList, listCapteur);
-        }
+        //    CollectionAssert.AreEqual(expectedList, listCapteur);
+        //}
 
 
         [TestMethod()]

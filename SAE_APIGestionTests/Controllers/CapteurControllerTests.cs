@@ -149,36 +149,37 @@ namespace SAE_APIGestion.Controllers.Tests
 
 
 
-        //[TestMethod()]
-        //public void PutCapteurTest()
-        //{
-        //    // Arrange         
-        //    controller.PostCapteur(capteur);
+        [TestMethod()]
+        public void PutCapteurTest()
+        {
+            // Arrange         
+            controller.PostCapteur(capteur);
 
-        //    // pour les test unitaire 
-        //    var capteurUpdate = new Capteur
-        //    {
-        //        CapteurId = 999,
-        //        Nom = "Capteur Test Update",
-        //        EstActif = false,
-        //        DistanceFenetre = 3.5,
-        //        DistancePorte = 1.0,
-        //        DistanceChauffage = 2.0,
-        //        SalleId = 1,
-        //        MurId = 1,
-        //    };
+            // pour les test unitaire 
+            var capteurUpdate = new Capteur
+            {
+                CapteurId = 999,
+                Nom = "Capteur Test Update",
+                EstActif = false,
+                DistanceFenetre = 3.5,
+                DistancePorte = 1.0,
+                DistanceChauffage = 2.0,
+                SalleId = 1,
+                MurId = 1,
+            };
 
-        //    // Act
-        //    // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-        //    var result = controller.PutCapteur(capteurUpdate.CapteurId, capteurUpdate).Result;
+            // Act
+            // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
+            var result = controller.PutCapteur(capteurUpdate.CapteurId, capteurUpdate).Result;
+  
 
-        //    // Assert
-        //    // Vérification que la mise à jour a bien été effectuée
-        //    Capteur capteureRecuperee = Context.Capteurs.FirstOrDefault(c => c.CapteurId == capteurUpdate.CapteurId);
-        //    //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
-        //    Assert.IsNotNull(capteureRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
-        //    Assert.AreEqual(capteurUpdate.EstActif, capteureRecuperee.EstActif, "Le nom de la catégorie mise à jour ne correspond pas");
-        //}
+            // Assert
+            // Vérification que la mise à jour a bien été effectuée
+            Capteur capteureRecuperee = Context.Capteurs.FirstOrDefault(c => c.CapteurId == capteurUpdate.CapteurId);
+            //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
+            Assert.IsNotNull(capteureRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
+            Assert.AreEqual(capteurUpdate.EstActif, capteureRecuperee.EstActif, "Le nom de la catégorie mise à jour ne correspond pas");
+        }
 
 
         [TestMethod()]

@@ -154,10 +154,9 @@ namespace SAE_APIGestion.Controllers.Tests
                 TypeDonneesId = 1,
             };
 
-
             // Act
             // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-            var result = controller.PutDonneesCapteur(donneesCapteurUpdate.DonneesCapteurId, donneesCapteurUpdate).Result;
+            var result =  controller.PutDonneesCapteur(donneesCapteurUpdate.DonneesCapteurId, donneesCapteurUpdate).Result;
 
             // Assert
             // Vérification que la mise à jour a bien été effectuée

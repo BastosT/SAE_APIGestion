@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Npgsql;
 using SAE_APIGestion.Controllers;
 using SAE_APIGestion.Models.DataManger;
 using SAE_APIGestion.Models.EntityFramework;
@@ -64,7 +65,7 @@ namespace SAE_APIGestion.Controllers.Tests
 
             equipement = new Equipement
             {
-                EquipementId = 1,
+                EquipementId = 999,
                 Nom = "Projecteur 1",
                 TypeEquipementId = 1,
                 Hauteur = 2.0,
@@ -83,8 +84,107 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
 
+        [TestCleanup]
+        public void Teardown()
+        {
+            //Code pour nettoyer la base de données après chaque test
+            using (var connection = new NpgsqlConnection("Server=localhost;port=5432;database=sae_rasp;uid=postgres;password=postgres"))
+            {
+                connection.Open();
+                // chnager les id a delete quand les donnees seront ok 
+                using (var command = new NpgsqlCommand("DELETE FROM t_e_equipement_equ where equ_id = 999", connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+
         [TestMethod()]
-        public void GetEquipementTest()
+        public void GetEquipementsTest()
+        {
+            var expectedList = Context.Equipements.ToList();
+
+            Task<ActionResult<IEnumerable<Equipement>>> listEqu = controller.GetEquipements();
+            ActionResult<IEnumerable<Equipement>> resultat = listEqu.Result;
+            List<Equipement> listEquipement = resultat.Value.ToList();
+
+
+            CollectionAssert.AreEqual(expectedList, listEquipement);
+        }
+
+
+
+        [TestMethod()]
+        public void PostEquipementTest()
+        {
+            // Act
+            var result = controller.PostEquipement(equipement).Result; // .Result pour appeler la méthode async de manière synchrone, afin d'attendre l’ajout
+
+            // Assert
+            var equRecupere = controller.GetEquipement(equipement.EquipementId).Result;
+            Equipement equ = equRecupere.Value;
+
+            // Comparer les propriétés
+            Assert.IsNotNull(equ, "L'Equipement récupéré ne doit pas être null");
+            Assert.AreEqual(equipement.EquipementId, equ.EquipementId, "Les IDs doivent correspondre");
+            Assert.AreEqual(equipement.Nom, equ.Nom, "Les noms doivent correspondre");
+            Assert.AreEqual(equipement.Hauteur, equ.Hauteur, "La Hauteur doivent correspondre");
+        }
+
+
+        //[TestMethod()]
+        //public void PutEquipementTest()
+        //{
+        //    // Arrange         
+        //    controller.PostEquipement(equipement);
+
+        //    // Création d'une nouvelle catégorie avec des données mises à jour
+        //    var equipementUpdate = new Equipement
+        //    {s
+        //        EquipementId = 999,
+        //        Nom = "Projecteur 1 update",
+        //        TypeEquipementId = 1,
+        //        Hauteur = 2.0,
+        //        Longueur = 1.0,
+        //        PositionX = 5.0,
+        //        PositionY = 10.0,
+        //        MurId = 1,
+        //        SalleId = 1,
+        //    };
+
+        //    // Act
+        //    // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
+        //    var result = controller.PutEquipement(equipementUpdate.EquipementId, equipementUpdate).Result;
+
+        //    // Assert
+        //    // Vérification que la mise à jour a bien été effectuée
+        //    Equipement equipementRecuperee = Context.Equipements.FirstOrDefault(c => c.EquipementId == equipementUpdate.EquipementId);
+        //    //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
+        //    Assert.IsNotNull(equipementRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
+        //    Assert.AreEqual(equipementUpdate.Nom, equipementRecuperee.Nom, "Le nom de la catégorie mise à jour ne correspond pas");
+        //}
+
+
+
+        [TestMethod()]
+        public void DeleteEquipementTest()
+        {
+
+            controller.PostEquipement(equipement);
+
+            // Act
+            var result = controller.DeleteEquipement(equipement.EquipementId).Result; // Appel de la méthode DeleteCategorie pour supprimer la catégorie
+
+            // Assert
+            // Vérifier si la catégorie a été supprimée correctement
+            Equipement equipementApresSuppression = Context.Equipements.FirstOrDefault(c => c.EquipementId == equipement.EquipementId);
+            Assert.IsNull(equipementApresSuppression, "La catégorie existe toujours après la suppression");
+        }
+
+
+        [TestMethod()]
+        public void GetEquipementTest_Moq()
         {
             _mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(_equipement);
 
@@ -97,8 +197,12 @@ namespace SAE_APIGestion.Controllers.Tests
             Assert.AreEqual(_equipement, actionResult.Value as Equipement);
         }
 
+
+
+
+
         [TestMethod()]
-        public void PutEquipementTest()
+        public void PutEquipementTest_Moq()
         {
             _mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(_equipementUpdate);
 
@@ -114,7 +218,7 @@ namespace SAE_APIGestion.Controllers.Tests
     
 
         [TestMethod()]
-        public void PostEquipementTest()
+        public void PostEquipementTest_Moq()
         {
             // Act 
             var actionResult = _equipementController.PostEquipement(_equipement).Result;
@@ -128,14 +232,13 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
         [TestMethod()]
-        public void DeleteEquipementTest()
+        public void DeleteEquipementTest_Moq()
         {
             _mockRepository.Setup(x => x.GetByIdAsync(1).Result).Returns(_equipement);
             // Act
             var actionResult = _equipementController.DeleteEquipement(1).Result;
             // Assert
             Assert.IsInstanceOfType(actionResult, typeof(NoContentResult), "Pas un NoContentResult"); // Test du type de retour
-
 
         }
     }

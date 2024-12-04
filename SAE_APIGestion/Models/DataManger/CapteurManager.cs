@@ -50,6 +50,7 @@ namespace SAE_APIGestion.Models.DataManger
         {
             dbContext.Entry(enseignant).State = EntityState.Modified;
             enseignant.CapteurId = entity.CapteurId;
+            enseignant.Nom = entity.Nom;
             enseignant.DistanceChauffage = entity.DistanceChauffage;
             enseignant.DistancePorte = entity.DistancePorte;
             enseignant.DistanceFenetre = entity.DistanceFenetre;

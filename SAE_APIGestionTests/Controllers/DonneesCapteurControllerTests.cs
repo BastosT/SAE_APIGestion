@@ -144,16 +144,16 @@ namespace SAE_APIGestion.Controllers.Tests
             // Arrange         
             await controller.PostDonneesCapteur(donneesCapteur);
 
-        //    // Création d'une nouvelle donnes avec des données mises à jour
+                // Création d'une nouvelle donnes avec des données mises à jour
 
-        //    var donneesCapteurUpdate = new DonneesCapteur
-        //    {
-        //        DonneesCapteurId = 999,
-        //        Valeur = 42.5, 
-        //        Timestamp = DateTime.UtcNow,
-        //        CapteurId = 1,
-        //        TypeDonneesId = 1,
-        //    };
+                var donneesCapteurUpdate = new DonneesCapteur
+                {
+                    DonneesCapteurId = 999,
+                    Valeur = 42.5, 
+                    Timestamp = DateTime.UtcNow,
+                    CapteurId = 1,
+                    TypeDonneesId = 1,
+                };
 
             // Act
             // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour

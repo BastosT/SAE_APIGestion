@@ -153,9 +153,7 @@ namespace SAE_APIGestion.Controllers.Tests
         public async Task PutCapteurTest()
         {
             // Arrange         
-            controller.PostCapteur(capteur);
-
-            // pour les test unitaire 
+            await controller.PostCapteur(capteur);
             var capteurUpdate = new Capteur
             {
                 CapteurId = 999,
@@ -169,16 +167,12 @@ namespace SAE_APIGestion.Controllers.Tests
             };
 
             // Act
-            // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-            var task = await controller.PutCapteur(capteurUpdate.CapteurId, capteurUpdate);
-  
+            var result = await controller.PutCapteur(capteurUpdate.CapteurId, capteurUpdate);
 
             // Assert
-            // Vérification que la mise à jour a bien été effectuée
-            Capteur capteureRecuperee = Context.Capteurs.FirstOrDefault(c => c.CapteurId == capteurUpdate.CapteurId);
-            //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
-            Assert.IsNotNull(capteureRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
-            Assert.AreEqual(capteurUpdate.EstActif, capteureRecuperee.EstActif, "Le nom de la catégorie mise à jour ne correspond pas");
+            var capteureRecuperee = await Context.Capteurs.FirstOrDefaultAsync(c => c.CapteurId == capteurUpdate.CapteurId);
+            Assert.IsNotNull(capteureRecuperee);
+            Assert.AreEqual(capteurUpdate.EstActif, capteureRecuperee.EstActif);
         }
 
 

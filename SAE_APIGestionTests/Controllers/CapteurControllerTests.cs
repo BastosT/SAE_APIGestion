@@ -150,7 +150,7 @@ namespace SAE_APIGestion.Controllers.Tests
 
 
         [TestMethod()]
-        public void PutCapteurTest()
+        public async Task PutCapteurTest()
         {
             // Arrange         
             controller.PostCapteur(capteur);
@@ -170,7 +170,7 @@ namespace SAE_APIGestion.Controllers.Tests
 
             // Act
             // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-            var result = controller.PutCapteur(capteurUpdate.CapteurId, capteurUpdate).Result;
+            var task = await controller.PutCapteur(capteurUpdate.CapteurId, capteurUpdate);
   
 
             // Assert

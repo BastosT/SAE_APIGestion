@@ -2,12 +2,13 @@
 @using SAE_CLIENTGestion.Models
 @using SAE_CLIENTGestion.Models.DTO
 @using SAE_CLIENTGestion.ViewModels
+<link href="css/salles.css" rel="stylesheet" />
 @inject IJSRuntime JS
 @inject SallesViewModel ViewModel
 
 <PageTitle>Gestion des Salles</PageTitle>
 
-<div class="container-fluid">
+<div class="container-fluid main-content overflow-auto">
     @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
     {
         <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -162,7 +163,7 @@
     }
     else
     {
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        <div class="row">
             @foreach (var salle in ViewModel.Salles)
             {
                 <div class="col">
@@ -305,7 +306,7 @@
                         <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
-                            <div class="row">
+                            <div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nom</label>
                                     <InputText class="form-control" @bind-Value="currentSalle.Nom" />
@@ -340,6 +341,31 @@
                                         }
                                     </InputSelect>
                                     <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
+                                </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    Paramètres des murs
+                                </div>
+                                <div class="card-body">
+                                    <div class="flex">
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Longueur (m) (Droite & Gauche)</label>
+                                            <InputNumber class="form-control" @bind-Value="murParameters.Longueur"  />
+                                            <ValidationMessage For="@(() => murParameters.Longueur)" />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Largeur (m) (Face & Entrée)</label>
+                                            <InputNumber class="form-control" @bind-Value="murParameters.Largeur" />
+                                            <ValidationMessage For="@(() => murParameters.Largeur)" />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Hauteur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="murParameters.Hauteur" />
+                                            <ValidationMessage For="@(() => murParameters.Hauteur)" />
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Ces paramètres seront utilisés pour générer automatiquement les murs de la salle.</small>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -644,103 +670,7 @@
 
 </div>
 
-<style>
-    .room-walls-container {
-        padding: 1rem;
-    }
 
-    .room-layout {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        max-width: 400px;
-        margin: 0 auto;
-    }
-
-    .wall {
-        background-color: #2b3035; /* Fond foncé */
-        border: 1px solid #1a1d20; /* Bordure plus foncée */
-        padding: 0.75rem;
-        text-align: center;
-        cursor: pointer;
-        transition: all 0.2s;
-        border-radius: 4px;
-        min-height: 85px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        color: #ffffff; /* Texte blanc pour meilleur contraste */
-    }
-
-        .wall:hover {
-            background-color: #373b3e; /* Couleur hover légèrement plus claire */
-            transform: scale(1.02);
-        }
-
-    .wall-middle-container {
-        display: flex;
-        gap: 0.5rem;
-        justify-content: space-between;
-        align-items: stretch;
-        min-height: 120px;
-    }
-
-    .wall-left, .wall-right {
-        width: 100px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .wall-info {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .wall-name {
-        font-weight: 500;
-        color: #e9ecef; /* Couleur claire pour le nom */
-    }
-
-    .wall-dimensions {
-        color: #adb5bd; /* Gris clair pour les dimensions */
-        font-size: 0.85rem;
-    }
-
-    .wall-details {
-        color: #adb5bd; /* Gris clair pour les détails */
-        font-size: 0.8rem;
-    }
-
-    .room-center {
-        flex-grow: 1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background-color: #6F7377; /* Centre plus foncé */
-        color: #ffffff; /* Texte blanc */
-        border-radius: 4px;
-        padding: 1.5rem;
-    }
-
-    .wall-label {
-        font-weight: bold;
-        display: block;
-        margin-bottom: 0.25rem;
-        color: #ffffff; /* Texte blanc pour les labels */
-    }
-
-    .wall small {
-        display: block;
-        color: #adb5bd; /* Gris clair pour le texte small */
-    }
-
-    /* Pour le texte "Non défini" */
-    .wall .text-muted {
-        color: #6c757d !important; /* Gris plus visible sur fond foncé */
-    }
-</style>
 
 @code {
     private bool showModal = false;
@@ -762,10 +692,18 @@
     private SalleDTO currentSalle = new();
     private Salle salleToDelete;
     private Mur currentMur;
+    private MurCreateParameters murParameters = new();
     private Capteur currentCapteur = new();
     private Equipement currentEquipement = new();
     private TypeSalleDTO currentTypeSalle = new();
     private TypeSalleDTO typeSalleToDelete;
+
+    public class MurCreateParameters
+    {
+        public double Longueur { get; set; }
+        public double Largeur { get; set; }
+        public double Hauteur { get; set; }
+    }
 
 
 
@@ -784,6 +722,13 @@
                 TypeSalleId = salle.TypeSalleId,
                 BatimentId = salle.BatimentId,
             };
+
+        murParameters = new MurCreateParameters
+            {
+                Longueur = 0,
+                Largeur = 0,
+                Hauteur = 0
+        };
         isNewSalle = false;
         showModal = true;
     }
@@ -837,7 +782,18 @@
         bool success;
         if (isNewSalle)
         {
+            Mur murface = await ViewModel.AddMurAsync("Mur Face", TypeMur.Face, murParameters.Largeur, murParameters.Hauteur);
+            Mur murentree = await ViewModel.AddMurAsync("Mur Entree", TypeMur.Entree, murParameters.Largeur, murParameters.Hauteur);
+            Mur murdroite = await ViewModel.AddMurAsync("Mur Droite", TypeMur.Droite, murParameters.Longueur, murParameters.Hauteur);
+            Mur murgauche = await ViewModel.AddMurAsync("Mur Gauche", TypeMur.Gauche, murParameters.Longueur, murParameters.Hauteur);
+
+            currentSalle.MurFaceId = murface.MurId;
+            currentSalle.MurEntreeId = murentree.MurId;
+            currentSalle.MurDroiteId = murdroite.MurId;
+            currentSalle.MurGaucheId = murgauche.MurId;
             success = await ViewModel.AddSalleAsync(currentSalle);
+
+
         }
         else
         {

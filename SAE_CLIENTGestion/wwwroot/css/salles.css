@@ -1,0 +1,235 @@
+﻿/* Base layout */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto !important;
+}
+
+.app {
+    display: flex;
+    min-height: 100vh;
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Modal styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1050;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+    background-color: transparent;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 500px;
+    position: relative;
+    pointer-events: auto;
+}
+
+    .modal-dialog.modal-lg {
+        max-width: 800px;
+    }
+
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: none;
+}
+
+.modal-content {
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Room layout */
+.room-walls-container {
+    padding: 1rem;
+    width: 100%;
+}
+
+.room-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Wall styles */
+.wall {
+    background-color: #2b3035;
+    border: 1px solid #1a1d20;
+    padding: 0.75rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    min-height: 85px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #ffffff;
+}
+
+    .wall:hover {
+        background-color: #373b3e;
+        transform: scale(1.02);
+    }
+
+.wall-middle-container {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    align-items: stretch;
+    min-height: 120px;
+}
+
+.wall-left, .wall-right {
+    width: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* Wall info */
+.wall-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.wall-name {
+    font-weight: 500;
+    color: #e9ecef;
+}
+
+.wall-dimensions {
+    color: #adb5bd;
+    font-size: 0.85rem;
+}
+
+.wall-details {
+    color: #adb5bd;
+    font-size: 0.8rem;
+}
+
+/* Room center */
+.room-center {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #6F7377;
+    color: #ffffff;
+    border-radius: 4px;
+    padding: 1.5rem;
+}
+
+/* Wall labels */
+.wall-label {
+    font-weight: bold;
+    display: block;
+    margin-bottom: 0.25rem;
+    color: #ffffff;
+}
+
+.wall small {
+    display: block;
+    color: #adb5bd;
+}
+
+.wall .text-muted {
+    color: #6c757d !important;
+}
+
+/* Grid and cards */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.col {
+    width: 400px;
+    min-width: 400px;
+    max-width: 400px;
+    margin-bottom: 1rem;
+    flex-shrink: 0;
+}
+
+.card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid rgba(0,0,0,.125);
+    border-radius: .25rem;
+}
+
+.card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-header {
+    background-color: rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0,0,0,.125);
+}
+
+/* Main content */
+.main-content {
+    position: relative;
+    z-index: 1;
+    padding: 1rem;
+    overflow-y: auto;
+    height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 576px) {
+    .col {
+        width: 100%;
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .room-layout {
+        max-width: 100%;
+    }
+
+    .wall-left, .wall-right {
+        width: 80px;
+    }
+
+    .row {
+        padding: 0.5rem;
+        gap: 1rem;
+    }
+}

@@ -25,10 +25,11 @@ namespace TD1Client.Services
             return await _httpClient.GetFromJsonAsync<Capteur?>(url + $"/{id}");
         }
 
-        public async Task PostAsync(Capteur capteur)
+        public async Task<Capteur> PostAsync(Capteur capteur)
         {
             var response = await _httpClient.PostAsJsonAsync(url, capteur);
             response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<Capteur>();
         }
 
         public async Task PutAsync(int id, Capteur capteur)

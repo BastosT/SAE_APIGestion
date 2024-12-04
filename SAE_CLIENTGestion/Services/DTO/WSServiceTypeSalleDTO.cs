@@ -24,10 +24,11 @@ namespace SAE_CLIENTGestion.Services.DTO
             return await _httpClient.GetFromJsonAsync<TypeSalleDTO?>(url + $"/{id}");
         }
 
-        public async Task PostAsync(TypeSalleDTO typeSalleDTO)
+        public async Task<TypeSalleDTO> PostAsync(TypeSalleDTO typeSalleDTO)
         {
             var response = await _httpClient.PostAsJsonAsync(url, typeSalleDTO);
             response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<TypeSalleDTO>();
         }
 
         public async Task PutAsync(int id, TypeSalleDTO typeSalleDTO)

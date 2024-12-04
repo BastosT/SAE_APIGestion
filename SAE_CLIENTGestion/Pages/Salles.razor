@@ -306,7 +306,7 @@
                         <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
-                            <div class="row">
+                            <div>
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Nom</label>
                                     <InputText class="form-control" @bind-Value="currentSalle.Nom" />
@@ -348,7 +348,7 @@
                                     Paramètres des murs
                                 </div>
                                 <div class="card-body">
-                                    <div class="row">
+                                    <div class="flex">
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Longueur (m) (Droite & Gauche)</label>
                                             <InputNumber class="form-control" @bind-Value="murParameters.Longueur"  />

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Npgsql;
@@ -138,10 +139,10 @@ namespace SAE_APIGestion.Controllers.Tests
 
 
         [TestMethod()]
-        public void PutDonnesCapteurTest()
+        public async Task PutDonnesCapteurTest()
         {
             // Arrange         
-            controller.PostDonneesCapteur(donneesCapteur);
+            await controller.PostDonneesCapteur(donneesCapteur);
 
             // Création d'une nouvelle donnes avec des données mises à jour
 
@@ -156,11 +157,11 @@ namespace SAE_APIGestion.Controllers.Tests
 
             // Act
             // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-            var result =  controller.PutDonneesCapteur(donneesCapteurUpdate.DonneesCapteurId, donneesCapteurUpdate).Result;
+            var result =  await controller.PutDonneesCapteur(donneesCapteurUpdate.DonneesCapteurId, donneesCapteurUpdate);
 
             // Assert
             // Vérification que la mise à jour a bien été effectuée
-            DonneesCapteur donnesRecuperee = Context.DonneesCapteurs.FirstOrDefault(c => c.DonneesCapteurId == donneesCapteurUpdate.DonneesCapteurId);
+            var donnesRecuperee = await Context.DonneesCapteurs.FirstOrDefaultAsync(c => c.DonneesCapteurId == donneesCapteurUpdate.DonneesCapteurId);
             //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
             Assert.IsNotNull(donnesRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
             Assert.AreEqual(donneesCapteurUpdate.Valeur, donnesRecuperee.Valeur, "Le nom de la catégorie mise à jour ne correspond pas");

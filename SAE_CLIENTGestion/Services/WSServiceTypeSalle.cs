@@ -25,10 +25,11 @@ namespace TD1Client.Services
             return await _httpClient.GetFromJsonAsync<TypeSalle?>(url + $"/{id}");
         }
 
-        public async Task PostAsync(TypeSalle typeSalle)
+        public async Task<TypeSalle> PostAsync(TypeSalle typeSalle)
         {
             var response = await _httpClient.PostAsJsonAsync(url, typeSalle);
             response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<TypeSalle>();
         }
 
         public async Task PutAsync(int id, TypeSalle typeSalle)

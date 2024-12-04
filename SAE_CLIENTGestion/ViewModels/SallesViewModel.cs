@@ -2,6 +2,7 @@
 using SAE_CLIENTGestion.Models;
 using SAE_CLIENTGestion.Models.DTO;
 using SAE_CLIENTGestion.Services;
+using static SAE_CLIENTGestion.Pages.Salles;
 
 namespace SAE_CLIENTGestion.ViewModels
 {
@@ -398,6 +399,32 @@ namespace SAE_CLIENTGestion.ViewModels
                 return false;
             }
         }
+
+        public async Task<Mur> AddMurAsync(string nom, TypeMur typeMur, double longueurMur, double hauteurMur)
+        {
+            try
+            {
+                var mur = new Mur
+                {
+                    Nom = nom,
+                    Type = typeMur,
+                    Longueur = longueurMur,
+                    Hauteur = hauteurMur,
+                };
+
+                var createdMur = await _murService.PostAsync(mur);
+                SuccessMessage = $"Mur {nom} créé avec succès";
+                ErrorMessage = null;
+                return createdMur;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la création du mur {nom} : {ex.Message}";
+                SuccessMessage = null;
+                return null;
+            }
+        }
+
 
         // CRUD TYPESALLE
 

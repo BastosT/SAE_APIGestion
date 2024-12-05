@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Npgsql;
@@ -118,33 +119,32 @@ namespace SAE_APIGestion.Controllers.Tests
 
 
 
-        //[TestMethod()]
-        //public void PutMurTest()
-        //{
-        //    // Arrange         
-        //    controller.PostMur(mur);
+        [TestMethod()]
+        public async Task PutMurTest()
+        {
+            // Arrange         
+            await controller.PostMur(mur);
 
-        //    // Création d'une nouvelle catégorie avec des données mises à jour
-        //    var murUpdate = new Mur
-        //    {
-        //        MurId = 999,
-        //        Nom = "Mur Update",
-        //        Longueur = 11.0,
-        //        Hauteur = 3.0,
-        //    };
+            // Création d'une nouvelle catégorie avec des données mises à jour
+            var murUpdate = new Mur
+            {
+                MurId = 999,
+                Nom = "Mur Update",
+                Longueur = 11.0,
+                Hauteur = 3.0,
+            };
 
-        //    // Act
-        //    // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-        //    var result = controller.PutMur(murUpdate.MurId, murUpdate).Result;
+            // Act
+            // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
+            var result = await controller.PutMur(murUpdate.MurId, murUpdate);
 
-        //    // Assert
-        //    // Vérification que la mise à jour a bien été effectuée
-        //    Mur murRecuperee = Context.Murs.FirstOrDefault(c => c.MurId == murUpdate.MurId);
-        //    //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
-        //    Assert.IsNotNull(murRecuperee, "Le mur  n'a pas été trouvée dans la base de données après la mise à jour");
-        //    Assert.AreEqual(murUpdate.Nom, murRecuperee.Nom, "Le nom du mur mise à jour ne correspond pas");
-        //    Assert.AreEqual(murUpdate.Longueur, murRecuperee.Longueur, "La longeur du mur mise à jour ne correspond pas");
-        //}
+            // Assert
+            // Vérification que la mise à jour a bien été effectuée
+            Mur murRecuperee = await Context.Murs.FirstOrDefaultAsync(c => c.MurId == murUpdate.MurId);
+            Assert.IsNotNull(murRecuperee, "Le mur  n'a pas été trouvée dans la base de données après la mise à jour");
+            Assert.AreEqual(murUpdate.Nom, murRecuperee.Nom, "Le nom du mur mise à jour ne correspond pas");
+            Assert.AreEqual(murUpdate.Longueur, murRecuperee.Longueur, "La longeur du mur mise à jour ne correspond pas");
+        }
 
 
         [TestMethod()]

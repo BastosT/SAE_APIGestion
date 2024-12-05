@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Npgsql;
@@ -133,37 +134,37 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
 
-        //[TestMethod()]
-        //public void PutEquipementTest()
-        //{
-        //    // Arrange         
-        //    controller.PostEquipement(equipement);
+        [TestMethod()]
+        public async Task PutEquipementTest()
+        {
+            // Arrange         
+            await controller.PostEquipement(equipement);
 
-        //    // Création d'une nouvelle catégorie avec des données mises à jour
-        //    var equipementUpdate = new Equipement
-        //    {s
-        //        EquipementId = 999,
-        //        Nom = "Projecteur 1 update",
-        //        TypeEquipementId = 1,
-        //        Hauteur = 2.0,
-        //        Longueur = 1.0,
-        //        PositionX = 5.0,
-        //        PositionY = 10.0,
-        //        MurId = 1,
-        //        SalleId = 1,
-        //    };
+            // Création d'une nouvelle catégorie avec des données mises à jour
+            var equipementUpdate = new Equipement
+            {
+                EquipementId = 999,
+                Nom = "Projecteur 1 update",
+                TypeEquipementId = 1,
+                Hauteur = 2.0,
+                Longueur = 1.0,
+                PositionX = 5.0,
+                PositionY = 10.0,
+                MurId = 1,
+                SalleId = 1,
+            };
 
-        //    // Act
-        //    // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-        //    var result = controller.PutEquipement(equipementUpdate.EquipementId, equipementUpdate).Result;
+            // Act
+            // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
+            var result = await controller.PutEquipement(equipementUpdate.EquipementId, equipementUpdate);
 
-        //    // Assert
-        //    // Vérification que la mise à jour a bien été effectuée
-        //    Equipement equipementRecuperee = Context.Equipements.FirstOrDefault(c => c.EquipementId == equipementUpdate.EquipementId);
-        //    //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
-        //    Assert.IsNotNull(equipementRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
-        //    Assert.AreEqual(equipementUpdate.Nom, equipementRecuperee.Nom, "Le nom de la catégorie mise à jour ne correspond pas");
-        //}
+            // Assert
+            // Vérification que la mise à jour a bien été effectuée
+            Equipement equipementRecuperee =  await Context.Equipements.FirstOrDefaultAsync(c => c.EquipementId == equipementUpdate.EquipementId);
+            //Batiment batimentRecuperee = controller.GetBatiment(batimentUpdate.BatimentId).Result;
+            Assert.IsNotNull(equipementRecuperee, "La catégorie n'a pas été trouvée dans la base de données après la mise à jour");
+            Assert.AreEqual(equipementUpdate.Nom, equipementRecuperee.Nom, "Le nom de la catégorie mise à jour ne correspond pas");
+        }
 
 
 

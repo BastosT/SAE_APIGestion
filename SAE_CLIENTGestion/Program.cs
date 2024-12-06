@@ -23,12 +23,15 @@ namespace SAE_CLIENTGestion
             // Services web
             builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();
             builder.Services.AddScoped<IService<Salle>, WSServiceSalle>();
-            builder.Services.AddScoped<IService<SalleDTO>, WSServiceSalleDTO>();
             builder.Services.AddScoped<IService<TypeSalle>, WSServiceTypeSalle>();
-            builder.Services.AddScoped<IService<TypeSalleDTO>, WSServiceTypeSalleDTO>();
+            builder.Services.AddScoped<IService<TypeEquipement>, WSServiceTypeEquipement>();
             builder.Services.AddScoped<IService<Capteur>, WSServiceCapteur>();
             builder.Services.AddScoped<IService<Equipement>, WSServiceEquipement>();
             builder.Services.AddScoped<IService<Mur>, WSServiceMur>();
+
+            builder.Services.AddScoped<IService<SalleDTO>, WSServiceSalleDTO>();
+            builder.Services.AddScoped<IService<TypeSalleDTO>, WSServiceTypeSalleDTO>();
+            builder.Services.AddScoped<IService<EquipementDTO>, WSServiceEquipementDTO>();
 
             // ViewModels
             builder.Services.AddScoped<BatimentsViewModel>();

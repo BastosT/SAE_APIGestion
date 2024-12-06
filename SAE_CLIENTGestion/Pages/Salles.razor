@@ -491,6 +491,7 @@
                                                             <div>
                                                                 <h6 class="mb-1">@equipement.Nom</h6>
                                                                 <small>Position: X:@equipement.PositionX m, Y:@equipement.PositionY m</small>
+                                                                <small>Type équipement: @equipement.TypeEquipement.Nom</small>
                                                             </div>
                                                             <div>
                                                                 <button class="btn btn-sm btn-warning me-2" @onclick="() => EditEquipement(equipement)">
@@ -541,23 +542,33 @@
                             </div>
 
 
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Position X (m)</label>
-                                    <InputNumber class="form-control" @bind-Value="currentCapteur.PositionX" />
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Position Y (m)</label>
-                                    <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Longueur</label>
-                                    <InputNumber class="form-control" @bind-Value="currentCapteur.Longeur" />
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Hauteur</label>
-                                    <InputNumber class="form-control" @bind-Value="currentCapteur.Hauteur" />
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position X (m)</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.PositionX" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position Y (m)</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Longueur</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.Longeur" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hauteur</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.Hauteur" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Distance de la porte</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.DistancePorte" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Distance du/des Chauffage</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.DistanceChauffage" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Distance de la/des fenêtre</label>
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.DistanceFenetre" />
                             </div>
 
                             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -590,7 +601,6 @@
                                 <InputText class="form-control" @bind-Value="currentEquipement.Nom" />
                             </div>
 
-                            <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label">Position X (m)</label>
                                     <InputNumber class="form-control" @bind-Value="currentEquipement.PositionX" />
@@ -607,6 +617,16 @@
                                     <label class="form-label">Hauteur</label>
                                     <InputNumber class="form-control" @bind-Value="currentEquipement.Hauteur" />
                                 </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Type de Equipement</label>
+                                <InputSelect class="form-control" @bind-Value="currentEquipement.TypeEquipementId">
+                                    <option value="">Sélectionner un type d'équipement</option>
+                                    @foreach (var typeEquipement in ViewModel.TypesEquipement)
+                                    {
+                                        <option value="@typeEquipement.TypeEquipementId">@typeEquipement.Nom</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
                             </div>
 
                             <button type="submit" class="btn btn-primary">Enregistrer</button>
@@ -645,7 +665,7 @@
     private Mur currentMur;
     private MurCreateParameters murParameters = new();
     private Capteur currentCapteur = new();
-    private Equipement currentEquipement = new();
+    private EquipementDTO currentEquipement = new();
     private TypeSalleDTO currentTypeSalle = new();
     private TypeSalleDTO typeSalleToDelete;
     private SalleDimensions currentDimensions = new();
@@ -872,14 +892,14 @@
 
     private void AddNewEquipement()
     {
-        currentEquipement = new Equipement { MurId = currentMur.MurId };
+        currentEquipement = new EquipementDTO { MurId = currentMur.MurId };
         isNewEquipement = true;
         showEquipementModal = true;
     }
 
     private void EditEquipement(Equipement equipement)
     {
-        currentEquipement = new Equipement
+        currentEquipement = new EquipementDTO
             {
                 EquipementId = equipement.EquipementId,
                 Nom = equipement.Nom,
@@ -891,6 +911,7 @@
                 SalleId = equipement.SalleId,
                 TypeEquipementId = equipement.TypeEquipementId,
             };
+
         isNewEquipement = false;
         showEquipementModal = true;
     }
@@ -906,27 +927,42 @@
 
     private async Task HandleEquipementSubmit()
     {
-        if (isNewEquipement)
+        try
         {
-            if (await ViewModel.AddEquipementAsync(currentEquipement))
+            if (isNewEquipement)
             {
-                currentMur.Equipements.Add(currentEquipement);
-                showEquipementModal = false;
+                if (await ViewModel.AddEquipementAsync(currentEquipement))
+                {
+                    await ViewModel.LoadDataAsync(); // Recharger toutes les données
+                    showEquipementModal = false;
+                }
+            }
+            else
+            {
+                if (await ViewModel.UpdateEquipementAsync(currentEquipement))
+                {
+                    await ViewModel.LoadDataAsync(); // Recharger toutes les données
+                    showEquipementModal = false;
+                }
+            }
+
+            // Recharger le mur courant avec ses équipements à jour
+            if (currentMur != null)
+            {
+                var murMisAJour = await ViewModel.GetMurByIdAsync(currentMur.MurId);
+                if (murMisAJour != null)
+                {
+                    currentMur = murMisAJour;
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            if (await ViewModel.UpdateEquipementAsync(currentEquipement))
-            {
-                var index = currentMur.Equipements.FindIndex(e => e.EquipementId == currentEquipement.EquipementId);
-                if (index != -1)
-                {
-                    currentMur.Equipements[index] = currentEquipement;
-                }
-                showEquipementModal = false;
-            }
+            ViewModel.ErrorMessage = $"Erreur lors de la sauvegarde de l'équipement : {ex.Message}";
         }
     }
+
+
 
     private void EditTypeSalle(TypeSalleDTO typeSalle)
     {

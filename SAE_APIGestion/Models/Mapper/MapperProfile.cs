@@ -15,6 +15,10 @@ namespace SAE_APIGestion.Models.Mapper
             CreateMap<TypeSalleDTO, TypeSalle>()
                 .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
+
+            CreateMap<EquipementDTO, Equipement>()
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
         }
     }
 

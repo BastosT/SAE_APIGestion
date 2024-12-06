@@ -2,6 +2,7 @@
 using SAE_CLIENTGestion.Models;
 using SAE_CLIENTGestion.Models.DTO;
 using SAE_CLIENTGestion.Services;
+using System.Net.Http;
 using static SAE_CLIENTGestion.Pages.Salles;
 
 namespace SAE_CLIENTGestion.ViewModels
@@ -13,8 +14,10 @@ namespace SAE_CLIENTGestion.ViewModels
         private readonly IService<Batiment> _batimentService;
         private readonly IService<Mur> _murService;
         private readonly IService<Capteur> _capteurService;
+        private readonly IService<EquipementDTO> _equipementServiceDTO;
         private readonly IService<Equipement> _equipementService;
         private readonly IService<TypeSalleDTO> _typeSalleService;
+        private readonly IService<TypeEquipement> _typeEquipementService;
 
         public SallesViewModel(
             IService<Salle> salleService,
@@ -23,7 +26,9 @@ namespace SAE_CLIENTGestion.ViewModels
             IService<Capteur> capteurService,
             IService<Mur> murService,
             IService<Equipement> equipementService,
-            IService<TypeSalleDTO> typeSalleService)
+            IService<EquipementDTO> equipementServiceDTO,
+            IService<TypeSalleDTO> typeSalleService,
+            IService<TypeEquipement> typeEquipementService)
         {
             _salleService = salleService;
             _salleServiceDTO = salleServiceDTO;
@@ -31,7 +36,9 @@ namespace SAE_CLIENTGestion.ViewModels
             _capteurService = capteurService;
             _murService = murService;
             _equipementService = equipementService;
+            _equipementServiceDTO = equipementServiceDTO;
             _typeSalleService = typeSalleService;
+            _typeEquipementService = typeEquipementService;
         }
 
         [ObservableProperty]
@@ -53,6 +60,9 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<TypeSalleDTO> _typesSalle = new List<TypeSalleDTO>();
 
         [ObservableProperty]
+        private List<TypeEquipement> _typesEquipement = new List<TypeEquipement>();
+
+        [ObservableProperty]
         private string? _successMessage;
 
         [ObservableProperty]
@@ -69,7 +79,8 @@ namespace SAE_CLIENTGestion.ViewModels
                 {
                     LoadSallesAsync(),
                     LoadBatimentsAsync(),
-                    LoadTypesSalleAsync()
+                    LoadTypesSalleAsync(),
+                    LoadTypesEquipementAsync()
                 };
 
                 await Task.WhenAll(tasks);
@@ -146,6 +157,18 @@ namespace SAE_CLIENTGestion.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors du chargement des types de salle : {ex.Message}";
+            }
+        }
+
+        private async Task LoadTypesEquipementAsync()
+        {
+            try
+            {
+                TypesEquipement = await _typeEquipementService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des types d'équipements : {ex.Message}";
             }
         }
 
@@ -333,11 +356,11 @@ namespace SAE_CLIENTGestion.ViewModels
         // CRUD EQUIPEMENT
 
 
-        public async Task<bool> AddEquipementAsync(Equipement equipement)
+        public async Task<bool> AddEquipementAsync(EquipementDTO equipement)
         {
             try
             {
-                await _equipementService.PostAsync(equipement);
+                await _equipementServiceDTO.PostAsync(equipement);
                 SuccessMessage = "Équipement ajouté avec succès";
                 ErrorMessage = null;
                 return true;
@@ -350,11 +373,11 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateEquipementAsync(Equipement equipement)
+        public async Task<bool> UpdateEquipementAsync(EquipementDTO equipement)
         {
             try
             {
-                await _equipementService.PutAsync(equipement.EquipementId, equipement);
+                await _equipementServiceDTO.PutAsync(equipement.EquipementId, equipement);
                 SuccessMessage = "Équipement modifié avec succès";
                 ErrorMessage = null;
                 return true;
@@ -386,6 +409,11 @@ namespace SAE_CLIENTGestion.ViewModels
 
 
         // CRUD MUR
+
+        public async Task<Mur> GetMurByIdAsync(int murId)
+        {
+            return await _murService.GetByIdAsync(murId);
+        }
 
         public async Task<bool> UpdateMurAsync(Mur mur)
         {

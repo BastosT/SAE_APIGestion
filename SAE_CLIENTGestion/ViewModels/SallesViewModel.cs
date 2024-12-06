@@ -151,6 +151,11 @@ namespace SAE_CLIENTGestion.ViewModels
 
 
         // CRUD SALLE
+        public async Task<Salle> GetSalleByIdAsync(int salleId)
+        {
+            // Implémentez la récupération d'une salle par son ID
+            return await _salleService.GetByIdAsync(salleId);
+        }
 
         public async Task<bool> AddSalleAsync(SalleDTO salle)
         {

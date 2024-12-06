@@ -345,27 +345,24 @@
                             </div>
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    Paramètres des murs
+                                    Dimensions de la salle
                                 </div>
                                 <div class="card-body">
-                                    <div class="flex">
+                                    <div>
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Longueur (m) (Droite & Gauche)</label>
-                                            <InputNumber class="form-control" @bind-Value="murParameters.Longueur"  />
-                                            <ValidationMessage For="@(() => murParameters.Longueur)" />
+                                            <label class="form-label">Longueur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Longueur" />
                                         </div>
                                         <div class="col-md-4 mb-3">
-                                            <label class="form-label">Largeur (m) (Face & Entrée)</label>
-                                            <InputNumber class="form-control" @bind-Value="murParameters.Largeur" />
-                                            <ValidationMessage For="@(() => murParameters.Largeur)" />
+                                            <label class="form-label">Largeur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Largeur" />
                                         </div>
                                         <div class="col-md-4 mb-3">
                                             <label class="form-label">Hauteur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="murParameters.Hauteur" />
-                                            <ValidationMessage For="@(() => murParameters.Hauteur)" />
+                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Hauteur" />
                                         </div>
                                     </div>
-                                    <small class="text-muted">Ces paramètres seront utilisés pour générer automatiquement les murs de la salle.</small>
+                                    <small class="text-muted">La modification des dimensions mettra à jour tous les murs de la salle.</small>
                                 </div>
                             </div>
                             <div class="mt-4">
@@ -415,52 +412,6 @@
                     </div>
                     <div class="modal-body">
                         <div class="accordion" id="wallAccordion">
-                            <!-- Informations générales du mur -->
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#generalInfo">
-                                        Informations générales
-                                    </button>
-                                </h2>
-                                <div id="generalInfo" class="accordion-collapse collapse show">
-                                    <div class="accordion-body">
-                                        <EditForm Model="@currentMur" OnValidSubmit="HandleWallSubmit">
-                                            <DataAnnotationsValidator />
-                                            <ValidationSummary />
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Nom</label>
-                                                <InputText class="form-control" @bind-Value="currentMur.Nom" />
-                                                <ValidationMessage For="@(() => currentMur.Nom)" />
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Longueur (m)</label>
-                                                <InputNumber class="form-control" @bind-Value="currentMur.Longueur" />
-                                                <ValidationMessage For="@(() => currentMur.Longueur)" />
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Hauteur (m)</label>
-                                                <InputNumber class="form-control" @bind-Value="currentMur.Hauteur" />
-                                                <ValidationMessage For="@(() => currentMur.Hauteur)" />
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label class="form-label">Type de Mur</label>
-                                                <InputSelect class="form-control" @bind-Value="currentMur.Type">
-                                                    @foreach (var type in Enum.GetValues(typeof(TypeMur)))
-                                                    {
-                                                        <option value="@type">@type</option>
-                                                    }
-                                                </InputSelect>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary">Enregistrer</button>
-                                        </EditForm>
-                                    </div>
-                                </div>
-                            </div>
 
                             <!-- Gestion des Capteurs -->
                             <div class="accordion-item">
@@ -697,6 +648,7 @@
     private Equipement currentEquipement = new();
     private TypeSalleDTO currentTypeSalle = new();
     private TypeSalleDTO typeSalleToDelete;
+    private SalleDimensions currentDimensions = new();
 
     public class MurCreateParameters
     {
@@ -705,7 +657,12 @@
         public double Hauteur { get; set; }
     }
 
-
+    public class SalleDimensions
+    {
+        public double Longueur { get; set; } // Longueur des murs gauche/droit
+        public double Largeur { get; set; }  // Longueur des murs face/entrée
+        public double Hauteur { get; set; }  // Hauteur commune à tous les murs
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -723,12 +680,14 @@
                 BatimentId = salle.BatimentId,
             };
 
-        murParameters = new MurCreateParameters
+        // Initialiser les dimensions depuis les murs existants
+        currentDimensions = new SalleDimensions
             {
-                Longueur = 0,
-                Largeur = 0,
-                Hauteur = 0
-        };
+                Longueur = salle.MurDroite?.Longueur ?? 0,
+                Largeur = salle.MurFace?.Longueur ?? 0,
+                Hauteur = salle.MurFace?.Hauteur ?? 0
+            };
+
         isNewSalle = false;
         showModal = true;
     }
@@ -782,26 +741,58 @@
         bool success;
         if (isNewSalle)
         {
-            Mur murface = await ViewModel.AddMurAsync("Mur Face", TypeMur.Face, murParameters.Largeur, murParameters.Hauteur);
-            Mur murentree = await ViewModel.AddMurAsync("Mur Entree", TypeMur.Entree, murParameters.Largeur, murParameters.Hauteur);
-            Mur murdroite = await ViewModel.AddMurAsync("Mur Droite", TypeMur.Droite, murParameters.Longueur, murParameters.Hauteur);
-            Mur murgauche = await ViewModel.AddMurAsync("Mur Gauche", TypeMur.Gauche, murParameters.Longueur, murParameters.Hauteur);
+            // Créer les murs avec les dimensions spécifiées
+            Mur murface = await ViewModel.AddMurAsync("Mur Face", TypeMur.Face, currentDimensions.Largeur, currentDimensions.Hauteur);
+            Mur murentree = await ViewModel.AddMurAsync("Mur Entree", TypeMur.Entree, currentDimensions.Largeur, currentDimensions.Hauteur);
+            Mur murdroite = await ViewModel.AddMurAsync("Mur Droite", TypeMur.Droite, currentDimensions.Longueur, currentDimensions.Hauteur);
+            Mur murgauche = await ViewModel.AddMurAsync("Mur Gauche", TypeMur.Gauche, currentDimensions.Longueur, currentDimensions.Hauteur);
 
             currentSalle.MurFaceId = murface.MurId;
             currentSalle.MurEntreeId = murentree.MurId;
             currentSalle.MurDroiteId = murdroite.MurId;
             currentSalle.MurGaucheId = murgauche.MurId;
+
             success = await ViewModel.AddSalleAsync(currentSalle);
-
-
         }
         else
         {
+            // Mettre à jour les dimensions des murs existants
+            var salle = await ViewModel.GetSalleByIdAsync(currentSalle.SalleId);
+            if (salle != null)
+            {
+                if (salle.MurFace != null)
+                {
+                    salle.MurFace.Longueur = currentDimensions.Largeur;
+                    salle.MurFace.Hauteur = currentDimensions.Hauteur;
+                    await ViewModel.UpdateMurAsync(salle.MurFace);
+                }
+                if (salle.MurEntree != null)
+                {
+                    salle.MurEntree.Longueur = currentDimensions.Largeur;
+                    salle.MurEntree.Hauteur = currentDimensions.Hauteur;
+                    await ViewModel.UpdateMurAsync(salle.MurEntree);
+                }
+                if (salle.MurDroite != null)
+                {
+                    salle.MurDroite.Longueur = currentDimensions.Longueur;
+                    salle.MurDroite.Hauteur = currentDimensions.Hauteur;
+                    await ViewModel.UpdateMurAsync(salle.MurDroite);
+                }
+                if (salle.MurGauche != null)
+                {
+                    salle.MurGauche.Longueur = currentDimensions.Longueur;
+                    salle.MurGauche.Hauteur = currentDimensions.Hauteur;
+                    await ViewModel.UpdateMurAsync(salle.MurGauche);
+                }
+            }
+
             success = await ViewModel.UpdateSalleAsync(currentSalle);
         }
+
         if (success)
         {
             showModal = false;
+            await ViewModel.LoadDataAsync(); // Recharger les données pour afficher les modifications
         }
     }
 

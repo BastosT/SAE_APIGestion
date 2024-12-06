@@ -49,12 +49,7 @@ public sealed class BabylonJSService : IBabylonJSService
         {
             using var scope = _serviceProvider.CreateScope();
             var batimentService = scope.ServiceProvider.GetRequiredService<IService<Batiment>>();
-
-            if (!_cachedBuildings.Any())
-            {
-                _cachedBuildings = await batimentService.GetAllAsync();
-            }
-            return _cachedBuildings;
+            return await batimentService.GetAllAsync();
         }
         catch (Exception ex)
         {

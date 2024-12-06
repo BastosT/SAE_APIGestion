@@ -88,7 +88,7 @@ namespace SAE_APIGestion.Controllers.Tests
                         CapteurId = 1,
                         TypeDonneesId = 1,
                         Valeur = 22.5,
-                        Timestamp = DateTime.Now
+                        Timestamp = DateTime.UtcNow
                     }
                 }
             };
@@ -118,13 +118,13 @@ namespace SAE_APIGestion.Controllers.Tests
         }
 
         [TestMethod()]
-        public void GetTest()
+        public void GetTypeDonneesTest()
         {
-            var expectedList = Context.Murs.ToList();
+            var expectedList = Context.TypesDonneesCapteurs.ToList();
 
-            Task<ActionResult<IEnumerable<Mur>>> listmur = controller.GetMurs();
-            ActionResult<IEnumerable<Mur>> resultat = listmur.Result;
-            List<Mur> listMurs = resultat.Value.ToList();
+            Task<ActionResult<IEnumerable<TypeDonneesCapteur>>> listdonnees = controller.GetTypeDonneesCapteurs();
+            ActionResult<IEnumerable<TypeDonneesCapteur>> resultat = listdonnees.Result;
+            List<TypeDonneesCapteur> listMurs = resultat.Value.ToList();
 
 
             CollectionAssert.AreEqual(expectedList, listMurs);
@@ -132,65 +132,76 @@ namespace SAE_APIGestion.Controllers.Tests
 
 
         [TestMethod()]
-        public void PostMurTest()
+        public void PostTypeDonneesTest()
         {
             // Act
-            var result = controller.PostMur(mur).Result; // .Result pour appeler la méthode async de manière synchrone, afin d'attendre l’ajout
+            var result = controller.PostTypeDonneesCapteur(typeDonneesCapteur).Result; // .Result pour appeler la méthode async de manière synchrone, afin d'attendre l’ajout
 
             // Assert
-            var murRecupere = controller.GetMur(mur.MurId).Result;
-            Mur murss = murRecupere.Value;
+            var typedonnesRecupere = controller.GetTypeDonneesCapteur(typeDonneesCapteur.TypeDonneesCapteurId).Result;
+            TypeDonneesCapteur type = typedonnesRecupere.Value;
 
             // Comparer les propriétés
-            Assert.IsNotNull(murss, "Le bâtiment récupéré ne doit pas être null");
-            Assert.AreEqual(mur.MurId, murss.MurId, "Les IDs doivent correspondre");
-            Assert.AreEqual(mur.Nom, murss.Nom, "Les noms doivent correspondre");
-            Assert.AreEqual(mur.Longueur, murss.Longueur, "La longeurs doivent correspondre");
+            Assert.IsNotNull(type, "Le bâtiment récupéré ne doit pas être null");
+            Assert.AreEqual(typeDonneesCapteur.TypeDonneesCapteurId, type.TypeDonneesCapteurId, "Les IDs doivent correspondre");
+            Assert.AreEqual(typeDonneesCapteur.Nom, type.Nom, "Les noms doivent correspondre");
+            Assert.AreEqual(typeDonneesCapteur.Unite, type.Unite, "La longeurs doivent correspondre");
         }
 
 
 
         [TestMethod()]
-        public async Task PutMurTest()
+        public async Task PutTypeDonneesTest()
         {
             // Arrange         
-            await controller.PostMur(mur);
+            await controller.PostTypeDonneesCapteur(typeDonneesCapteur);
 
             // Création d'une nouvelle catégorie avec des données mises à jour
-            var murUpdate = new Mur
+
+            var typeDonneesCapteurUpdate = new TypeDonneesCapteur
             {
-                MurId = 999,
-                Nom = "Mur Update",
-                Longueur = 11.0,
-                Hauteur = 3.0,
+                TypeDonneesCapteurId = 999,
+                Nom = "Température update",
+                Unite = "°C",
+                DonneesCapteurs = new HashSet<DonneesCapteur>
+                {
+                    new DonneesCapteur
+                    {
+                        DonneesCapteurId = 999,
+                        CapteurId = 1,
+                        TypeDonneesId = 1,
+                        Valeur = 22.5,
+                        Timestamp = DateTime.UtcNow
+                    }
+                }
             };
 
             // Act
             // Appel de la méthode PutCategorie du contrôleur avec la catégorie mise à jour
-            var result = await controller.PutMur(murUpdate.MurId, murUpdate);
+            var result = await controller.PutTypeDonneesCapteur(typeDonneesCapteurUpdate.TypeDonneesCapteurId, typeDonneesCapteurUpdate);
 
             // Assert
             // Vérification que la mise à jour a bien été effectuée
-            Mur murRecuperee = await Context.Murs.FirstOrDefaultAsync(c => c.MurId == murUpdate.MurId);
-            Assert.IsNotNull(murRecuperee, "Le mur  n'a pas été trouvée dans la base de données après la mise à jour");
-            Assert.AreEqual(murUpdate.Nom, murRecuperee.Nom, "Le nom du mur mise à jour ne correspond pas");
-            Assert.AreEqual(murUpdate.Longueur, murRecuperee.Longueur, "La longeur du mur mise à jour ne correspond pas");
+            TypeDonneesCapteur typeRecuperee = await Context.TypesDonneesCapteurs.FirstOrDefaultAsync(c => c.TypeDonneesCapteurId== typeDonneesCapteurUpdate.TypeDonneesCapteurId);
+            Assert.IsNotNull(typeRecuperee, "Le mur  n'a pas été trouvée dans la base de données après la mise à jour");
+            Assert.AreEqual(typeDonneesCapteurUpdate.Nom, typeRecuperee.Nom, "Le nom du mur mise à jour ne correspond pas");
         }
 
 
         [TestMethod()]
-        public void DeleteMurTest()
+        public void DeleteTypeDonneesTest()
         {
 
-            controller.PostMur(mur);
+            controller.PostTypeDonneesCapteur(typeDonneesCapteur);
 
             // Act
-            var result = controller.DeleteMur(mur.MurId).Result; // Appel de la méthode DeleteCategorie pour supprimer la catégorie
+            var result = controller.DeleteTypeDonneesCapteur(typeDonneesCapteur.TypeDonneesCapteurId).Result; // Appel de la méthode DeleteCategorie pour supprimer la catégorie
 
             // Assert
             // Vérifier si la catégorie a été supprimée correctement
-            Mur murApresSuppression = Context.Murs.FirstOrDefault(c => c.MurId == mur.MurId);
-            Assert.IsNull(murApresSuppression, "La catégorie existe toujours après la suppression");
+            TypeDonneesCapteur typeApresSuppression = Context.TypesDonneesCapteurs.FirstOrDefault(c => c.TypeDonneesCapteurId== typeDonneesCapteur.TypeDonneesCapteurId);
+            Assert.IsNull(typeApresSuppression, "La catégorie existe toujours après la suppression");
+
         }
 
 

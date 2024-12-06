@@ -978,8 +978,6 @@
     {
         showTypeSalleModal = false;
         currentTypeSalle = new();
-        ViewModel.ErrorMessage = null;
-        ViewModel.SuccessMessage = null;
     }
 
     private void CloseModal()
@@ -987,29 +985,23 @@
         showModal = false;
         showWallModal = false;
         currentSalle = new();
-        // Ne pas effacer les messages
-        // ViewModel.ErrorMessage = null;
-        // ViewModel.SuccessMessage = null;
     }
 
     private void CloseWallModal()
     {
         showWallModal = false;
         currentMur = null;
-        ViewModel.ErrorMessage = null;
     }
 
     private void CloseCapteurModal()
     {
         showCapteurModal = false;
         currentCapteur = new();
-        ViewModel.ErrorMessage = null;
     }
 
     private void CloseEquipementModal()
     {
         showEquipementModal = false;
         currentEquipement = new();
-        ViewModel.ErrorMessage = null;
     }
 }

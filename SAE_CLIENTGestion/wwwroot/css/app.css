@@ -119,18 +119,13 @@ html, body {
 
 .custom-alert {
     position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    z-index: 1050 !important;
+    bottom: 2% !important;
+    right: 2% !important;
+    transform: translate(-0%, -0%) !important;
+    z-index: 1100 !important;
     width: 80% !important;
     max-width: 500px !important;
     text-align: center !important;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
-    .custom-alert .btn-close {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-    }

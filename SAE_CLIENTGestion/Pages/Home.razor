@@ -1,8 +1,7 @@
 ﻿@page "/"
 @inject IBabylonJSService BabylonService
 @inject IJSRuntime JS
-@implements IDisposable
-
+@implements IAsyncDisposable
 <PageTitle>Home</PageTitle>
 
 <div class="babylon-container">
@@ -24,7 +23,6 @@
         display: block;
         outline: none;
     }
-
     /* Assurer que le conteneur prend tout l'espace disponible */
     :root, body, #app {
         margin: 0;
@@ -42,6 +40,7 @@
         {
             try
             {
+                // Initialise la scène avec le singleton
                 await BabylonService.InitializeSceneAsync("renderCanvas");
             }
             catch (Exception ex)
@@ -52,14 +51,19 @@
         }
     }
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         if (!_disposed)
         {
-            _disposed = true;
-            if (BabylonService is IDisposable disposableService)
+            try
             {
-                disposableService.Dispose();
+                _disposed = true;
+                await BabylonService.DisposeSceneAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error disposing scene: {ex.Message}");
+                await JS.InvokeVoidAsync("console.log", "Dispose Error:", ex);
             }
         }
     }

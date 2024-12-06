@@ -1,4 +1,11 @@
-﻿var babylonInterop = {
+﻿(function () {
+    console.log("Initializing babylonInterop");
+
+    // Garantir que babylonInterop existe
+    window.babylonInterop = window.babylonInterop || {};
+
+    // Étendre l'objet existant
+    Object.assign(window.babylonInterop, {
     config: {
         scale: 0.01,
         wallDepth: 0.10,
@@ -778,13 +785,81 @@
         return buildingContainer;
     },
 
+        disposeScene: function () {
+            console.log("disposeScene called");
+            console.log("currentScene exists:", !!window.currentScene);
+            console.log("currentEngine exists:", !!window.currentEngine);
+
+            try {
+                if (window.currentScene) {
+                    console.log("Stopping render loop...");
+                    if (window.currentEngine) {
+                        window.currentEngine.stopRenderLoop();
+                    }
+
+                    // D'abord disposer les matériaux partagés
+                    if (this.sharedMaterials) {
+                        console.log("Disposing shared materials...");
+                        Object.values(this.sharedMaterials).forEach(material => {
+                            if (material) {
+                                material.dispose();
+                            }
+                        });
+                        this.sharedMaterials.inside = null;
+                        this.sharedMaterials.outside = null;
+                    }
+
+                    // Ensuite les meshes
+                    if (window.currentScene.meshes) {
+                        console.log("Disposing meshes...");
+                        // Créer une copie du tableau pour éviter les problèmes de modification pendant l'itération
+                        [...window.currentScene.meshes].forEach(mesh => {
+                            if (mesh) {
+                                mesh.dispose(false, true); // dispose le mesh et ses enfants
+                            }
+                        });
+                    }
+
+                    // Attendre un court instant avant de disposer la scène
+                    setTimeout(() => {
+                        console.log("Disposing scene...");
+                        window.currentScene.dispose();
+
+                        if (window.currentEngine) {
+                            console.log("Disposing engine...");
+                            window.currentEngine.dispose();
+                            window.currentEngine = null;
+                        }
+
+                        window.currentScene = null;
+                        console.log("Scene disposal complete.");
+                    }, 100);
+
+                } else {
+                    console.log("No scene to dispose.");
+                }
+            } catch (error) {
+                console.error("Error during scene disposal:", error);
+            }
+        },
+
     initializeScene: function (canvasId, buildingsDataJson) {
+        console.log("initializeScene called with canvasId:", canvasId);
+        console.log("window.babylonInterop exists:", !!window.babylonInterop);
+        console.log("disposeScene exists:", !!window.babylonInterop.disposeScene);
+
+        // Stocker une référence à l'objet window
+        window.currentScene = null;
+        window.currentEngine = null;
+
         const canvas = document.getElementById(canvasId);
         if (!canvas) throw new Error('Canvas not found');
 
         const buildingsData = this.convertToNewModel(JSON.parse(buildingsDataJson));
         const engine = new BABYLON.Engine(canvas, true);
+        window.currentEngine = engine;
         const scene = new BABYLON.Scene(engine);
+        window.currentScene = scene;
         scene.clearColor = new BABYLON.Color3(0.3, 0.3, 0.9);
 
         let totalWidth = 0;
@@ -829,6 +904,10 @@
 
         return scene;
     }
-};
+    });
 
-window.babylonInterop = babylonInterop;
+    console.log("babylonInterop initialization complete", {
+        hasInitializeScene: typeof window.babylonInterop.initializeScene === 'function',
+        hasDisposeScene: typeof window.babylonInterop.disposeScene === 'function'
+    });
+})();

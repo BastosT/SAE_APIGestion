@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.JSInterop;
 using SAE_CLIENTGestion.Models;
 using SAE_CLIENTGestion.Models.DTO;
 using SAE_CLIENTGestion.Services;
@@ -17,10 +18,9 @@ namespace SAE_CLIENTGestion
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped<IBabylonJSService, BabylonJSService>();
-
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7155/") });
 
+            // Services web
             builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();
             builder.Services.AddScoped<IService<Salle>, WSServiceSalle>();
             builder.Services.AddScoped<IService<SalleDTO>, WSServiceSalleDTO>();
@@ -30,13 +30,19 @@ namespace SAE_CLIENTGestion
             builder.Services.AddScoped<IService<Equipement>, WSServiceEquipement>();
             builder.Services.AddScoped<IService<Mur>, WSServiceMur>();
 
+            // ViewModels
             builder.Services.AddScoped<BatimentsViewModel>();
             builder.Services.AddScoped<SallesViewModel>();
 
-            builder.Services.AddScoped<IBabylonJSService, BabylonJSService>();
+            // BabylonJS service (seulement une fois, en singleton)
+            builder.Services.AddSingleton<IBabylonJSService>(serviceProvider =>
+                BabylonJSService.Initialize(
+                    serviceProvider.GetRequiredService<IJSRuntime>(),
+                    serviceProvider // Passez le service provider au lieu du service directement
+                )
+            );
 
             builder.Services.AddBlazorBootstrap();
-
             await builder.Build().RunAsync();
         }
     }

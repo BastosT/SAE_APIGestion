@@ -739,60 +739,68 @@
     private async Task HandleValidSubmit()
     {
         bool success;
-        if (isNewSalle)
+        try
         {
-            // Créer les murs avec les dimensions spécifiées
-            Mur murface = await ViewModel.AddMurAsync("Mur Face", TypeMur.Face, currentDimensions.Largeur, currentDimensions.Hauteur);
-            Mur murentree = await ViewModel.AddMurAsync("Mur Entree", TypeMur.Entree, currentDimensions.Largeur, currentDimensions.Hauteur);
-            Mur murdroite = await ViewModel.AddMurAsync("Mur Droite", TypeMur.Droite, currentDimensions.Longueur, currentDimensions.Hauteur);
-            Mur murgauche = await ViewModel.AddMurAsync("Mur Gauche", TypeMur.Gauche, currentDimensions.Longueur, currentDimensions.Hauteur);
-
-            currentSalle.MurFaceId = murface.MurId;
-            currentSalle.MurEntreeId = murentree.MurId;
-            currentSalle.MurDroiteId = murdroite.MurId;
-            currentSalle.MurGaucheId = murgauche.MurId;
-
-            success = await ViewModel.AddSalleAsync(currentSalle);
-        }
-        else
-        {
-            // Mettre à jour les dimensions des murs existants
-            var salle = await ViewModel.GetSalleByIdAsync(currentSalle.SalleId);
-            if (salle != null)
+            if (isNewSalle)
             {
-                if (salle.MurFace != null)
+                // Créer les murs avec les dimensions spécifiées
+                Mur murface = await ViewModel.AddMurAsync("Mur Face", TypeMur.Face, currentDimensions.Largeur, currentDimensions.Hauteur);
+                Mur murentree = await ViewModel.AddMurAsync("Mur Entree", TypeMur.Entree, currentDimensions.Largeur, currentDimensions.Hauteur);
+                Mur murdroite = await ViewModel.AddMurAsync("Mur Droite", TypeMur.Droite, currentDimensions.Longueur, currentDimensions.Hauteur);
+                Mur murgauche = await ViewModel.AddMurAsync("Mur Gauche", TypeMur.Gauche, currentDimensions.Longueur, currentDimensions.Hauteur);
+
+                currentSalle.MurFaceId = murface.MurId;
+                currentSalle.MurEntreeId = murentree.MurId;
+                currentSalle.MurDroiteId = murdroite.MurId;
+                currentSalle.MurGaucheId = murgauche.MurId;
+
+                success = await ViewModel.AddSalleAsync(currentSalle);
+            }
+            else
+            {
+                // Mettre à jour les dimensions des murs existants
+                var salle = await ViewModel.GetSalleByIdAsync(currentSalle.SalleId);
+                if (salle != null)
                 {
-                    salle.MurFace.Longueur = currentDimensions.Largeur;
-                    salle.MurFace.Hauteur = currentDimensions.Hauteur;
-                    await ViewModel.UpdateMurAsync(salle.MurFace);
+                    if (salle.MurFace != null)
+                    {
+                        salle.MurFace.Longueur = currentDimensions.Largeur;
+                        salle.MurFace.Hauteur = currentDimensions.Hauteur;
+                        await ViewModel.UpdateMurAsync(salle.MurFace);
+                    }
+                    if (salle.MurEntree != null)
+                    {
+                        salle.MurEntree.Longueur = currentDimensions.Largeur;
+                        salle.MurEntree.Hauteur = currentDimensions.Hauteur;
+                        await ViewModel.UpdateMurAsync(salle.MurEntree);
+                    }
+                    if (salle.MurDroite != null)
+                    {
+                        salle.MurDroite.Longueur = currentDimensions.Longueur;
+                        salle.MurDroite.Hauteur = currentDimensions.Hauteur;
+                        await ViewModel.UpdateMurAsync(salle.MurDroite);
+                    }
+                    if (salle.MurGauche != null)
+                    {
+                        salle.MurGauche.Longueur = currentDimensions.Longueur;
+                        salle.MurGauche.Hauteur = currentDimensions.Hauteur;
+                        await ViewModel.UpdateMurAsync(salle.MurGauche);
+                    }
                 }
-                if (salle.MurEntree != null)
-                {
-                    salle.MurEntree.Longueur = currentDimensions.Largeur;
-                    salle.MurEntree.Hauteur = currentDimensions.Hauteur;
-                    await ViewModel.UpdateMurAsync(salle.MurEntree);
-                }
-                if (salle.MurDroite != null)
-                {
-                    salle.MurDroite.Longueur = currentDimensions.Longueur;
-                    salle.MurDroite.Hauteur = currentDimensions.Hauteur;
-                    await ViewModel.UpdateMurAsync(salle.MurDroite);
-                }
-                if (salle.MurGauche != null)
-                {
-                    salle.MurGauche.Longueur = currentDimensions.Longueur;
-                    salle.MurGauche.Hauteur = currentDimensions.Hauteur;
-                    await ViewModel.UpdateMurAsync(salle.MurGauche);
-                }
+
+                success = await ViewModel.UpdateSalleAsync(currentSalle);
             }
 
-            success = await ViewModel.UpdateSalleAsync(currentSalle);
+            if (success)
+            {
+                await ViewModel.LoadDataAsync();
+                ViewModel.SuccessMessage = isNewSalle ? "La salle a été créée avec succès." : "La salle a été modifiée avec succès.";
+                showModal = false;
+            }
         }
-
-        if (success)
+        catch (Exception ex)
         {
-            showModal = false;
-            await ViewModel.LoadDataAsync(); // Recharger les données pour afficher les modifications
+            ViewModel.ErrorMessage = "Une erreur est survenue lors de l'opération : " + ex.Message;
         }
     }
 
@@ -979,8 +987,9 @@
         showModal = false;
         showWallModal = false;
         currentSalle = new();
-        ViewModel.ErrorMessage = null;
-        ViewModel.SuccessMessage = null;
+        // Ne pas effacer les messages
+        // ViewModel.ErrorMessage = null;
+        // ViewModel.SuccessMessage = null;
     }
 
     private void CloseWallModal()

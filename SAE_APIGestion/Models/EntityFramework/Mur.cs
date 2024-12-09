@@ -34,6 +34,12 @@ namespace SAE_APIGestion.Models.EntityFramework
 
         [InverseProperty(nameof(Capteur.Mur))]
         public virtual List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+
+        [Column("sal_id")]
+        public int? SalleId { get; set; }
+
+        [ForeignKey("SalleId")]
+        public virtual Salle? Salle { get; set; }
     }
 
 

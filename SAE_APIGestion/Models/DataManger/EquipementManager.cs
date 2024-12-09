@@ -48,7 +48,7 @@ namespace SAE_APIGestion.Models.DataManger
             equipement.Nom = entity.Nom;
             equipement.TypeEquipementId = entity.TypeEquipementId;
             equipement.Hauteur = entity.Hauteur;
-            equipement.Hauteur = entity.Hauteur;
+            equipement.Longueur = entity.Longueur;
             equipement.PositionX = entity.PositionX;
             equipement.PositionY = entity.PositionY;
             equipement.MurId = entity.MurId;

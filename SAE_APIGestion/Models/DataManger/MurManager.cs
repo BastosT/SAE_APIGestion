@@ -21,6 +21,7 @@ namespace SAE_APIGestion.Models.DataManger
             return await dbContext.Murs
                 .Include(b => b.Equipements)
                 .Include(b => b.Capteurs)
+                .Include(b => b.Salle)
                 .ToListAsync();
         }
 
@@ -29,6 +30,7 @@ namespace SAE_APIGestion.Models.DataManger
             return await dbContext.Murs
                 .Include(b => b.Equipements)
                 .Include(b => b.Capteurs)
+                .Include(b => b.Salle)
                 .FirstOrDefaultAsync(u => u.MurId == id);
 
         }

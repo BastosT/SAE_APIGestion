@@ -532,9 +532,51 @@
                         <button type="button" class="btn-close" @onclick="CloseCapteurModal"></button>
                     </div>
                     <div class="alert alert-info mb-3">
-                        <strong>Dimensions du mur :</strong>
+                        <strong>Dimensions du mur (Mid: @currentMur.MurId Sid: @currentMur.SalleId):</strong>
                         <div>Longueur : @currentMur.Longueur m</div>
                         <div>Hauteur : @currentMur.Hauteur m</div>
+                    </div>
+                    <!-- Ajout de l'aperçu SVG -->
+                    <div style="border: 1px solid #ccc; margin: 0;">
+                        <svg width="100%"
+                             height="200"
+                             viewBox="0 0 @currentMur.Longueur @currentMur.Hauteur"
+                             preserveAspectRatio="xMidYMid meet"
+                             style="display: block; margin: 0;">
+                            <!-- Mur de fond -->
+                            <rect x="0" y="0"
+                                  width="@currentMur.Longueur"
+                                  height="@currentMur.Hauteur"
+                                  fill="#f8f9fa"
+                                  stroke="#ccc"
+                                  stroke-width="1" />
+
+                            <!-- Équipements existants en gris -->
+                            @foreach (var equip in currentMur.Capteurs)
+                            {
+                                <rect x="@equip.PositionX"
+                                      y="@equip.PositionY"
+                                      width="@equip.Longueur"
+                                      height="@equip.Hauteur"
+                                      fill="#dee2e6"
+                                      stroke="#adb5bd" />
+                            }
+
+                            <!-- Nouvel équipement en cours en bleu -->
+                            @if (currentCapteur.Longueur > 0 && currentCapteur.Hauteur > 0)
+                            {
+                                <rect x="@currentCapteur.PositionX"
+                                      y="@currentCapteur.PositionY"
+                                      width="@currentCapteur.Longueur"
+                                      height="@currentCapteur.Hauteur"
+                                      fill="#007bff"
+                                      fill-opacity="0.5"
+                                      stroke="#0056b3" />
+                            }
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">Aperçu du positionnement (bleu : nouveau capteur)</small>
                     </div>
                     <div class="modal-body">
                         <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
@@ -557,7 +599,7 @@
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Longueur</label>
-                                <InputNumber class="form-control" @bind-Value="currentCapteur.Longeur" />
+                                <InputNumber class="form-control" @bind-Value="currentCapteur.Longueur" />
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Hauteur</label>
@@ -597,9 +639,52 @@
                         <button type="button" class="btn-close" @onclick="CloseEquipementModal"></button>
                     </div>
                     <div class="alert alert-info mb-3">
-                        <strong>Dimensions du mur :</strong>
+                        <strong>Dimensions du mur (Mid: @currentMur.MurId Sid: @currentMur.SalleId):</strong>
                         <div>Longueur : @currentMur.Longueur m</div>
                         <div>Hauteur : @currentMur.Hauteur m</div>
+                    </div>
+
+                    <!-- Ajout de l'aperçu SVG -->
+                    <div style="border: 1px solid #ccc; margin: 0;">
+                        <svg width="100%"
+                             height="200"
+                             viewBox="0 0 @currentMur.Longueur @currentMur.Hauteur"
+                             preserveAspectRatio="xMidYMid meet"
+                             style="display: block; margin: 0;">
+                            <!-- Mur de fond -->
+                            <rect x="0" y="0"
+                                  width="@currentMur.Longueur"
+                                  height="@currentMur.Hauteur"
+                                  fill="#f8f9fa"
+                                  stroke="#ccc"
+                                  stroke-width="1" />
+
+                            <!-- Équipements existants en gris -->
+                            @foreach (var equip in currentMur.Equipements)
+                            {
+                                <rect x="@equip.PositionX"
+                                      y="@equip.PositionY"
+                                      width="@equip.Longueur"
+                                      height="@equip.Hauteur"
+                                      fill="#dee2e6"
+                                      stroke="#adb5bd" />
+                            }
+
+                            <!-- Nouvel équipement en cours en bleu -->
+                            @if (currentEquipement.Longueur > 0 && currentEquipement.Hauteur > 0)
+                            {
+                                <rect x="@currentEquipement.PositionX"
+                                      y="@currentEquipement.PositionY"
+                                      width="@currentEquipement.Longueur"
+                                      height="@currentEquipement.Hauteur"
+                                      fill="#007bff"
+                                      fill-opacity="0.5"
+                                      stroke="#0056b3" />
+                            }
+                        </svg>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">Aperçu du positionnement (bleu : nouvel équipement)</small>
                     </div>
 
                     <div class="modal-body">
@@ -747,6 +832,7 @@
             currentMur = new Mur
                 {
                     MurId = mur.MurId,
+                    SalleId = mur.SalleId,
                     Nom = mur.Nom,
                     Longueur = mur.Longueur,
                     Hauteur = mur.Hauteur,
@@ -847,7 +933,7 @@
 
     private void AddNewCapteur()
     {
-        currentCapteur = new Capteur { MurId = currentMur.MurId };
+        currentCapteur = new Capteur { MurId = currentMur.MurId, SalleId = currentMur.SalleId };
         isNewCapteur = true;
         showCapteurModal = true;
     }
@@ -861,8 +947,9 @@
                 PositionX = capteur.PositionX,
                 PositionY = capteur.PositionY,
                 Hauteur = capteur.Hauteur,
-                Longeur = capteur.Longeur,
-                MurId = capteur.MurId
+                Longueur = capteur.Longueur,
+                MurId = capteur.MurId,
+                SalleId = capteur.SalleId
             };
         isNewCapteur = false;
         showCapteurModal = true;
@@ -947,7 +1034,8 @@
 
     private void AddNewEquipement()
     {
-        currentEquipement = new EquipementDTO { MurId = currentMur.MurId };
+        
+        currentEquipement = new EquipementDTO { MurId = currentMur.MurId, SalleId = currentMur.SalleId };
         isNewEquipement = true;
         showEquipementModal = true;
     }

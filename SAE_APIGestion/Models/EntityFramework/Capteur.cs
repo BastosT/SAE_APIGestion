@@ -28,7 +28,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         public double? DistanceFenetre { get; set; }
 
         [Column("cap_longueur")]
-        public double? Longeur { get; set; }
+        public double? Longueur { get; set; }
 
         [Column("cap_hauteur")]
         public double? Hauteur { get; set; }

@@ -9,7 +9,7 @@ namespace SAE_CLIENTGestion.Models
         public string Nom { get; set; }
         public bool EstActif { get; set; }
         public double? DistanceFenetre { get; set; }
-        public double? Longeur { get; set; }
+        public double? Longueur { get; set; }
         public double? Hauteur { get; set; }
         public double PositionX { get; set; }
         public double PositionY { get; set; }

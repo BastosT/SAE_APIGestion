@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SAE_APIGestion.Models.EntityFramework;
@@ -11,9 +12,11 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Migrations
 {
     [DbContext(typeof(GlobalDBContext))]
-    partial class GlobalDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241209111714_CreateBase")]
+    partial class CreateBase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -226,7 +229,7 @@ namespace SAE_APIGestion.Migrations
                         .HasColumnType("varchar(25)")
                         .HasColumnName("mur_nom");
 
-                    b.Property<int?>("SalleId")
+                    b.Property<int>("SalleId")
                         .HasColumnType("integer")
                         .HasColumnName("sal_id");
 
@@ -450,7 +453,9 @@ namespace SAE_APIGestion.Migrations
                 {
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
                         .WithMany()
-                        .HasForeignKey("SalleId");
+                        .HasForeignKey("SalleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Salle");
                 });

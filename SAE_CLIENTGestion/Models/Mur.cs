@@ -13,6 +13,8 @@ namespace SAE_CLIENTGestion.Models
         public TypeMur Type { get; set; }
         public virtual List<Equipement> Equipements { get; set; } = new List<Equipement>();
         public virtual List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+        public int SalleId { get; set; }
+        public virtual Salle Salle { get; set; }
     }
     public enum TypeMur
     {

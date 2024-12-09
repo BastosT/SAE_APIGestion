@@ -36,21 +36,17 @@ VALUES
     (2, 'Bat F', 'Batiment GEA');
 SELECT setval('t_e_batiment_bat_bat_id_seq', (SELECT MAX(bat_id) FROM t_e_batiment_bat));
 
--- 3. Murs pour D101
-INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_type)
+-- 3. Murs pour D101 et D102 (sans sal_id)
+INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_type, sal_id)
 VALUES 
-    (1, 'Mur Face', 575, 270, 1),
-    (2, 'Mur Entree', 575, 270, 2),
-    (3, 'Mur Droite', 736, 270, 3),
-    (4, 'Mur Gauche', 736, 270, 4);
-
--- Murs pour D102
-INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_type)
-VALUES 
-    (5, 'Mur Face', 775, 270, 1),
-    (6, 'Mur Entree', 775, 270, 2),
-    (7, 'Mur Droite', 936, 270, 3),
-    (8, 'Mur Gauche', 936, 270, 4);
+    (1, 'Mur Face', 575, 270, 1, null),
+    (2, 'Mur Entree', 575, 270, 2, null),
+    (3, 'Mur Droite', 736, 270, 3, null),
+    (4, 'Mur Gauche', 736, 270, 4, null),
+    (5, 'Mur Face', 775, 270, 1, null),
+    (6, 'Mur Entree', 775, 270, 2, null),
+    (7, 'Mur Droite', 936, 270, 3, null),
+    (8, 'Mur Gauche', 936, 270, 4, null);
 SELECT setval('t_e_mur_mur_mur_id_seq', (SELECT MAX(mur_id) FROM t_e_mur_mur));
 
 -- 4. Salles
@@ -59,6 +55,11 @@ VALUES
     (1, 'D101', 10, 1, 1, 1, 2, 3, 4),
     (2, 'D102', 5, 1, 1, 5, 6, 7, 8);
 SELECT setval('t_e_salle_sal_sal_id_seq', (SELECT MAX(sal_id) FROM t_e_salle_sal));
+
+
+-- Mise à jour des murs avec leur sal_id
+UPDATE t_e_mur_mur SET sal_id = 1 WHERE mur_id IN (1, 2, 3, 4);
+UPDATE t_e_mur_mur SET sal_id = 2 WHERE mur_id IN (5, 6, 7, 8);
 
 -- 5. Capteurs
 INSERT INTO t_e_capteur_cap (

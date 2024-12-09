@@ -81,6 +81,7 @@ namespace SAE_CLIENTGestion.ViewModels
                     LoadBatimentsAsync(),
                     LoadTypesSalleAsync(),
                     LoadTypesEquipementAsync()
+                    
                 };
 
                 await Task.WhenAll(tasks);
@@ -245,11 +246,11 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> AddEquipementToSalleAsync(Equipement equipement)
+        public async Task<bool> AddEquipementToSalleAsync(EquipementDTO equipement)
         {
             try
             {
-                await _equipementService.PostAsync(equipement);
+                await _equipementServiceDTO.PostAsync(equipement);
                 await LoadEquipementsSalleAsync(equipement.SalleId);
                 SuccessMessage = "Équipement ajouté avec succès";
                 return true;
@@ -412,7 +413,13 @@ namespace SAE_CLIENTGestion.ViewModels
 
         public async Task<Mur> GetMurByIdAsync(int murId)
         {
-            return await _murService.GetByIdAsync(murId);
+            var mur = await _murService.GetByIdAsync(murId);
+
+            // Initialiser les collections si elles sont null
+            mur.Equipements ??= new List<Equipement>();
+            mur.Capteurs ??= new List<Capteur>();
+
+            return mur;
         }
 
         public async Task<bool> UpdateMurAsync(Mur mur)

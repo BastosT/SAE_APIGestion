@@ -531,6 +531,11 @@
                         <h5 class="modal-title">@(isNewCapteur ? "Nouveau capteur" : "Modifier le capteur")</h5>
                         <button type="button" class="btn-close" @onclick="CloseCapteurModal"></button>
                     </div>
+                    <div class="alert alert-info mb-3">
+                        <strong>Dimensions du mur :</strong>
+                        <div>Longueur : @currentMur.Longueur m</div>
+                        <div>Hauteur : @currentMur.Hauteur m</div>
+                    </div>
                     <div class="modal-body">
                         <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
                             <DataAnnotationsValidator />
@@ -591,6 +596,12 @@
                         <h5 class="modal-title">@(isNewEquipement ? "Nouvel équipement" : "Modifier l'équipement")</h5>
                         <button type="button" class="btn-close" @onclick="CloseEquipementModal"></button>
                     </div>
+                    <div class="alert alert-info mb-3">
+                        <strong>Dimensions du mur :</strong>
+                        <div>Longueur : @currentMur.Longueur m</div>
+                        <div>Hauteur : @currentMur.Hauteur m</div>
+                    </div>
+
                     <div class="modal-body">
                         <EditForm Model="@currentEquipement" OnValidSubmit="HandleEquipementSubmit">
                             <DataAnnotationsValidator />
@@ -865,28 +876,72 @@
             StateHasChanged();
         }
     }
+    private async Task RefreshMurData()
+    {
+        try
+        {
+            // Recharger complètement les données
+            await ViewModel.LoadDataAsync();
+
+            // Chercher le mur mis à jour dans les données rechargées
+            var salle = ViewModel.Salles.FirstOrDefault(s =>
+                s.MurFace?.MurId == currentMur.MurId ||
+                s.MurDroite?.MurId == currentMur.MurId ||
+                s.MurGauche?.MurId == currentMur.MurId ||
+                s.MurEntree?.MurId == currentMur.MurId);
+
+            if (salle != null)
+            {
+                // Trouver le bon mur
+                Mur updatedMur = null;
+                if (salle.MurFace?.MurId == currentMur.MurId) updatedMur = salle.MurFace;
+                else if (salle.MurDroite?.MurId == currentMur.MurId) updatedMur = salle.MurDroite;
+                else if (salle.MurGauche?.MurId == currentMur.MurId) updatedMur = salle.MurGauche;
+                else if (salle.MurEntree?.MurId == currentMur.MurId) updatedMur = salle.MurEntree;
+
+                if (updatedMur != null)
+                {
+                    // Mettre à jour les collections en s'assurant qu'elles ne sont pas null
+                    currentMur.Equipements = updatedMur.Equipements ?? new List<Equipement>();
+                    currentMur.Capteurs = updatedMur.Capteurs ?? new List<Capteur>();
+                }
+            }
+
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = $"Erreur lors du rafraîchissement des données : {ex.Message}";
+        }
+    }
+
 
     private async Task HandleCapteurSubmit()
     {
-        if (isNewCapteur)
+        try
         {
-            if (await ViewModel.AddCapteurAsync(currentCapteur))
+            if (isNewCapteur)
             {
-                currentMur.Capteurs.Add(currentCapteur);
-                showCapteurModal = false;
+                if (await ViewModel.AddCapteurAsync(currentCapteur))
+                {
+                    // Recharger uniquement la liste des capteurs
+                    await RefreshMurData();
+                    showCapteurModal = false;
+                }
+            }
+            else
+            {
+                if (await ViewModel.UpdateCapteurAsync(currentCapteur))
+                {
+                    // Recharger uniquement la liste des capteurs
+                    await RefreshMurData();
+                    showCapteurModal = false;
+                }
             }
         }
-        else
+        catch (Exception ex)
         {
-            if (await ViewModel.UpdateCapteurAsync(currentCapteur))
-            {
-                var index = currentMur.Capteurs.FindIndex(c => c.CapteurId == currentCapteur.CapteurId);
-                if (index != -1)
-                {
-                    currentMur.Capteurs[index] = currentCapteur;
-                }
-                showCapteurModal = false;
-            }
+            ViewModel.ErrorMessage = $"Erreur lors de la sauvegarde du capteur : {ex.Message}";
         }
     }
 
@@ -933,7 +988,8 @@
             {
                 if (await ViewModel.AddEquipementAsync(currentEquipement))
                 {
-                    await ViewModel.LoadDataAsync(); // Recharger toutes les données
+                    // Recharger uniquement la liste des équipements
+                    await RefreshMurData();
                     showEquipementModal = false;
                 }
             }
@@ -941,18 +997,9 @@
             {
                 if (await ViewModel.UpdateEquipementAsync(currentEquipement))
                 {
-                    await ViewModel.LoadDataAsync(); // Recharger toutes les données
+                    // Recharger uniquement la liste des équipements
+                    await RefreshMurData();
                     showEquipementModal = false;
-                }
-            }
-
-            // Recharger le mur courant avec ses équipements à jour
-            if (currentMur != null)
-            {
-                var murMisAJour = await ViewModel.GetMurByIdAsync(currentMur.MurId);
-                if (murMisAJour != null)
-                {
-                    currentMur = murMisAJour;
                 }
             }
         }

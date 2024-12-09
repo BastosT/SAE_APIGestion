@@ -18,7 +18,7 @@ namespace SAE_CLIENTGestion
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7155/") });
+            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://localhost:7155/") });
 
             // Services web
             builder.Services.AddScoped<IService<Batiment>, WSServiceBatiment>();

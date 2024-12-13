@@ -2,10 +2,19 @@
 @inject IBabylonJSService BabylonService
 @inject IJSRuntime JS
 @implements IAsyncDisposable
+
 <PageTitle>Home</PageTitle>
 
 <div class="babylon-container">
     <canvas id="renderCanvas"></canvas>
+    
+    @if (!isLoaded)
+    {
+        <div class="loading-overlay">
+            <div class="spinner"></div>
+            <div class="loading-text">Chargement en cours...</div>
+        </div>
+    }
 </div>
 
 <style>
@@ -23,6 +32,42 @@
         display: block;
         outline: none;
     }
+
+    /* Styles pour l'écran de chargement */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #3498db;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+    }
+
+    .loading-text {
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    @@keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
     /* Assurer que le conteneur prend tout l'espace disponible */
     :root, body, #app {
         margin: 0;
@@ -33,6 +78,7 @@
 
 @code {
     private bool _disposed = false;
+    private bool isLoaded = false;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -42,6 +88,8 @@
             {
                 // Initialise la scène avec le singleton
                 await BabylonService.InitializeSceneAsync("renderCanvas");
+                isLoaded = true;
+                StateHasChanged();
             }
             catch (Exception ex)
             {

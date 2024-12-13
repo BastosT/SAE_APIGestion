@@ -666,18 +666,19 @@
                                   fill="#f8f9fa"
                                   stroke="#ccc"
                                   stroke-width="1" />
-
-                            <!-- Équipements existants en gris -->
+                            <!-- Équipements existants avec couleurs selon type -->
                             @foreach (var equip in currentMur.Equipements)
                             {
+                                string fillColor = GetEquipementColor(equip.TypeEquipementId);
+                                string strokeColor = GetEquipementStrokeColor(equip.TypeEquipementId);
+
                                 <rect x="@equip.PositionX"
                                       y="@equip.PositionY"
                                       width="@equip.Longueur"
                                       height="@equip.Hauteur"
-                                      fill="#dee2e6"
-                                      stroke="#adb5bd" />
+                                      fill="@fillColor"
+                                      stroke="@strokeColor" />
                             }
-
                             <!-- Nouvel équipement en cours -->
                             @if (currentEquipement.Longueur > 0 && currentEquipement.Hauteur > 0)
                             {
@@ -685,9 +686,9 @@
                                       y="@currentEquipement.PositionY"
                                       width="@currentEquipement.Longueur"
                                       height="@currentEquipement.Hauteur"
-                                      fill="@(IsEquipementOutOfBounds() ? "#dc3545" : "#007bff")"
+                                      fill="@(IsEquipementOutOfBounds() ? "#dc3545" : GetEquipementColor(currentEquipement.TypeEquipementId))"
                                       fill-opacity="0.5"
-                                      stroke="@(IsEquipementOutOfBounds() ? "#dc3545" : "#0056b3")" />
+                                      stroke="@(IsEquipementOutOfBounds() ? "#dc3545" : GetEquipementStrokeColor(currentEquipement.TypeEquipementId))" />
                             }
                         </svg>
                     </div>
@@ -713,7 +714,17 @@
                                 <label class="form-label">Nom</label>
                                 <InputText class="form-control" @bind-Value="currentEquipement.Nom" />
                             </div>
-
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Type de Equipement</label>
+                                <InputSelect class="form-control" @bind-Value="currentEquipement.TypeEquipementId">
+                                    <option value="">Sélectionner un type d'équipement</option>
+                                    @foreach (var typeEquipement in ViewModel.TypesEquipement)
+                                    {
+                                        <option value="@typeEquipement.TypeEquipementId">@typeEquipement.Nom</option>
+                                    }
+                                </InputSelect>
+                                <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
+                            </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Position X (m)</label>
                                 <InputNumber class="form-control" @bind-Value="currentEquipement.PositionX" />
@@ -730,17 +741,7 @@
                                 <label class="form-label">Hauteur</label>
                                 <InputNumber class="form-control" @bind-Value="currentEquipement.Hauteur" />
                             </div>
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label">Type de Equipement</label>
-                                <InputSelect class="form-control" @bind-Value="currentEquipement.TypeEquipementId">
-                                    <option value="">Sélectionner un type d'équipement</option>
-                                    @foreach (var typeEquipement in ViewModel.TypesEquipement)
-                                    {
-                                        <option value="@typeEquipement.TypeEquipementId">@typeEquipement.Nom</option>
-                                    }
-                                </InputSelect>
-                                <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
-                            </div>
+
 
                             <button type="submit" class="btn btn-primary" disabled="@IsEquipementOutOfBounds()">Enregistrer</button>
                             <button type="button" class="btn btn-secondary" @onclick="CloseEquipementModal">Annuler</button>
@@ -797,6 +798,74 @@
         public double Hauteur { get; set; }  // Hauteur commune à tous les murs
     }
 
+    private string GetEquipementColor(int typeEquipementId)
+    {
+        try
+        {
+            Console.WriteLine($"Debug - TypeEquipementID: {typeEquipementId}");
+            Console.WriteLine($"Debug - Nombre de types: {ViewModel.TypesEquipement.Count()}");
+
+            var typeEquipement = ViewModel.TypesEquipement.FirstOrDefault(t => t.TypeEquipementId == typeEquipementId);
+
+            if (typeEquipement != null)
+            {
+                Console.WriteLine($"Debug - Type trouvé: {typeEquipement.Nom}");
+
+                // Stockons le nom en minuscules pour la comparaison
+                var nomType = typeEquipement.Nom.ToLower();
+                var couleur = "#dee2e6"; // Couleur par défaut
+
+                return typeEquipement.TypeEquipementId switch
+                {
+                    1 => "#dee2e6",  // Radiateur - Orange
+                    2 => "#2196F3",  // Fenetre - Bleu
+                    3 => "#4CE4C1",  // Vitre - Vert
+                    4 => "#9C27B0",  // Porte - Violet
+                    _ => "#dee2e6"   // Défaut - Gris
+                };
+
+                Console.WriteLine($"Debug - Couleur choisie pour {nomType}: {couleur}");
+                return couleur;
+            }
+
+            Console.WriteLine($"Debug - Aucun type trouvé pour ID: {typeEquipementId}");
+            return "#dee2e6";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Debug - Erreur: {ex.Message}");
+            return "#dee2e6";
+        }
+    }
+
+    private string GetEquipementStrokeColor(int typeEquipementId)
+    {
+        try
+        {
+            var typeEquipement = ViewModel.TypesEquipement.FirstOrDefault(t => t.TypeEquipementId == typeEquipementId);
+
+            if (typeEquipement != null)
+            {
+                var nomType = typeEquipement.Nom.ToLower();
+
+                return typeEquipement.TypeEquipementId switch
+                {
+                    1 => "#E64A19",  // Radiateur - Orange foncé
+                    2 => "#1976D2",  // Fenetre - Bleu foncé
+                    3 => "#388E3C",  // Vitre - Vert foncé
+                    4 => "#7B1FA2",  // Porte - Violet foncé
+                    _ => "#adb5bd"   // Défaut - Gris foncé
+                };
+            }
+
+            return "#adb5bd";
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Debug - Erreur dans GetEquipementStrokeColor: {ex.Message}");
+            return "#adb5bd";
+        }
+    }
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadDataAsync();

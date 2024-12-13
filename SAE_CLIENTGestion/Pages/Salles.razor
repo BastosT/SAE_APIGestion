@@ -442,7 +442,7 @@
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <div>
                                                                 <h6 class="mb-1">@capteur.Nom</h6>
-                                                                <small>Position: X:@capteur.PositionX m, Y:@capteur.PositionY m</small>
+                                                                <small>Position: X:@capteur.PositionX m, Y:@capteur.PositionY m [Dimensions: @capteur.Longueur x @capteur.Hauteur]</small>
                                                             </div>
                                                             <div>
                                                                 <button class="btn btn-sm btn-warning me-2" @onclick="() => EditCapteur(capteur)">
@@ -490,7 +490,7 @@
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <div>
                                                                 <h6 class="mb-1">@equipement.Nom</h6>
-                                                                <small>Position: X:@equipement.PositionX m, Y:@equipement.PositionY m</small>
+                                                                <small>Position: X:@equipement.PositionX m, Y:@equipement.PositionY m  [Dimensions: @equipement.Longueur x @equipement.Hauteur]</small>
                                                                 <small>Type équipement: @equipement.TypeEquipement.Nom</small>
                                                             </div>
                                                             <div>
@@ -536,7 +536,7 @@
                         <div>Longueur : @currentMur.Longueur m</div>
                         <div>Hauteur : @currentMur.Hauteur m</div>
                     </div>
-                    <!-- Ajout de l'aperçu SVG -->
+                    <!-- Aperçu SVG -->
                     <div style="border: 1px solid #ccc; margin: 0;">
                         <svg width="100%"
                              height="200"
@@ -562,23 +562,32 @@
                                       stroke="#adb5bd" />
                             }
 
-                            <!-- Nouvel équipement en cours en bleu -->
+                            <!-- Nouvel équipement en cours -->
                             @if (currentCapteur.Longueur > 0 && currentCapteur.Hauteur > 0)
                             {
                                 <rect x="@currentCapteur.PositionX"
                                       y="@currentCapteur.PositionY"
                                       width="@currentCapteur.Longueur"
                                       height="@currentCapteur.Hauteur"
-                                      fill="#007bff"
+                                      fill="@(IsCapteurOutOfBounds() ? "#dc3545" : "#007bff")"
                                       fill-opacity="0.5"
-                                      stroke="#0056b3" />
+                                      stroke="@(IsCapteurOutOfBounds() ? "#dc3545" : "#0056b3")" />
                             }
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <small class="text-muted">Aperçu du positionnement (bleu : nouveau capteur)</small>
+                        <small class="text-muted">
+                            Aperçu du positionnement
+                            (@(IsCapteurOutOfBounds() ? "rouge : position invalide" : "bleu : position valide"))
+                        </small>
                     </div>
                     <div class="modal-body">
+                        @if (IsCapteurOutOfBounds())
+                        {
+                            <div class="alert alert-danger">
+                                Le capteur dépasse les dimensions du mur !
+                            </div>
+                        }
                         <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
@@ -587,7 +596,6 @@
                                 <label class="form-label">Nom</label>
                                 <InputText class="form-control" @bind-Value="currentCapteur.Nom" />
                             </div>
-
 
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Position X (m)</label>
@@ -618,7 +626,7 @@
                                 <InputNumber class="form-control" @bind-Value="currentCapteur.DistanceFenetre" />
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <button type="submit" class="btn btn-primary" disabled="@IsCapteurOutOfBounds()">Enregistrer</button>
                             <button type="button" class="btn btn-secondary" @onclick="CloseCapteurModal">Annuler</button>
                         </EditForm>
                     </div>
@@ -644,7 +652,7 @@
                         <div>Hauteur : @currentMur.Hauteur m</div>
                     </div>
 
-                    <!-- Ajout de l'aperçu SVG -->
+                    <!-- Aperçu SVG -->
                     <div style="border: 1px solid #ccc; margin: 0;">
                         <svg width="100%"
                              height="200"
@@ -670,24 +678,33 @@
                                       stroke="#adb5bd" />
                             }
 
-                            <!-- Nouvel équipement en cours en bleu -->
+                            <!-- Nouvel équipement en cours -->
                             @if (currentEquipement.Longueur > 0 && currentEquipement.Hauteur > 0)
                             {
                                 <rect x="@currentEquipement.PositionX"
                                       y="@currentEquipement.PositionY"
                                       width="@currentEquipement.Longueur"
                                       height="@currentEquipement.Hauteur"
-                                      fill="#007bff"
+                                      fill="@(IsEquipementOutOfBounds() ? "#dc3545" : "#007bff")"
                                       fill-opacity="0.5"
-                                      stroke="#0056b3" />
+                                      stroke="@(IsEquipementOutOfBounds() ? "#dc3545" : "#0056b3")" />
                             }
                         </svg>
                     </div>
                     <div class="text-center mt-2">
-                        <small class="text-muted">Aperçu du positionnement (bleu : nouvel équipement)</small>
+                        <small class="text-muted">
+                            Aperçu du positionnement
+                            (@(IsEquipementOutOfBounds() ? "rouge : position invalide" : "bleu : position valide"))
+                        </small>
                     </div>
 
                     <div class="modal-body">
+                        @if (IsEquipementOutOfBounds())
+                        {
+                            <div class="alert alert-danger">
+                                L'équipement dépasse les dimensions du mur !
+                            </div>
+                        }
                         <EditForm Model="@currentEquipement" OnValidSubmit="HandleEquipementSubmit">
                             <DataAnnotationsValidator />
                             <ValidationSummary />
@@ -697,22 +714,22 @@
                                 <InputText class="form-control" @bind-Value="currentEquipement.Nom" />
                             </div>
 
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Position X (m)</label>
-                                    <InputNumber class="form-control" @bind-Value="currentEquipement.PositionX" />
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Position Y (m)</label>
-                                    <InputNumber class="form-control" @bind-Value="currentEquipement.PositionY" />
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Longueur</label>
-                                    <InputNumber class="form-control" @bind-Value="currentEquipement.Longueur" />
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Hauteur</label>
-                                    <InputNumber class="form-control" @bind-Value="currentEquipement.Hauteur" />
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position X (m)</label>
+                                <InputNumber class="form-control" @bind-Value="currentEquipement.PositionX" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Position Y (m)</label>
+                                <InputNumber class="form-control" @bind-Value="currentEquipement.PositionY" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Longueur</label>
+                                <InputNumber class="form-control" @bind-Value="currentEquipement.Longueur" />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hauteur</label>
+                                <InputNumber class="form-control" @bind-Value="currentEquipement.Hauteur" />
+                            </div>
                             <div class="col-md-6 mb-3">
                                 <label class="form-label">Type de Equipement</label>
                                 <InputSelect class="form-control" @bind-Value="currentEquipement.TypeEquipementId">
@@ -725,7 +742,7 @@
                                 <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Enregistrer</button>
+                            <button type="submit" class="btn btn-primary" disabled="@IsEquipementOutOfBounds()">Enregistrer</button>
                             <button type="button" class="btn btn-secondary" @onclick="CloseEquipementModal">Annuler</button>
                         </EditForm>
                     </div>
@@ -760,7 +777,7 @@
     private Salle salleToDelete;
     private Mur currentMur;
     private MurCreateParameters murParameters = new();
-    private Capteur currentCapteur = new();
+    private CapteurDTO currentCapteur = new();
     private EquipementDTO currentEquipement = new();
     private TypeSalleDTO currentTypeSalle = new();
     private TypeSalleDTO typeSalleToDelete;
@@ -933,14 +950,14 @@
 
     private void AddNewCapteur()
     {
-        currentCapteur = new Capteur { MurId = currentMur.MurId, SalleId = currentMur.SalleId };
+        currentCapteur = new CapteurDTO { MurId = currentMur.MurId, SalleId = currentMur.SalleId };
         isNewCapteur = true;
         showCapteurModal = true;
     }
 
     private void EditCapteur(Capteur capteur)
     {
-        currentCapteur = new Capteur
+        currentCapteur = new CapteurDTO
             {
                 CapteurId = capteur.CapteurId,
                 Nom = capteur.Nom,
@@ -949,7 +966,10 @@
                 Hauteur = capteur.Hauteur,
                 Longueur = capteur.Longueur,
                 MurId = capteur.MurId,
-                SalleId = capteur.SalleId
+                SalleId = capteur.SalleId,
+                DistancePorte = capteur.DistancePorte,
+                DistanceChauffage = capteur.DistanceChauffage,
+                DistanceFenetre = capteur.DistanceFenetre
             };
         isNewCapteur = false;
         showCapteurModal = true;
@@ -960,6 +980,7 @@
         if (await ViewModel.DeleteCapteurAsync(capteur.CapteurId))
         {
             currentMur.Capteurs.Remove(capteur);
+            ViewModel.SuccessMessage = "Le capteur a été supprimé avec succès.";
             StateHasChanged();
         }
     }
@@ -1002,6 +1023,15 @@
         }
     }
 
+    private bool IsCapteurOutOfBounds()
+    {
+        if (currentCapteur == null || currentMur == null) return true;
+
+        return currentCapteur.PositionX < 0 ||
+               currentCapteur.PositionY < 0 ||
+               (currentCapteur.PositionX + currentCapteur.Longueur) > currentMur.Longueur ||
+               (currentCapteur.PositionY + currentCapteur.Hauteur) > currentMur.Hauteur;
+    }
 
     private async Task HandleCapteurSubmit()
     {
@@ -1011,7 +1041,8 @@
             {
                 if (await ViewModel.AddCapteurAsync(currentCapteur))
                 {
-                    // Recharger uniquement la liste des capteurs
+                    // Ajouter le message de succès
+                    ViewModel.SuccessMessage = "Le capteur a été ajouté avec succès.";
                     await RefreshMurData();
                     showCapteurModal = false;
                 }
@@ -1020,7 +1051,8 @@
             {
                 if (await ViewModel.UpdateCapteurAsync(currentCapteur))
                 {
-                    // Recharger uniquement la liste des capteurs
+                    // Ajouter le message de succès
+                    ViewModel.SuccessMessage = "Le capteur a été modifié avec succès.";
                     await RefreshMurData();
                     showCapteurModal = false;
                 }
@@ -1064,8 +1096,19 @@
         if (await ViewModel.DeleteEquipementAsync(equipement.EquipementId))
         {
             currentMur.Equipements.Remove(equipement);
+            ViewModel.SuccessMessage = "L'équipement a été supprimé avec succès.";
             StateHasChanged();
         }
+    }
+
+    private bool IsEquipementOutOfBounds()
+    {
+        if (currentEquipement == null || currentMur == null) return true;
+
+        return currentEquipement.PositionX < 0 ||
+               currentEquipement.PositionY < 0 ||
+               (currentEquipement.PositionX + currentEquipement.Longueur) > currentMur.Longueur ||
+               (currentEquipement.PositionY + currentEquipement.Hauteur) > currentMur.Hauteur;
     }
 
     private async Task HandleEquipementSubmit()
@@ -1076,7 +1119,8 @@
             {
                 if (await ViewModel.AddEquipementAsync(currentEquipement))
                 {
-                    // Recharger uniquement la liste des équipements
+                    // Ajouter le message de succès
+                    ViewModel.SuccessMessage = "L'équipement a été ajouté avec succès.";
                     await RefreshMurData();
                     showEquipementModal = false;
                 }
@@ -1085,7 +1129,8 @@
             {
                 if (await ViewModel.UpdateEquipementAsync(currentEquipement))
                 {
-                    // Recharger uniquement la liste des équipements
+                    // Ajouter le message de succès
+                    ViewModel.SuccessMessage = "L'équipement a été modifié avec succès.";
                     await RefreshMurData();
                     showEquipementModal = false;
                 }

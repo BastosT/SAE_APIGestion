@@ -46,17 +46,19 @@ namespace SAE_APIGestion.Models.DataManger
         }
 
 
-        public async Task UpdateAsync(Capteur enseignant, Capteur entity)
+        public async Task UpdateAsync(Capteur capteur, Capteur entity)
         {
-            dbContext.Entry(enseignant).State = EntityState.Modified;
-            enseignant.CapteurId = entity.CapteurId;
-            enseignant.Nom = entity.Nom;
-            enseignant.DistanceChauffage = entity.DistanceChauffage;
-            enseignant.DistancePorte = entity.DistancePorte;
-            enseignant.DistanceFenetre = entity.DistanceFenetre;
-            enseignant.EstActif = entity.EstActif;
-            enseignant.Mur = entity.Mur;
-            enseignant.DonneesCapteurs = entity.DonneesCapteurs;
+            dbContext.Entry(capteur).State = EntityState.Modified;
+            capteur.CapteurId = entity.CapteurId;
+            capteur.Nom = entity.Nom;
+            capteur.Longueur = entity.Longueur;
+            capteur.Hauteur = entity.Hauteur;
+            capteur.DistanceChauffage = entity.DistanceChauffage;
+            capteur.DistancePorte = entity.DistancePorte;
+            capteur.DistanceFenetre = entity.DistanceFenetre;
+            capteur.EstActif = entity.EstActif;
+            capteur.Mur = entity.Mur;
+            capteur.DonneesCapteurs = entity.DonneesCapteurs;
 
             await dbContext.SaveChangesAsync();
         }
@@ -101,13 +103,13 @@ namespace SAE_APIGestion.Models.DataManger
         }
 
 
-        public async Task UpdateAsync(TypeDonneesCapteur enseignant, TypeDonneesCapteur entity)
+        public async Task UpdateAsync(TypeDonneesCapteur capteur, TypeDonneesCapteur entity)
         {
-            dbContext.Entry(enseignant).State = EntityState.Modified;
-            enseignant.TypeDonneesCapteurId = entity.TypeDonneesCapteurId;
-            enseignant.Unite = entity.Unite;
-            enseignant.Nom = entity.Nom;
-            enseignant.DonneesCapteurs = entity.DonneesCapteurs;
+            dbContext.Entry(capteur).State = EntityState.Modified;
+            capteur.TypeDonneesCapteurId = entity.TypeDonneesCapteurId;
+            capteur.Unite = entity.Unite;
+            capteur.Nom = entity.Nom;
+            capteur.DonneesCapteurs = entity.DonneesCapteurs;
 
             await dbContext.SaveChangesAsync();
         }
@@ -156,16 +158,16 @@ namespace SAE_APIGestion.Models.DataManger
         }
 
 
-        public async Task UpdateAsync(DonneesCapteur enseignant, DonneesCapteur entity)
+        public async Task UpdateAsync(DonneesCapteur capteur, DonneesCapteur entity)
         {
-            dbContext.Entry(enseignant).State = EntityState.Modified;
-            enseignant.DonneesCapteurId = entity.DonneesCapteurId;
-            enseignant.Capteur= entity.Capteur;
-            enseignant.CapteurId= entity.CapteurId;
-            enseignant.Valeur= entity.Valeur;
-            enseignant.Timestamp= entity.Timestamp;
-            enseignant.TypeDonnees= entity.TypeDonnees;
-            enseignant.TypeDonneesId= entity.TypeDonneesId;
+            dbContext.Entry(capteur).State = EntityState.Modified;
+            capteur.DonneesCapteurId = entity.DonneesCapteurId;
+            capteur.Capteur= entity.Capteur;
+            capteur.CapteurId= entity.CapteurId;
+            capteur.Valeur= entity.Valeur;
+            capteur.Timestamp= entity.Timestamp;
+            capteur.TypeDonnees= entity.TypeDonnees;
+            capteur.TypeDonneesId= entity.TypeDonneesId;
 
             await dbContext.SaveChangesAsync();
         }

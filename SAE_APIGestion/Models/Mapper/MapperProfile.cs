@@ -19,6 +19,10 @@ namespace SAE_APIGestion.Models.Mapper
             CreateMap<EquipementDTO, Equipement>()
                 .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
+
+            CreateMap<CapteurDTO, Capteur>()
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
         }
     }
 

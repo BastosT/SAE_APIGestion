@@ -13,6 +13,7 @@ namespace SAE_CLIENTGestion.ViewModels
         private readonly IService<SalleDTO> _salleServiceDTO;
         private readonly IService<Batiment> _batimentService;
         private readonly IService<Mur> _murService;
+        private readonly IService<CapteurDTO> _capteurServiceDTO;
         private readonly IService<Capteur> _capteurService;
         private readonly IService<EquipementDTO> _equipementServiceDTO;
         private readonly IService<Equipement> _equipementService;
@@ -23,8 +24,9 @@ namespace SAE_CLIENTGestion.ViewModels
             IService<Salle> salleService,
             IService<SalleDTO> salleServiceDTO,
             IService<Batiment> batimentService,
-            IService<Capteur> capteurService,
             IService<Mur> murService,
+            IService<Capteur> capteurService,
+            IService<CapteurDTO> capteurServiceDTO,
             IService<Equipement> equipementService,
             IService<EquipementDTO> equipementServiceDTO,
             IService<TypeSalleDTO> typeSalleService,
@@ -33,8 +35,9 @@ namespace SAE_CLIENTGestion.ViewModels
             _salleService = salleService;
             _salleServiceDTO = salleServiceDTO;
             _batimentService = batimentService;
-            _capteurService = capteurService;
             _murService = murService;
+            _capteurService = capteurService;
+            _capteurServiceDTO = capteurServiceDTO;
             _equipementService = equipementService;
             _equipementServiceDTO = equipementServiceDTO;
             _typeSalleService = typeSalleService;
@@ -230,11 +233,11 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> AddCapteurToSalleAsync(Capteur capteur)
+        public async Task<bool> AddCapteurToSalleAsync(CapteurDTO capteur)
         {
             try
             {
-                await _capteurService.PostAsync(capteur);
+                await _capteurServiceDTO.PostAsync(capteur);
                 await LoadCapteursSalleAsync(capteur.SalleId);
                 SuccessMessage = "Capteur ajouté avec succès";
                 return true;
@@ -302,11 +305,11 @@ namespace SAE_CLIENTGestion.ViewModels
 
         // CRUD CAPTEUR
 
-        public async Task<bool> AddCapteurAsync(Capteur capteur)
+        public async Task<bool> AddCapteurAsync(CapteurDTO capteur)
         {
             try
             {
-                await _capteurService.PostAsync(capteur);
+                await _capteurServiceDTO.PostAsync(capteur);
                 SuccessMessage = "Capteur ajouté avec succès";
                 ErrorMessage = null;
                 return true;
@@ -319,11 +322,11 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateCapteurAsync(Capteur capteur)
+        public async Task<bool> UpdateCapteurAsync(CapteurDTO capteur)
         {
             try
             {
-                await _capteurService.PutAsync(capteur.CapteurId, capteur);
+                await _capteurServiceDTO.PutAsync(capteur.CapteurId, capteur);
                 SuccessMessage = "Capteur modifié avec succès";
                 ErrorMessage = null;
                 return true;

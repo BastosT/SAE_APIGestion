@@ -1,10 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace SAE_CLIENTGestion.Models
+﻿namespace SAE_CLIENTGestion.Models.DTO
 {
-    public class Capteur
+    public class CapteurDTO
     {
+
         public int CapteurId { get; set; }
         public string Nom { get; set; }
         public bool EstActif { get; set; }
@@ -13,12 +11,9 @@ namespace SAE_CLIENTGestion.Models
         public double PositionX { get; set; }
         public double PositionY { get; set; }
         public double? DistancePorte { get; set; }
-        public double? DistanceFenetre { get; set; }
         public double? DistanceChauffage { get; set; }
+        public double? DistanceFenetre { get; set; }
         public int SalleId { get; set; }
         public int? MurId { get; set; }
-        public virtual Mur Mur { get; set; }
-        public virtual Salle Salle { get; set; }
-        public virtual ICollection<DonneesCapteur> DonneesCapteurs { get; set; }
     }
 }

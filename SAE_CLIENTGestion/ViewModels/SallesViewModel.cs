@@ -539,5 +539,77 @@ namespace SAE_CLIENTGestion.ViewModels
                 IsLoading = false;
             }
         }
+
+
+        // CRUD BATIMENT
+
+        public async Task<bool> AddBatimentAsync(Batiment batiment)
+        {
+            IsLoading = true;
+            try
+            {
+                await _batimentService.PostAsync(batiment);
+                await LoadDataAsync();
+                SuccessMessage = "Bâtiment ajouté avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de l'ajout du bâtiment : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task<bool> UpdateBatimentAsync(Batiment batiment)
+        {
+            IsLoading = true;
+            try
+            {
+                await _batimentService.PutAsync(batiment.BatimentId, batiment);
+                await LoadDataAsync();
+                SuccessMessage = "Bâtiment modifié avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la modification du bâtiment : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task<bool> DeleteBatimentAsync(int id)
+        {
+            IsLoading = true;
+            try
+            {
+                await _batimentService.DeleteAsync(id);
+                await LoadDataAsync();
+                SuccessMessage = "Bâtiment supprimé avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la suppression du bâtiment : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
     }
 }

@@ -25,6 +25,60 @@
         </div>
     }
 
+    <!-- Section Batiment-->
+    <div class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3>Batiments</h3>
+            <button class="btn btn-primary" @onclick="() => { currentBatiment = new(); showBatimentModal = true; isNewBatiment = true; }">
+                <i class="fas fa-plus"></i> Nouveau Batiment
+            </button>
+        </div>
+
+        @if (ViewModel.IsLoading)
+        {
+            <div class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                    <span class="visually-hidden">Chargement...</span>
+                </div>
+            </div>
+        }
+        else if (!ViewModel.Batiments.Any())
+        {
+            <div class="alert alert-info">Aucun batiment n'a été créé.</div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Nom</th>
+                            <th>Adresse</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var batiment in ViewModel.Batiments)
+                        {
+                            <tr>
+                                <td>@batiment.Nom</td>
+                                <td>@batiment.Adresse</td>
+                                <td>
+                                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditBatiment(batiment)">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteBatiment(batiment)">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
     <!-- Section Types de Salle -->
     <div class="mb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
@@ -758,9 +812,13 @@
 
 
 @code {
+
+
+    private bool showBatimentModal = false;
     private bool showModal = false;
     private bool showWallModal = false;
     private bool showDeleteConfirmation = false;
+    private bool showDeleteBatimentConfirmation = false;
     private bool showCapteurModal = false;
     private bool showEquipementModal = false;
     private bool showTypeSalleModal = false;
@@ -769,6 +827,7 @@
 
 
     private bool isNewSalle = false;
+    private bool isNewBatiment = false;
     private bool isNewCapteur = false;
     private bool isNewEquipement = false;
     private bool isNewTypeSalle = false;
@@ -783,6 +842,9 @@
     private TypeSalleDTO currentTypeSalle = new();
     private TypeSalleDTO typeSalleToDelete;
     private SalleDimensions currentDimensions = new();
+    private Batiment currentBatiment = new();
+    private Batiment batimentToDelete;
+
 
     public class MurCreateParameters
     {
@@ -1211,7 +1273,60 @@
         }
     }
 
+    private void EditBatiment(Batiment batiment)
+    {
+        currentBatiment = new Batiment
+            {
+                BatimentId = batiment.BatimentId,
+                Nom = batiment.Nom,
+                Adresse = batiment.Adresse
+            };
+        isNewBatiment = false;
+        showModal = true;
+    }
 
+    private void DeleteBatiment(Batiment batiment)
+    {
+        batimentToDelete = batiment;
+        showDeleteConfirmation = true;
+    }
+
+    private async Task ConfirmDeleteBatiment()
+    {
+        if (batimentToDelete != null)
+        {
+            if (await ViewModel.DeleteBatimentAsync(batimentToDelete.BatimentId))
+            {
+                showDeleteConfirmation = false;
+            }
+        }
+    }
+
+    private async Task HandleValidSubmitBatiment()
+    {
+        bool success;
+        if (isNewBatiment)
+        {
+            success = await ViewModel.AddBatimentAsync(currentBatiment);
+        }
+        else
+        {
+            success = await ViewModel.UpdateBatimentAsync(currentBatiment);
+        }
+
+        if (success)
+        {
+            showModal = false;
+        }
+    }
+
+    private void CloseBatimentModal()
+    {
+        showModal = false;
+        currentBatiment = new();
+        ViewModel.ErrorMessage = null;
+        ViewModel.SuccessMessage = null;
+    }
 
     private void EditTypeSalle(TypeSalleDTO typeSalle)
     {

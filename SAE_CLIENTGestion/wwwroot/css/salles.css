@@ -207,7 +207,6 @@ html, body {
 .main-content {
     position: relative;
     z-index: 1;
-    padding: 1rem;
     overflow-y: auto;
     height: 100%;
 }

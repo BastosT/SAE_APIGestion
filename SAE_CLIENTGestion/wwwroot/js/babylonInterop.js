@@ -12,22 +12,52 @@
 
         calculateCornerAdjustment: function (currentOrientation, nextOrientation) {
             const wallDepth = this.config.wallDepth;
-            // Tableau des ajustements pour chaque combinaison d'orientations
-            const adjustments = {
-                // Format: [adjustX, adjustZ]
-                '0-1': [-wallDepth / 2, -wallDepth / 2], // Nord vers Ouest
-                '0-3': [wallDepth / 2, -wallDepth / 2],  // Nord vers Est
-                '1-0': [-wallDepth / 2, -wallDepth / 2], // Ouest vers Nord
-                '1-2': [-wallDepth / 2, wallDepth / 2],  // Ouest vers Sud
-                '2-1': [-wallDepth / 2, wallDepth / 2],  // Sud vers Ouest
-                '2-3': [wallDepth / 2, wallDepth / 2],   // Sud vers Est
-                '3-0': [wallDepth / 2, -wallDepth / 2],  // Est vers Nord
-                '3-2': [wallDepth / 2, wallDepth / 2]    // Est vers Sud
+
+            // Tableau des vecteurs de direction pour chaque orientation
+            const directionVectors = {
+                0: { x: 0, z: -1 },  // Nord
+                1: { x: -1, z: 0 },  // Ouest
+                2: { x: 0, z: 1 },   // Sud
+                3: { x: 1, z: 0 }    // Est
             };
 
-            const key = `${currentOrientation}-${nextOrientation}`;
-            return adjustments[key] || [0, 0];
+            // Obtenir les vecteurs de direction pour les murs actuels et suivants
+            const currentDir = directionVectors[currentOrientation];
+            const nextDir = directionVectors[nextOrientation];
+
+            // Calculer l'angle entre les murs (sens horaire positif)
+            const angle = Math.atan2(
+                currentDir.x * nextDir.z - currentDir.z * nextDir.x,
+                currentDir.x * nextDir.x + currentDir.z * nextDir.z
+            );
+
+            // Calculer le vecteur de décalage pour le coin
+            const offsetX = wallDepth * (
+                (Math.abs(currentDir.x) + Math.abs(nextDir.x)) / 2
+            );
+            const offsetZ = wallDepth * (
+                (Math.abs(currentDir.z) + Math.abs(nextDir.z)) / 2
+            );
+
+            // Déterminer si nous sommes sur un coin intérieur ou extérieur
+            const isInteriorCorner = (
+                (currentOrientation + 1) % 4 === nextOrientation ||
+                (currentOrientation === 3 && nextOrientation === 0)
+            );
+
+            // Ajuster le décalage en fonction du type de coin
+            const adjustX = isInteriorCorner ? -offsetX : offsetX;
+            const adjustZ = isInteriorCorner ? -offsetZ : offsetZ;
+
+            return [adjustX, adjustZ];
         },
+
+        debugWallPosition: function(startPoint, endPoint, orientation) {
+        console.log(`Wall: ${orientation}`);
+        console.log(`Start: (${startPoint.x.toFixed(3)}, ${startPoint.z.toFixed(3)})`);
+        console.log(`End: (${endPoint.x.toFixed(3)}, ${endPoint.z.toFixed(3)})`);
+        console.log('---');
+    },
         calculateCornerPosition: function (startPoint, currentWall, nextWall) {
             const length = currentWall.longueur * this.config.scale;
 

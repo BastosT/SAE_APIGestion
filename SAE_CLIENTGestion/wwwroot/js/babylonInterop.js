@@ -10,44 +10,74 @@
             debugPillarSize: 0.1
         },
 
+        isInteriorCorner: function (currentOrientation, nextOrientation) {
+            return (currentOrientation + 1) % 4 === nextOrientation ||
+                (currentOrientation === 3 && nextOrientation === 0);
+        },
+
         calculateCornerAdjustment: function (currentOrientation, nextOrientation) {
             const wallDepth = this.config.wallDepth;
 
-            // Tableau des vecteurs de direction pour chaque orientation
+            // Direction vectors for each orientation
             const directionVectors = {
-                0: { x: 0, z: -1 },  // Nord
-                1: { x: -1, z: 0 },  // Ouest
-                2: { x: 0, z: 1 },   // Sud
-                3: { x: 1, z: 0 }    // Est
+                0: { x: 0, z: -1 },  // North
+                1: { x: -1, z: 0 },  // West
+                2: { x: 0, z: 1 },   // South
+                3: { x: 1, z: 0 }    // East
             };
 
-            // Obtenir les vecteurs de direction pour les murs actuels et suivants
             const currentDir = directionVectors[currentOrientation];
             const nextDir = directionVectors[nextOrientation];
 
-            // Calculer l'angle entre les murs (sens horaire positif)
+            // Calculate angle between walls (clockwise positive)
             const angle = Math.atan2(
                 currentDir.x * nextDir.z - currentDir.z * nextDir.x,
                 currentDir.x * nextDir.x + currentDir.z * nextDir.z
             );
 
-            // Calculer le vecteur de décalage pour le coin
-            const offsetX = wallDepth * (
-                (Math.abs(currentDir.x) + Math.abs(nextDir.x)) / 2
-            );
-            const offsetZ = wallDepth * (
-                (Math.abs(currentDir.z) + Math.abs(nextDir.z)) / 2
-            );
-
-            // Déterminer si nous sommes sur un coin intérieur ou extérieur
+            // Determine if we're dealing with an interior or exterior corner
             const isInteriorCorner = (
                 (currentOrientation + 1) % 4 === nextOrientation ||
                 (currentOrientation === 3 && nextOrientation === 0)
             );
 
-            // Ajuster le décalage en fonction du type de coin
-            const adjustX = isInteriorCorner ? -offsetX : offsetX;
-            const adjustZ = isInteriorCorner ? -offsetZ : offsetZ;
+            // Calculate adjustment for the current wall end
+            let adjustX = 0;
+            let adjustZ = 0;
+
+            if (isInteriorCorner) {
+                // Interior corner adjustments
+                switch (currentOrientation) {
+                    case 0: // North
+                        adjustX = -wallDepth;
+                        break;
+                    case 1: // West
+                        adjustZ = -wallDepth;
+                        break;
+                    case 2: // South
+                        adjustX = wallDepth;
+                        break;
+                    case 3: // East
+                        adjustZ = wallDepth;
+                        break;
+                }
+            } else {
+                // Exterior corner adjustments
+                switch (currentOrientation) {
+                    case 0: // North
+                        adjustX = wallDepth;
+                        break;
+                    case 1: // West
+                        adjustZ = wallDepth;
+                        break;
+                    case 2: // South
+                        adjustX = -wallDepth;
+                        break;
+                    case 3: // East
+                        adjustZ = -wallDepth;
+                        break;
+                }
+            }
 
             return [adjustX, adjustZ];
         },
@@ -60,26 +90,25 @@
     },
         calculateCornerPosition: function (startPoint, currentWall, nextWall) {
             const length = currentWall.longueur * this.config.scale;
-
             let endPoint = startPoint.clone();
 
-            // Position de base selon l'orientation actuelle
+            // Base position according to wall orientation
             switch (currentWall.orientation) {
-                case 0: // Nord
+                case 0: // North
                     endPoint.z -= length;
                     break;
-                case 1: // Ouest
+                case 1: // West
                     endPoint.x -= length;
                     break;
-                case 2: // Sud
+                case 2: // South
                     endPoint.z += length;
                     break;
-                case 3: // Est
+                case 3: // East
                     endPoint.x += length;
                     break;
             }
 
-            // Si il y a un mur suivant, ajuster la position du coin
+            // Apply corner adjustment if there's a next wall
             if (nextWall) {
                 const [adjustX, adjustZ] = this.calculateCornerAdjustment(
                     currentWall.orientation,
@@ -91,21 +120,53 @@
 
             return endPoint;
         },
-        calculateWallOffset: function (orientation) {
-            // Calculate offset based on wall orientation and thickness
+        calculateWallOffset: function (orientation, previousWall) {
             const offset = this.config.wallDepth / 2;
+            let adjustedOffset = new BABYLON.Vector3(0, 0, 0);
+
+            // Base offset based on current wall orientation
             switch (orientation) {
-                case 0: // Nord
-                    return new BABYLON.Vector3(offset, 0, 0);
-                case 1: // Ouest
-                    return new BABYLON.Vector3(0, 0, -offset);
-                case 2: // Sud
-                    return new BABYLON.Vector3(-offset, 0, 0);
-                case 3: // Est
-                    return new BABYLON.Vector3(0, 0, offset);
-                default:
-                    return new BABYLON.Vector3(0, 0, 0);
+                case 0: // North
+                    adjustedOffset.x = offset;
+                    break;
+                case 1: // West
+                    adjustedOffset.z = -offset;
+                    break;
+                case 2: // South
+                    adjustedOffset.x = -offset;
+                    break;
+                case 3: // East
+                    adjustedOffset.z = offset;
+                    break;
             }
+
+            // If there's a previous wall, adjust the starting position
+            if (previousWall) {
+                const isInteriorCorner = (
+                    (previousWall.orientation + 1) % 4 === orientation ||
+                    (previousWall.orientation === 3 && orientation === 0)
+                );
+
+                if (isInteriorCorner) {
+                    // Adjust the offset for interior corners
+                    switch (previousWall.orientation) {
+                        case 0: // Previous wall facing North
+                            adjustedOffset.x += this.config.wallDepth;
+                            break;
+                        case 1: // Previous wall facing West
+                            adjustedOffset.z += this.config.wallDepth;
+                            break;
+                        case 2: // Previous wall facing South
+                            adjustedOffset.x -= this.config.wallDepth;
+                            break;
+                        case 3: // Previous wall facing East
+                            adjustedOffset.z -= this.config.wallDepth;
+                            break;
+                    }
+                }
+            }
+
+            return adjustedOffset;
         },
         createDebugPillar: function (scene, position) {
             const pillar = BABYLON.MeshBuilder.CreateBox("debugPillar", {
@@ -128,13 +189,11 @@
             const width = wallData.longueur * this.config.scale;
             const height = wallData.hauteur * this.config.scale;
 
-            // Créer les faces du mur séparément
-            const faceNames = ['front', 'back', 'left', 'right', 'top', 'bottom'];
+            // Créer le mur avec des dimensions exactes
             const wall = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
                 width: width,
                 height: height,
-                depth: this.config.wallDepth,
-                faceUV: new Array(6).fill(new BABYLON.Vector4(0, 0, 1, 1))
+                depth: this.config.wallDepth
             }, scene);
 
             // Créer des matériaux distincts pour les faces intérieures et extérieures
@@ -173,16 +232,33 @@
             return wall;
         },
 
+        getWallOffset: function (orientation) {
+            const wallDepth = this.config.wallDepth;
+            // Simple offset toujours appliqué de la même manière
+            switch (orientation) {
+                case 0: // Nord
+                    return { x: wallDepth, z: 0 };
+                case 1: // Ouest
+                    return { x: 0, z: -wallDepth };
+                case 2: // Sud
+                    return { x: -wallDepth, z: 0 };
+                case 3: // Est
+                    return { x: 0, z: wallDepth };
+            }
+        },
+
         calculateEndPoint: function (startPoint, wallData) {
             const length = wallData.longueur * this.config.scale;
-            const wallOffset = this.calculateWallOffset(wallData.orientation);
+            const offset = this.getWallOffset(wallData.orientation);
 
+            // Clone le point de départ
             let endPoint = new BABYLON.Vector3(
-                startPoint.x + wallOffset.x,
+                startPoint.x + offset.x,
                 startPoint.y,
-                startPoint.z + wallOffset.z
+                startPoint.z + offset.z
             );
 
+            // Application stricte de la longueur sans ajustement
             switch (wallData.orientation) {
                 case 0: // Nord
                     endPoint.z -= length;
@@ -201,15 +277,16 @@
             return endPoint;
         },
 
-        positionWall: function (wall, wallData, startPoint, nextWall) {
-            const endPoint = this.calculateCornerPosition(startPoint, wallData, nextWall);
+        positionWall: function (wall, wallData, startPoint) {
+            const endPoint = this.calculateEndPoint(startPoint, wallData);
+            const offset = this.getWallOffset(wallData.orientation);
 
-            // Calculer le point central du mur
+            // Positionner le mur exactement entre les points
             wall.position.x = (startPoint.x + endPoint.x) / 2;
             wall.position.z = (startPoint.z + endPoint.z) / 2;
             wall.position.y = wallData.hauteur * this.config.scale / 2;
 
-            // Orientation du mur
+            // Rotation standard
             switch (wallData.orientation) {
                 case 0: // Nord
                     wall.rotation.y = -Math.PI / 2;
@@ -225,12 +302,12 @@
                     break;
             }
 
-            console.log(`Wall positioned at:`, {
-                startPoint: startPoint,
-                endPoint: endPoint,
-                finalPosition: wall.position,
-                orientation: wallData.orientation
-            });
+            // Point de départ du prochain mur, sans offset
+            return {
+                x: endPoint.x - offset.x,
+                y: endPoint.y,
+                z: endPoint.z - offset.z
+            };
         },
 
         renderRoom: function (scene, room, startPoint) {
@@ -239,7 +316,7 @@
                 return;
             }
 
-            let currentPoint = startPoint.clone();
+            let currentPoint = new BABYLON.Vector3(startPoint.x, startPoint.y, startPoint.z);
             let walls = [];
             let debugPillars = [];
 
@@ -248,15 +325,14 @@
 
             for (let i = 0; i < room.murs.length; i++) {
                 const wallData = room.murs[i];
-                const nextWall = room.murs[i + 1];
 
                 console.log(`Processing wall ${i}:`, wallData);
 
                 const wall = this.createWall(scene, wallData);
-                this.positionWall(wall, wallData, currentPoint, nextWall);
+                const nextPoint = this.positionWall(wall, wallData, currentPoint);
                 walls.push(wall);
 
-                currentPoint = this.calculateCornerPosition(currentPoint, wallData, nextWall);
+                currentPoint = new BABYLON.Vector3(nextPoint.x, nextPoint.y, nextPoint.z);
                 debugPillars.push(this.createDebugPillar(scene, currentPoint));
 
                 console.log(`Next wall will start at:`, currentPoint);

@@ -44,7 +44,9 @@ namespace SAE_APIGestion.Models.EntityFramework
 
     public enum Orientation
     {
-        Horizontal,  // Le mur est parallèle à l'axe Est-Ouest
-        Vertical     // Le mur est parallèle à l'axe Nord-Sud
+        Nord,
+        Ouest,
+        Sud,
+        Est
     }
 }

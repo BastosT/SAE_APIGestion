@@ -1,13 +1,14 @@
 ﻿-- Suppression des données existantes (dans l'ordre inverse des dépendances)
-DELETE FROM t_e_donneescapteur_dcp;
-DELETE FROM t_e_equipement_equ;
-DELETE FROM t_e_capteur_cap;
-DELETE FROM t_e_salle_sal;
-DELETE FROM t_e_mur_mur;
-DELETE FROM t_e_batiment_bat;
-DELETE FROM t_e_typedonneescapteur_tdc;
-DELETE FROM t_e_typeequipement_tye;
-DELETE FROM t_e_typesalle_tys;
+
+TRUNCATE t_e_donneescapteur_dcp CASCADE;
+TRUNCATE t_e_equipement_equ CASCADE;
+TRUNCATE t_e_capteur_cap CASCADE;
+TRUNCATE t_e_salle_sal CASCADE;
+TRUNCATE t_e_mur_mur CASCADE;
+TRUNCATE t_e_batiment_bat CASCADE;
+TRUNCATE t_e_typedonneescapteur_tdc CASCADE;
+TRUNCATE t_e_typeequipement_tye CASCADE;
+TRUNCATE t_e_typesalle_tys CASCADE;
 
 -- 1. Types de base
 INSERT INTO t_e_typesalle_tys (tys_id, tys_nom, tys_description)
@@ -37,26 +38,35 @@ VALUES
 SELECT setval('t_e_batiment_bat_bat_id_seq', (SELECT MAX(bat_id) FROM t_e_batiment_bat));
 
 -- 3. Murs pour la salle en L (D103)
--- Orientation: 0 = Horizontal, 1 = Vertical
+-- Orientation: 0 = Nord, 1 = Ouest, 2 = Sud, 3 = Est
 INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_orientation, sal_id)
 VALUES 
-    -- Partie principale
-    (1, 'Mur Nord 1', 500, 270, 0, null),     -- Mur horizontal supérieur
-    (2, 'Mur Est 1', 400, 270, 1, null),      -- Mur vertical droit
-    (3, 'Mur Sud 1', 300, 270, 0, null),      -- Mur horizontal inférieur partie 1
-    -- Extension en L
-    (4, 'Mur Ouest', 600, 270, 1, null),      -- Mur vertical gauche
-    (5, 'Mur Sud 2', 200, 270, 0, null),      -- Mur horizontal inférieur partie 2
-    (6, 'Mur Est 2', 200, 270, 1, null);      -- Petit mur vertical droit de l'extension
+    -- D103 : Salle en L
+    (1, 'M1', 4090, 2085, 0, null),
+    (2, 'M6', 4285, 2085, 1, null),
+    (3, 'M5', 2435, 2085, 2, null),
+    (4, 'M4', 2187, 2085, 3, null),
+    (5, 'M3', 1575, 2085, 2, null),
+    (6, 'M2', 2120, 2085, 3, null),
+
+    -- D104 : Salle rectangulaire simple
+    (7, 'Mur Nord', 400, 270, 0, null),     -- Mur du haut
+    (8, 'Mur Ouest', 300, 270, 1, null),   -- Mur de gauche
+    (9, 'Mur Sud', 400, 270, 2, null),      -- Mur du bas
+    (10, 'Mur Est', 300, 270, 3, null);      -- Mur de droite
 SELECT setval('t_e_mur_mur_mur_id_seq', (SELECT MAX(mur_id) FROM t_e_mur_mur));
 
 -- 4. Salle en L
 INSERT INTO t_e_salle_sal (sal_id, sal_nom, sal_surface, tys_id, bat_id)
-VALUES (1, 'D103', 15, 1, 1);
+VALUES 
+    (1, 'D103', 15, 1, 1),
+    (2, 'D104', 12, 1, 1);
+
 SELECT setval('t_e_salle_sal_sal_id_seq', (SELECT MAX(sal_id) FROM t_e_salle_sal));
 
 -- Mise à jour des murs avec leur sal_id
 UPDATE t_e_mur_mur SET sal_id = 1 WHERE mur_id IN (1, 2, 3, 4, 5, 6);
+UPDATE t_e_mur_mur SET sal_id = 2 WHERE mur_id IN (7, 8, 9, 10);
 
 -- 5. Capteurs
 INSERT INTO t_e_capteur_cap (

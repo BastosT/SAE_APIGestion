@@ -19,7 +19,9 @@ namespace SAE_CLIENTGestion.Models
 
     public enum Orientation
     {
-        Horizontal,   // Le mur est parallèle à l'axe Est-Ouest
-        Vertical      // Le mur est parallèle à l'axe Nord-Sud
+        Nord,
+        Ouest,
+        Sud,
+        Est
     }
 }

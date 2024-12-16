@@ -6,7 +6,6 @@ namespace SAE_APIGestion.Models.DataManger
 {
     public class MurManager : IDataRepository<Mur>
     {
-
         readonly GlobalDBContext? dbContext;
 
         public MurManager() { }
@@ -32,7 +31,6 @@ namespace SAE_APIGestion.Models.DataManger
                 .Include(b => b.Capteurs)
                 .Include(b => b.Salle)
                 .FirstOrDefaultAsync(u => u.MurId == id);
-
         }
 
         public async Task AddAsync(Mur entity)
@@ -47,7 +45,6 @@ namespace SAE_APIGestion.Models.DataManger
             await dbContext.SaveChangesAsync();
         }
 
-
         public async Task UpdateAsync(Mur enseignant, Mur entity)
         {
             dbContext.Entry(enseignant).State = EntityState.Modified;
@@ -55,11 +52,10 @@ namespace SAE_APIGestion.Models.DataManger
             enseignant.Nom = entity.Nom;
             enseignant.Longueur = entity.Longueur;
             enseignant.Hauteur = entity.Hauteur;
+            enseignant.Orientation = entity.Orientation;
             enseignant.Equipements = entity.Equipements;
             enseignant.Capteurs = entity.Capteurs;
-
             await dbContext.SaveChangesAsync();
         }
-
     }
 }

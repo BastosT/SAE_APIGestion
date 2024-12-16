@@ -20,32 +20,12 @@ namespace SAE_APIGestion.Models.DataManger
             return globalDBContext.Salles
                 .Include(b => b.TypeSalle)
                 .Include(b => b.Batiment)
-
-                .Include(s => s.MurDroite)
+                .Include(s => s.Murs)
                     .ThenInclude(m => m.Equipements)
                         .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurDroite)
+                .Include(s => s.Murs)
                     .ThenInclude(m => m.Capteurs)
                         .ThenInclude(c => c.DonneesCapteurs)
-                .Include(s => s.MurGauche)
-                    .ThenInclude(m => m.Equipements)
-                        .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurGauche)
-                    .ThenInclude(m => m.Capteurs)
-                        .ThenInclude(c => c.DonneesCapteurs)
-                .Include(s => s.MurEntree)
-                    .ThenInclude(m => m.Equipements)
-                        .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurEntree)
-                    .ThenInclude(m => m.Capteurs)
-                        .ThenInclude(c => c.DonneesCapteurs)
-                .Include(s => s.MurFace)
-                    .ThenInclude(m => m.Equipements)
-                        .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurFace)
-                    .ThenInclude(m => m.Capteurs)
-                        .ThenInclude(c => c.DonneesCapteurs)
-
                 .ToList();
         }
 
@@ -54,34 +34,14 @@ namespace SAE_APIGestion.Models.DataManger
             return globalDBContext.Salles
                 .Include(b => b.TypeSalle)
                 .Include(b => b.Batiment)
-
-                .Include(s => s.MurDroite)
+                .Include(s => s.Murs)
                     .ThenInclude(m => m.Equipements)
                         .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurDroite)
-                    .ThenInclude(m => m.Capteurs)
-                        .ThenInclude(c => c.DonneesCapteurs)
-                .Include(s => s.MurGauche)
-                    .ThenInclude(m => m.Equipements)
-                        .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurGauche)
-                    .ThenInclude(m => m.Capteurs)
-                        .ThenInclude(c => c.DonneesCapteurs)
-                .Include(s => s.MurEntree)
-                    .ThenInclude(m => m.Equipements)
-                        .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurEntree)
-                    .ThenInclude(m => m.Capteurs)
-                        .ThenInclude(c => c.DonneesCapteurs)
-                .Include(s => s.MurFace)
-                    .ThenInclude(m => m.Equipements)
-                        .ThenInclude(e => e.TypeEquipement)
-                .Include(s => s.MurFace)
+                .Include(s => s.Murs)
                     .ThenInclude(m => m.Capteurs)
                         .ThenInclude(c => c.DonneesCapteurs)
                 .FirstOrDefault(p => p.SalleId == id);
         }
-
 
         public async Task AddAsync(Salle entity)
         {
@@ -96,6 +56,7 @@ namespace SAE_APIGestion.Models.DataManger
             salle.Surface = entity.Surface;
             salle.TypeSalleId = entity.TypeSalleId;
             salle.BatimentId = entity.BatimentId;
+            salle.Murs = entity.Murs;
             await globalDBContext.SaveChangesAsync();
         }
 
@@ -104,7 +65,5 @@ namespace SAE_APIGestion.Models.DataManger
             globalDBContext.Salles.Remove(salle);
             globalDBContext.SaveChanges();
         }
-
-
     }
 }

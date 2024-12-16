@@ -36,30 +36,27 @@ VALUES
     (2, 'Bat F', 'Batiment GEA');
 SELECT setval('t_e_batiment_bat_bat_id_seq', (SELECT MAX(bat_id) FROM t_e_batiment_bat));
 
--- 3. Murs pour D101 et D102 (sans sal_id)
-INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_type, sal_id)
+-- 3. Murs pour la salle en L (D103)
+-- Orientation: 0 = Horizontal, 1 = Vertical
+INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_orientation, sal_id)
 VALUES 
-    (1, 'Mur Face', 575, 270, 1, null),
-    (2, 'Mur Entree', 575, 270, 2, null),
-    (3, 'Mur Droite', 736, 270, 3, null),
-    (4, 'Mur Gauche', 736, 270, 4, null),
-    (5, 'Mur Face', 775, 270, 1, null),
-    (6, 'Mur Entree', 775, 270, 2, null),
-    (7, 'Mur Droite', 936, 270, 3, null),
-    (8, 'Mur Gauche', 936, 270, 4, null);
+    -- Partie principale
+    (1, 'Mur Nord 1', 500, 270, 0, null),     -- Mur horizontal supérieur
+    (2, 'Mur Est 1', 400, 270, 1, null),      -- Mur vertical droit
+    (3, 'Mur Sud 1', 300, 270, 0, null),      -- Mur horizontal inférieur partie 1
+    -- Extension en L
+    (4, 'Mur Ouest', 600, 270, 1, null),      -- Mur vertical gauche
+    (5, 'Mur Sud 2', 200, 270, 0, null),      -- Mur horizontal inférieur partie 2
+    (6, 'Mur Est 2', 200, 270, 1, null);      -- Petit mur vertical droit de l'extension
 SELECT setval('t_e_mur_mur_mur_id_seq', (SELECT MAX(mur_id) FROM t_e_mur_mur));
 
--- 4. Salles
-INSERT INTO t_e_salle_sal (sal_id, sal_nom, sal_surface, tys_id, bat_id, mur_faceid, mur_entreeid, mur_droiteid, mur_gaucheid)
-VALUES 
-    (1, 'D101', 10, 1, 1, 1, 2, 3, 4),
-    (2, 'D102', 5, 1, 1, 5, 6, 7, 8);
+-- 4. Salle en L
+INSERT INTO t_e_salle_sal (sal_id, sal_nom, sal_surface, tys_id, bat_id)
+VALUES (1, 'D103', 15, 1, 1);
 SELECT setval('t_e_salle_sal_sal_id_seq', (SELECT MAX(sal_id) FROM t_e_salle_sal));
 
-
 -- Mise à jour des murs avec leur sal_id
-UPDATE t_e_mur_mur SET sal_id = 1 WHERE mur_id IN (1, 2, 3, 4);
-UPDATE t_e_mur_mur SET sal_id = 2 WHERE mur_id IN (5, 6, 7, 8);
+UPDATE t_e_mur_mur SET sal_id = 1 WHERE mur_id IN (1, 2, 3, 4, 5, 6);
 
 -- 5. Capteurs
 INSERT INTO t_e_capteur_cap (
@@ -70,10 +67,9 @@ INSERT INTO t_e_capteur_cap (
     sal_id, mur_id
 )
 VALUES 
-    (1, 'Capteur D1', true, 0, 15, 15, 178, 98, 0, 0, 1, 3),
-    (2, 'Capteur D2', true, 0, 10, 10, 585, 161, 0, 0, 1, 3),
-    (3, 'Capteur D1', true, 0, 10, 10, 316, 70, 0, 0, 1, 4),
-    (4, 'Capteur D2', true, 0, 10, 10, 662, 156, 0, 0, 1, 4);
+    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 1, 2),
+    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 1, 4),
+    (3, 'Capteur 3', true, 100, 10, 10, 150, 70, 100, 80, 1, 6);
 SELECT setval('t_e_capteur_cap_cap_id_seq', (SELECT MAX(cap_id) FROM t_e_capteur_cap));
 
 -- 6. Equipements
@@ -84,24 +80,25 @@ INSERT INTO t_e_equipement_equ (
 )
 VALUES 
     -- Radiateurs
-    (1, 'Radiateur 1', 80, 100, 34, 180, 1, 1, 1),
-    (2, 'Radiateur 2', 80, 100, 256, 180, 1, 1, 1),
+    (1, 'Radiateur 1', 80, 100, 150, 180, 1, 1, 1),
+    (2, 'Radiateur 2', 80, 100, 350, 180, 1, 3, 1),
     -- Fenetres
-    (3, 'Fenetre 1', 165, 100, 6, 3, 2, 1, 1),
-    (4, 'Fenetre 2', 165, 100, 345, 3, 2, 1, 1),
+    (3, 'Fenetre 1', 165, 100, 100, 3, 2, 1, 1),
+    (4, 'Fenetre 2', 165, 100, 300, 3, 2, 5, 1),
     -- Vitres
-    (5, 'Fenetre 1', 161, 89, 125, 6, 3, 1, 1),
-    (6, 'Fenetre 2', 161, 89, 237, 6, 3, 1, 1),
-    (7, 'Fenetre 3', 161, 89, 482, 6, 3, 1, 1),
+    (5, 'Vitre 1', 161, 89, 200, 6, 3, 2, 1),
+    (6, 'Vitre 2', 161, 89, 50, 6, 3, 4, 1),
     -- Porte
-    (8, 'Porte', 205, 93, 55, 67, 4, 2, 1);
+    (7, 'Porte', 205, 93, 55, 67, 4, 6, 1);
 SELECT setval('t_e_equipement_equ_equ_id_seq', (SELECT MAX(equ_id) FROM t_e_equipement_equ));
 
--- 7. Données des capteurs (exemple avec quelques valeurs)
+-- 7. Données des capteurs
 INSERT INTO t_e_donneescapteur_dcp (dcp_id, cap_id, tdc_id, dcp_valeur, dcp_timestamp)
 VALUES 
     (1, 1, 1, 21.5, CURRENT_TIMESTAMP),
     (2, 1, 2, 45.0, CURRENT_TIMESTAMP),
     (3, 2, 1, 22.0, CURRENT_TIMESTAMP),
-    (4, 2, 2, 46.0, CURRENT_TIMESTAMP);
+    (4, 2, 2, 46.0, CURRENT_TIMESTAMP),
+    (5, 3, 1, 21.8, CURRENT_TIMESTAMP),
+    (6, 3, 2, 44.5, CURRENT_TIMESTAMP);
 SELECT setval('t_e_donneescapteur_dcp_dcp_id_seq', (SELECT MAX(dcp_id) FROM t_e_donneescapteur_dcp));

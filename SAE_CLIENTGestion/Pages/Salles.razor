@@ -172,6 +172,45 @@
         <div class="modal-backdrop fade show"></div>
     }
 
+    <!-- Modal pour Ajout/Modification de Batiment -->
+    @if (showBatimentModal)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewTypeSalle ? "Nouveau Batiment" : "Modifier le Batiment")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseBatimentModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentBatiment" OnValidSubmit="HandleBatimentSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentBatiment.Nom" />
+                                <ValidationMessage For="@(() => currentBatiment.Nom)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Adresse</label>
+                                <InputText class="form-control" @bind-Value="currentBatiment.Adresse" />
+                                <ValidationMessage For="@(() => currentBatiment.Adresse)" />
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseBatimentModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
     <!-- Modal de confirmation pour la suppression de Type de Salle -->
     @if (showDeleteTypeSalleConfirmation)
     {
@@ -242,102 +281,6 @@
 
                             <div class="room-walls-container">
                                 <!-- Visualisation schématique de la salle -->
-                                <div class="room-layout">
-                                    <!-- Mur du Haut (Face) -->
-                                    <div class="wall wall-top" @onclick="() => EditWall(salle.MurFace)">
-                                        <span class="wall-label">Mur Face</span>
-                                        @if (salle.MurFace != null)
-                                        {
-                                            <div class="wall-info">
-                                                <small class="wall-name">@salle.MurFace.Nom</small>
-                                                <small class="wall-dimensions">
-                                                    L: @salle.MurFace.Longueur m × H: @salle.MurFace.Hauteur m
-                                                </small>
-                                                <small class="wall-details">
-                                                    @salle.MurFace.Equipements?.Count équipements
-                                                    @salle.MurFace.Capteurs?.Count capteurs
-                                                </small>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <small class="text-muted">Non défini</small>
-                                        }
-                                    </div>
-
-                                    <div class="wall-middle-container">
-                                        <!-- Mur Gauche -->
-                                        <div class="wall wall-left" @onclick="() => EditWall(salle.MurGauche)">
-                                            <span class="wall-label">Mur Gauche</span>
-                                            @if (salle.MurGauche != null)
-                                            {
-                                                <div class="wall-info">
-                                                    <small class="wall-name">@salle.MurGauche.Nom</small>
-                                                    <small class="wall-dimensions">
-                                                        L: @salle.MurGauche.Longueur m × H: @salle.MurGauche.Hauteur m
-                                                    </small>
-                                                    <small class="wall-details">
-                                                        @salle.MurGauche.Equipements?.Count équipements
-                                                        @salle.MurGauche.Capteurs?.Count capteurs
-                                                    </small>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <small class="text-muted">Non défini</small>
-                                            }
-                                        </div>
-
-                                        <!-- Zone centrale -->
-                                        <div class="room-center">
-                                            <span>@salle.Nom</span>
-                                        </div>
-
-                                        <!-- Mur Droit -->
-                                        <div class="wall wall-right" @onclick="() => EditWall(salle.MurDroite)">
-                                            <span class="wall-label">Mur Droit</span>
-                                            @if (salle.MurDroite != null)
-                                            {
-                                                <div class="wall-info">
-                                                    <small class="wall-name">@salle.MurDroite.Nom</small>
-                                                    <small class="wall-dimensions">
-                                                        L: @salle.MurDroite.Longueur m × H: @salle.MurDroite.Hauteur m
-                                                    </small>
-                                                    <small class="wall-details">
-                                                        @salle.MurDroite.Equipements?.Count équipements
-                                                        @salle.MurDroite.Capteurs?.Count capteurs
-                                                    </small>
-                                                </div>
-                                            }
-                                            else
-                                            {
-                                                <small class="text-muted">Non défini</small>
-                                            }
-                                        </div>
-                                    </div>
-
-                                    <!-- Mur du Bas (Entrée) -->
-                                    <div class="wall wall-bottom" @onclick="() => EditWall(salle.MurEntree)">
-                                        <span class="wall-label">Mur Entrée</span>
-                                        @if (salle.MurEntree != null)
-                                        {
-                                            <div class="wall-info">
-                                                <small class="wall-name">@salle.MurEntree.Nom</small>
-                                                <small class="wall-dimensions">
-                                                    L: @salle.MurEntree.Longueur m × H: @salle.MurEntree.Hauteur m
-                                                </small>
-                                                <small class="wall-details">
-                                                    @salle.MurEntree.Equipements?.Count équipements
-                                                    @salle.MurEntree.Capteurs?.Count capteurs
-                                                </small>
-                                            </div>
-                                        }
-                                        else
-                                        {
-                                            <small class="text-muted">Non défini</small>
-                                        }
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -842,8 +785,8 @@
     private TypeSalleDTO currentTypeSalle = new();
     private TypeSalleDTO typeSalleToDelete;
     private SalleDimensions currentDimensions = new();
-    private Batiment currentBatiment = new();
-    private Batiment batimentToDelete;
+    private BatimentDTO currentBatiment = new();
+    private BatimentDTO batimentToDelete;
 
 
     public class MurCreateParameters
@@ -944,13 +887,6 @@
                 BatimentId = salle.BatimentId,
             };
 
-        // Initialiser les dimensions depuis les murs existants
-        currentDimensions = new SalleDimensions
-            {
-                Longueur = salle.MurDroite?.Longueur ?? 0,
-                Largeur = salle.MurFace?.Longueur ?? 0,
-                Hauteur = salle.MurFace?.Hauteur ?? 0
-            };
 
         isNewSalle = false;
         showModal = true;
@@ -984,7 +920,7 @@
                     Nom = mur.Nom,
                     Longueur = mur.Longueur,
                     Hauteur = mur.Hauteur,
-                    Type = mur.Type,
+                    Orientation = mur.Orientation,
                     Equipements = new List<Equipement>(mur.Equipements ?? new List<Equipement>()),
                     Capteurs = new List<Capteur>(mur.Capteurs ?? new List<Capteur>())
                 };
@@ -1008,16 +944,7 @@
         {
             if (isNewSalle)
             {
-                // Créer les murs avec les dimensions spécifiées
-                Mur murface = await ViewModel.AddMurAsync("Mur Face", TypeMur.Face, currentDimensions.Largeur, currentDimensions.Hauteur);
-                Mur murentree = await ViewModel.AddMurAsync("Mur Entree", TypeMur.Entree, currentDimensions.Largeur, currentDimensions.Hauteur);
-                Mur murdroite = await ViewModel.AddMurAsync("Mur Droite", TypeMur.Droite, currentDimensions.Longueur, currentDimensions.Hauteur);
-                Mur murgauche = await ViewModel.AddMurAsync("Mur Gauche", TypeMur.Gauche, currentDimensions.Longueur, currentDimensions.Hauteur);
 
-                currentSalle.MurFaceId = murface.MurId;
-                currentSalle.MurEntreeId = murentree.MurId;
-                currentSalle.MurDroiteId = murdroite.MurId;
-                currentSalle.MurGaucheId = murgauche.MurId;
 
                 success = await ViewModel.AddSalleAsync(currentSalle);
             }
@@ -1025,33 +952,7 @@
             {
                 // Mettre à jour les dimensions des murs existants
                 var salle = await ViewModel.GetSalleByIdAsync(currentSalle.SalleId);
-                if (salle != null)
-                {
-                    if (salle.MurFace != null)
-                    {
-                        salle.MurFace.Longueur = currentDimensions.Largeur;
-                        salle.MurFace.Hauteur = currentDimensions.Hauteur;
-                        await ViewModel.UpdateMurAsync(salle.MurFace);
-                    }
-                    if (salle.MurEntree != null)
-                    {
-                        salle.MurEntree.Longueur = currentDimensions.Largeur;
-                        salle.MurEntree.Hauteur = currentDimensions.Hauteur;
-                        await ViewModel.UpdateMurAsync(salle.MurEntree);
-                    }
-                    if (salle.MurDroite != null)
-                    {
-                        salle.MurDroite.Longueur = currentDimensions.Longueur;
-                        salle.MurDroite.Hauteur = currentDimensions.Hauteur;
-                        await ViewModel.UpdateMurAsync(salle.MurDroite);
-                    }
-                    if (salle.MurGauche != null)
-                    {
-                        salle.MurGauche.Longueur = currentDimensions.Longueur;
-                        salle.MurGauche.Hauteur = currentDimensions.Hauteur;
-                        await ViewModel.UpdateMurAsync(salle.MurGauche);
-                    }
-                }
+
 
                 success = await ViewModel.UpdateSalleAsync(currentSalle);
             }
@@ -1081,7 +982,7 @@
 
     private void AddNewCapteur()
     {
-        currentCapteur = new CapteurDTO { MurId = currentMur.MurId, SalleId = currentMur.SalleId };
+        currentCapteur = new CapteurDTO { MurId = currentMur.MurId };
         isNewCapteur = true;
         showCapteurModal = true;
     }
@@ -1123,28 +1024,7 @@
             await ViewModel.LoadDataAsync();
 
             // Chercher le mur mis à jour dans les données rechargées
-            var salle = ViewModel.Salles.FirstOrDefault(s =>
-                s.MurFace?.MurId == currentMur.MurId ||
-                s.MurDroite?.MurId == currentMur.MurId ||
-                s.MurGauche?.MurId == currentMur.MurId ||
-                s.MurEntree?.MurId == currentMur.MurId);
 
-            if (salle != null)
-            {
-                // Trouver le bon mur
-                Mur updatedMur = null;
-                if (salle.MurFace?.MurId == currentMur.MurId) updatedMur = salle.MurFace;
-                else if (salle.MurDroite?.MurId == currentMur.MurId) updatedMur = salle.MurDroite;
-                else if (salle.MurGauche?.MurId == currentMur.MurId) updatedMur = salle.MurGauche;
-                else if (salle.MurEntree?.MurId == currentMur.MurId) updatedMur = salle.MurEntree;
-
-                if (updatedMur != null)
-                {
-                    // Mettre à jour les collections en s'assurant qu'elles ne sont pas null
-                    currentMur.Equipements = updatedMur.Equipements ?? new List<Equipement>();
-                    currentMur.Capteurs = updatedMur.Capteurs ?? new List<Capteur>();
-                }
-            }
 
             StateHasChanged();
         }
@@ -1198,7 +1078,7 @@
     private void AddNewEquipement()
     {
         
-        currentEquipement = new EquipementDTO { MurId = currentMur.MurId, SalleId = currentMur.SalleId };
+        currentEquipement = new EquipementDTO { MurId = currentMur.MurId };
         isNewEquipement = true;
         showEquipementModal = true;
     }
@@ -1273,19 +1153,20 @@
         }
     }
 
-    private void EditBatiment(Batiment batiment)
+    private void EditBatiment(BatimentDTO batiment)
     {
-        currentBatiment = new Batiment
+        currentBatiment = new BatimentDTO
             {
                 BatimentId = batiment.BatimentId,
                 Nom = batiment.Nom,
                 Adresse = batiment.Adresse
             };
         isNewBatiment = false;
-        showModal = true;
+        showBatimentModal = true;
+
     }
 
-    private void DeleteBatiment(Batiment batiment)
+    private void DeleteBatiment(BatimentDTO batiment)
     {
         batimentToDelete = batiment;
         showDeleteConfirmation = true;
@@ -1354,6 +1235,23 @@
             {
                 showDeleteTypeSalleConfirmation = false;
             }
+        }
+    }
+
+    private async Task HandleBatimentSubmit()
+    {
+        bool success;
+        if (isNewBatiment)
+        {
+            success = await ViewModel.AddBatimentAsync(currentBatiment);
+        }
+        else
+        {
+            success = await ViewModel.UpdateBatimentAsync(currentBatiment);
+        }
+        if (success)
+        {
+            showBatimentModal = false;
         }
     }
 

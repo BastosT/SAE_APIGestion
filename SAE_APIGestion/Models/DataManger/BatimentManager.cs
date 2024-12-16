@@ -6,7 +6,6 @@ namespace SAE_APIGestion.Models.DataManger
 {
     public class BatimentManager : IDataRepository<Batiment>
     {
-
         readonly GlobalDBContext? dbContext;
 
         public BatimentManager() { }
@@ -20,35 +19,11 @@ namespace SAE_APIGestion.Models.DataManger
         {
             return await dbContext.Batiments
                 .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurDroite)
+                    .ThenInclude(s => s.Murs)
                         .ThenInclude(m => m.Equipements)
                             .ThenInclude(e => e.TypeEquipement)
                 .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurDroite)
-                        .ThenInclude(m => m.Capteurs)
-                            .ThenInclude(c => c.DonneesCapteurs)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurGauche)
-                        .ThenInclude(m => m.Equipements)
-                            .ThenInclude(e => e.TypeEquipement)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurGauche)
-                        .ThenInclude(m => m.Capteurs)
-                            .ThenInclude(c => c.DonneesCapteurs)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurEntree)
-                        .ThenInclude(m => m.Equipements)
-                            .ThenInclude(e => e.TypeEquipement)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurEntree)
-                        .ThenInclude(m => m.Capteurs)
-                            .ThenInclude(c => c.DonneesCapteurs)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurFace)
-                        .ThenInclude(m => m.Equipements)
-                            .ThenInclude(e => e.TypeEquipement)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurFace)
+                    .ThenInclude(s => s.Murs)
                         .ThenInclude(m => m.Capteurs)
                             .ThenInclude(c => c.DonneesCapteurs)
                 .Include(b => b.Salles)
@@ -60,35 +35,11 @@ namespace SAE_APIGestion.Models.DataManger
         {
             return await dbContext.Batiments
                 .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurDroite)
+                    .ThenInclude(s => s.Murs)
                         .ThenInclude(m => m.Equipements)
                             .ThenInclude(e => e.TypeEquipement)
                 .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurDroite)
-                        .ThenInclude(m => m.Capteurs)
-                            .ThenInclude(c => c.DonneesCapteurs)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurGauche)
-                        .ThenInclude(m => m.Equipements)
-                            .ThenInclude(e => e.TypeEquipement)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurGauche)
-                        .ThenInclude(m => m.Capteurs)
-                            .ThenInclude(c => c.DonneesCapteurs)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurEntree)
-                        .ThenInclude(m => m.Equipements)
-                            .ThenInclude(e => e.TypeEquipement)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurEntree)
-                        .ThenInclude(m => m.Capteurs)
-                            .ThenInclude(c => c.DonneesCapteurs)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurFace)
-                        .ThenInclude(m => m.Equipements)
-                            .ThenInclude(e => e.TypeEquipement)
-                .Include(b => b.Salles)
-                    .ThenInclude(s => s.MurFace)
+                    .ThenInclude(s => s.Murs)
                         .ThenInclude(m => m.Capteurs)
                             .ThenInclude(c => c.DonneesCapteurs)
                 .Include(b => b.Salles)
@@ -107,7 +58,6 @@ namespace SAE_APIGestion.Models.DataManger
             dbContext.Batiments.Remove(entity);
             await dbContext.SaveChangesAsync();
         }
-
 
         public async Task UpdateAsync(Batiment enseignant, Batiment entity)
         {

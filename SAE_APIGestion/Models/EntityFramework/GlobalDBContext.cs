@@ -36,30 +36,12 @@ namespace SAE_APIGestion.Models.EntityFramework
                 entity.ToTable("t_e_salle_sal");
                 entity.HasKey(e => e.SalleId).HasName("pk_salle");
 
-                // Relations avec les murs
-                entity.HasOne(s => s.MurFace)
-                    .WithOne()
-                    .HasForeignKey<Salle>(s => s.MurFaceId)
+                // Relation avec les murs
+                entity.HasMany(s => s.Murs)
+                    .WithOne(m => m.Salle)
+                    .HasForeignKey(m => m.SalleId)
                     .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_salle_murface");
-
-                entity.HasOne(s => s.MurEntree)
-                    .WithOne()
-                    .HasForeignKey<Salle>(s => s.MurEntreeId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_salle_murentree");
-
-                entity.HasOne(s => s.MurGauche)
-                    .WithOne()
-                    .HasForeignKey<Salle>(s => s.MurGaucheId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_salle_murgauche");
-
-                entity.HasOne(s => s.MurDroite)
-                    .WithOne()
-                    .HasForeignKey<Salle>(s => s.MurDroiteId)
-                    .OnDelete(DeleteBehavior.Restrict)
-                    .HasConstraintName("fk_salle_murdroite");
+                    .HasConstraintName("fk_salle_mur");
             });
 
             modelBuilder.Entity<Mur>(entity =>
@@ -67,11 +49,13 @@ namespace SAE_APIGestion.Models.EntityFramework
                 entity.ToTable("t_e_mur_mur");
                 entity.HasKey(e => e.MurId).HasName("pk_mur");
 
+                // Relations avec les équipements
                 entity.HasMany(m => m.Equipements)
                     .WithOne(e => e.Mur)
                     .HasForeignKey(e => e.MurId)
                     .HasConstraintName("fk_mur_equipement");
 
+                // Relations avec les capteurs
                 entity.HasMany(m => m.Capteurs)
                     .WithOne(c => c.Mur)
                     .HasForeignKey(c => c.MurId)

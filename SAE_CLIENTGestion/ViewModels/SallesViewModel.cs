@@ -11,7 +11,7 @@ namespace SAE_CLIENTGestion.ViewModels
     {
         private readonly IService<Salle> _salleService;
         private readonly IService<SalleDTO> _salleServiceDTO;
-        private readonly IService<Batiment> _batimentService;
+        private readonly IService<BatimentDTO> _batimentService;
         private readonly IService<Mur> _murService;
         private readonly IService<CapteurDTO> _capteurServiceDTO;
         private readonly IService<Capteur> _capteurService;
@@ -23,7 +23,7 @@ namespace SAE_CLIENTGestion.ViewModels
         public SallesViewModel(
             IService<Salle> salleService,
             IService<SalleDTO> salleServiceDTO,
-            IService<Batiment> batimentService,
+            IService<BatimentDTO> batimentService,
             IService<Mur> murService,
             IService<Capteur> capteurService,
             IService<CapteurDTO> capteurServiceDTO,
@@ -51,7 +51,7 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<Salle> _salles = new List<Salle>();
 
         [ObservableProperty]
-        private List<Batiment> _batiments = new List<Batiment>();
+        private List<BatimentDTO> _batiments = new List<BatimentDTO>();
 
         [ObservableProperty]
         private List<Capteur> _capteursSalle = new List<Capteur>();
@@ -443,16 +443,16 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<Mur> AddMurAsync(string nom, TypeMur typeMur, double longueurMur, double hauteurMur)
+        public async Task<Mur> AddMurAsync(string nom, Orientation orientation, double longueurMur, double hauteurMur)
         {
             try
             {
                 var mur = new Mur
                 {
                     Nom = nom,
-                    Type = typeMur,
                     Longueur = longueurMur,
                     Hauteur = hauteurMur,
+                    Orientation = orientation
                 };
 
                 var createdMur = await _murService.PostAsync(mur);
@@ -543,7 +543,7 @@ namespace SAE_CLIENTGestion.ViewModels
 
         // CRUD BATIMENT
 
-        public async Task<bool> AddBatimentAsync(Batiment batiment)
+        public async Task<bool> AddBatimentAsync(BatimentDTO batiment)
         {
             IsLoading = true;
             try
@@ -566,7 +566,7 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateBatimentAsync(Batiment batiment)
+        public async Task<bool> UpdateBatimentAsync(BatimentDTO batiment)
         {
             IsLoading = true;
             try

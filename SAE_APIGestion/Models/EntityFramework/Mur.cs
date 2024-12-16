@@ -26,8 +26,8 @@ namespace SAE_APIGestion.Models.EntityFramework
         public double Hauteur { get; set; }
 
         [Required]
-        [Column("mur_type")]
-        public TypeMur Type { get; set; }
+        [Column("mur_orientation")]
+        public Orientation Orientation { get; set; }
 
         [InverseProperty(nameof(Equipement.Mur))]
         public virtual List<Equipement> Equipements { get; set; } = new List<Equipement>();
@@ -42,12 +42,9 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual Salle? Salle { get; set; }
     }
 
-
-    public enum TypeMur
+    public enum Orientation
     {
-        Face,
-        Entree,
-        Gauche,
-        Droite
+        Horizontal,  // Le mur est parallèle à l'axe Est-Ouest
+        Vertical     // Le mur est parallèle à l'axe Nord-Sud
     }
 }

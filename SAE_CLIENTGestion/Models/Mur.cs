@@ -10,17 +10,16 @@ namespace SAE_CLIENTGestion.Models
         public string Nom { get; set; }
         public double Longueur { get; set; }
         public double Hauteur { get; set; }
-        public TypeMur Type { get; set; }
+        public Orientation Orientation { get; set; }
         public virtual List<Equipement> Equipements { get; set; } = new List<Equipement>();
         public virtual List<Capteur> Capteurs { get; set; } = new List<Capteur>();
-        public int SalleId { get; set; }
-        public virtual Salle Salle { get; set; }
+        public int? SalleId { get; set; }
+        public virtual Salle? Salle { get; set; }
     }
-    public enum TypeMur
+
+    public enum Orientation
     {
-        Face,
-        Entree,
-        Gauche,
-        Droite
+        Horizontal,   // Le mur est parallèle à l'axe Est-Ouest
+        Vertical      // Le mur est parallèle à l'axe Nord-Sud
     }
 }

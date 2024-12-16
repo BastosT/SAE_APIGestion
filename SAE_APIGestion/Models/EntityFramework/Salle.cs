@@ -8,6 +8,12 @@ namespace SAE_APIGestion.Models.EntityFramework
     [Table("t_e_salle_sal")]
     public class Salle
     {
+
+        public Salle()
+        {
+            Murs = new HashSet<Mur>();
+        }
+
         [Key]
         [Column("sal_id")]
         public int SalleId { get; set; }
@@ -35,29 +41,9 @@ namespace SAE_APIGestion.Models.EntityFramework
         [ForeignKey("BatimentId")]
         public virtual Batiment Batiment { get; set; }
 
-        [Column("mur_faceid")]
-        public int MurFaceId { get; set; }
+        public virtual ICollection<Mur> Murs { get; set; }
 
-        [ForeignKey("MurFaceId")]
-        public virtual Mur MurFace { get; set; }
 
-        [Column("mur_entreeid")]
-        public int MurEntreeId { get; set; }
-
-        [ForeignKey("MurEntreeId")]
-        public virtual Mur MurEntree { get; set; }
-
-        [Column("mur_gaucheid")]
-        public int MurGaucheId { get; set; }
-
-        [ForeignKey("MurGaucheId")]
-        public virtual Mur MurGauche { get; set; }
-
-        [Column("mur_droiteid")]
-        public int MurDroiteId { get; set; }
-
-        [ForeignKey("MurDroiteId")]
-        public virtual Mur MurDroite { get; set; }
     }
 
 }

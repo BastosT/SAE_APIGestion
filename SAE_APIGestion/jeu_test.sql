@@ -50,10 +50,10 @@ VALUES
     (6, 'M2', 212.0, 208.5, 3, null),
 
     -- D104 : Salle rectangulaire simple
-    (7, 'Mur Nord', 400, 270, 0, null),     -- Mur du haut
-    (8, 'Mur Ouest', 300, 270, 1, null),   -- Mur de gauche
-    (9, 'Mur Sud', 400, 270, 2, null),      -- Mur du bas
-    (10, 'Mur Est', 300, 270, 3, null);      -- Mur de droite
+    (7, 'Mur Nord', 575, 270, 0, null),     -- Mur du haut
+    (8, 'Mur Ouest', 736, 270, 1, null),   -- Mur de gauche
+    (9, 'Mur Sud', 575, 270, 2, null),      -- Mur du bas
+    (10, 'Mur Est', 734, 270, 3, null);      -- Mur de droite
 SELECT setval('t_e_mur_mur_mur_id_seq', (SELECT MAX(mur_id) FROM t_e_mur_mur));
 
 -- 4. Salle en L
@@ -77,9 +77,9 @@ INSERT INTO t_e_capteur_cap (
     sal_id, mur_id
 )
 VALUES 
-    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 1, 2),
-    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 1, 4),
-    (3, 'Capteur 3', true, 100, 10, 10, 150, 70, 100, 80, 1, 6);
+    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 2, 8),
+    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 2, 8),
+    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 2, 10);
 SELECT setval('t_e_capteur_cap_cap_id_seq', (SELECT MAX(cap_id) FROM t_e_capteur_cap));
 
 -- 6. Equipements
@@ -90,16 +90,16 @@ INSERT INTO t_e_equipement_equ (
 )
 VALUES 
     -- Radiateurs
-    (1, 'Radiateur 1', 80, 100, 150, 180, 1, 1, 1),
-    (2, 'Radiateur 2', 80, 100, 350, 180, 1, 3, 1),
+    (1, 'Radiateur 1', 80, 100, 150, 180, 1, 9, 2),
+    (2, 'Radiateur 2', 80, 100, 350, 180, 1, 9, 2),
     -- Fenetres
-    (3, 'Fenetre 1', 165, 100, 100, 3, 2, 1, 1),
-    (4, 'Fenetre 2', 165, 100, 300, 3, 2, 5, 1),
+    (3, 'Fenetre 1', 165, 100, 100, 3, 2, 9, 2),
+    (4, 'Fenetre 2', 165, 100, 300, 3, 2, 9, 2),
     -- Vitres
-    (5, 'Vitre 1', 161, 89, 200, 6, 3, 2, 1),
-    (6, 'Vitre 2', 161, 89, 50, 6, 3, 4, 1),
+    (5, 'Vitre 1', 161, 89, 200, 6, 3, 9, 2),
+    (6, 'Vitre 2', 161, 89, 50, 6, 3, 9, 2),
     -- Porte
-    (7, 'Porte', 205, 93, 55, 67, 4, 6, 1);
+    (7, 'Porte', 205, 93, 55, 67, 4, 7, 2);
 SELECT setval('t_e_equipement_equ_equ_id_seq', (SELECT MAX(equ_id) FROM t_e_equipement_equ));
 
 -- 7. Données des capteurs

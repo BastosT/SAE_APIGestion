@@ -7,17 +7,93 @@
         config: {
             scale: 0.09,
             wallDepth: 0.30,
-
+            equipmentDepth: 0.15
         },
 
+        renderEquipment: function (scene, equipment, wall, wallWidth, wallHeight) {
+            const width = equipment.longueur * this.config.scale;
+            const height = equipment.hauteur * this.config.scale;
+            const depth = this.config.equipmentDepth;
 
+            // Position de base, en partant du haut à gauche
+            let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + width / 2;
+            let yPos = wallHeight / 2 - equipment.positionY * this.config.scale - height / 2;
+            let zPos = this.config.wallDepth / 2 + depth / 2;
+
+            const equipmentMesh = BABYLON.MeshBuilder.CreateBox(equipment.nom, {
+                width: width,
+                height: height,
+                depth: depth
+            }, scene);
+
+            const material = new BABYLON.StandardMaterial(equipment.nom + "Material", scene);
+            if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "radiateur") {
+                material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+            } else if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "fenetre") {
+                material.diffuseColor = new BABYLON.Color3(0.8, 0.9, 1);
+                material.alpha = 0.5;
+            } else {
+                material.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+            }
+            equipmentMesh.material = material;
+
+            // Position ajustée pour partir du coin gauche
+            equipmentMesh.position = new BABYLON.Vector3(-xPos, yPos, zPos);
+            equipmentMesh.rotation.y = Math.PI;
+
+            equipmentMesh.parent = wall;
+            return equipmentMesh;
+        },
+
+        renderSensor: function (scene, sensor, wall, wallWidth, wallHeight) {
+            const width = sensor.longueur * this.config.scale;
+            const height = sensor.hauteur * this.config.scale;
+            const depth = this.config.equipmentDepth * 0.5;
+
+            // Position de base, en partant du haut à gauche
+            let xPos = -wallWidth / 2 + sensor.positionX * this.config.scale + width / 2;
+            let yPos = wallHeight / 2 - sensor.positionY * this.config.scale - height / 2;
+            let zPos = this.config.wallDepth / 2 + depth / 2;
+
+            const sensorContainer = new BABYLON.TransformNode("sensor_" + sensor.nom, scene);
+
+            const sensorBox = BABYLON.MeshBuilder.CreateBox("sensorBox", {
+                width: width,
+                height: height,
+                depth: depth
+            }, scene);
+
+            const boxMaterial = new BABYLON.StandardMaterial("sensorBoxMaterial", scene);
+            boxMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            sensorBox.material = boxMaterial;
+
+            const screen = BABYLON.MeshBuilder.CreatePlane("screen", {
+                width: width * 0.7,
+                height: height * 0.7
+            }, scene);
+
+            const screenMaterial = new BABYLON.StandardMaterial("screenMaterial", scene);
+            screenMaterial.emissiveColor = new BABYLON.Color3(0, 0.5, 0);
+            screen.material = screenMaterial;
+
+            // Position ajustée pour partir du coin gauche
+            sensorContainer.position = new BABYLON.Vector3(-xPos, yPos, zPos);
+
+            screen.position.z = depth / 2 + 0.001;
+            screen.rotation.y = 0;
+
+            sensorBox.parent = sensorContainer;
+            screen.parent = sensorContainer;
+            sensorContainer.parent = wall;
+
+            return sensorContainer;
+        },
         renderRoom: function (scene, room, startPoint) {
             if (!room.murs || room.murs.length === 0) {
                 console.log("No walls to render");
                 return { walls: [], size: { width: 0, depth: 0 } };
             }
 
-            // Calcul de la taille de la pièce (ancien calculateRoomSize)
             let maxX = 0, maxZ = 0, currentX = 0, currentZ = 0;
             room.murs.forEach(wall => {
                 const length = wall.longueur * this.config.scale;
@@ -32,14 +108,12 @@
             });
             const roomSize = { width: maxX * 2, depth: maxZ * 2 };
 
-            // Rendu des murs
             let currentPoint = new BABYLON.Vector3(startPoint.x, startPoint.y, startPoint.z);
             let walls = [];
 
             for (let i = 0; i < room.murs.length; i++) {
                 const wallData = room.murs[i];
 
-                // Création du mur
                 const width = wallData.longueur * this.config.scale;
                 const height = wallData.hauteur * this.config.scale;
                 const wall = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
@@ -48,7 +122,6 @@
                     depth: this.config.wallDepth
                 }, scene);
 
-                // Matériaux
                 const innerMaterial = new BABYLON.StandardMaterial("wallInnerMaterial", scene);
                 innerMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.6, 1);
                 const outerMaterial = new BABYLON.StandardMaterial("wallOuterMaterial", scene);
@@ -62,7 +135,6 @@
                     wall.subMeshes.push(new BABYLON.SubMesh(i, 0, verticesCount, i * 6, 6, wall));
                 }
 
-                // Calcul de l'offset et positionnement
                 const wallDepth = this.config.wallDepth;
                 let offset = { x: 0, z: 0 };
                 switch (wallData.orientation) {
@@ -96,6 +168,17 @@
                     case 3: wall.rotation.y = Math.PI; break;
                 }
 
+                if (wallData.equipements) {
+                    wallData.equipements.forEach(equipment => {
+                        this.renderEquipment(scene, equipment, wall, width, height);
+                    });
+                }
+                if (wallData.capteurs) {
+                    wallData.capteurs.forEach(sensor => {
+                        this.renderSensor(scene, sensor, wall, width, height);
+                    });
+                }
+
                 walls.push(wall);
                 currentPoint = new BABYLON.Vector3(
                     endPoint.x - offset.x,
@@ -113,6 +196,7 @@
 
             try {
                 const parsedData = JSON.parse(buildingsDataJson);
+                console.log("Parsed buildings data:", parsedData);
                 const engine = new BABYLON.Engine(canvas, true);
                 window.currentEngine = engine;
 

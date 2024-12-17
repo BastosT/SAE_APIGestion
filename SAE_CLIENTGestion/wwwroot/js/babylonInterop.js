@@ -11,38 +11,196 @@
         },
 
         renderEquipment: function (scene, equipment, wall, wallWidth, wallHeight) {
-            const width = equipment.longueur * this.config.scale;
-            const height = equipment.hauteur * this.config.scale;
-            const depth = this.config.equipmentDepth;
+            // Pour les fenêtres et vitres
+            if (equipment.typeEquipement &&
+                (equipment.typeEquipement.nom.toLowerCase() === "fenetre" ||
+                    equipment.typeEquipement.nom.toLowerCase() === "vitre")) {
+                const frameWidth = equipment.longueur * this.config.scale;
+                const frameHeight = equipment.hauteur * this.config.scale;
+                const frameThickness = 0.02;
+                const frame = new BABYLON.TransformNode("windowFrame", scene);
 
-            // Position de base, en partant du haut à gauche
-            let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + width / 2;
-            let yPos = wallHeight / 2 - equipment.positionY * this.config.scale - height / 2;
-            let zPos = this.config.wallDepth / 2 + depth / 2;
+                const parts = [
+                    {
+                        dimensions: {
+                            width: frameWidth,
+                            height: frameThickness,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(0, frameHeight / 2, 0)
+                    },
+                    {
+                        dimensions: {
+                            width: frameWidth,
+                            height: frameThickness,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(0, -frameHeight / 2, 0)
+                    },
+                    {
+                        dimensions: {
+                            width: frameThickness,
+                            height: frameHeight,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(-frameWidth / 2, 0, 0)
+                    },
+                    {
+                        dimensions: {
+                            width: frameThickness,
+                            height: frameHeight,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(frameWidth / 2, 0, 0)
+                    }
+                ];
 
-            const equipmentMesh = BABYLON.MeshBuilder.CreateBox(equipment.nom, {
-                width: width,
-                height: height,
-                depth: depth
-            }, scene);
+                const frameMaterial = new BABYLON.StandardMaterial("frameMaterial", scene);
+                frameMaterial.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
 
-            const material = new BABYLON.StandardMaterial(equipment.nom + "Material", scene);
-            if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "radiateur") {
-                material.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
-            } else if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "fenetre") {
-                material.diffuseColor = new BABYLON.Color3(0.8, 0.9, 1);
-                material.alpha = 0.5;
-            } else {
-                material.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+                parts.forEach((part, index) => {
+                    const mesh = BABYLON.MeshBuilder.CreateBox("framePart" + index, part.dimensions, scene);
+                    mesh.position = part.position;
+                    mesh.material = frameMaterial;
+                    mesh.parent = frame;
+                });
+
+                const glass = BABYLON.MeshBuilder.CreatePlane("windowGlass", {
+                    width: frameWidth - frameThickness * 2,
+                    height: frameHeight - frameThickness * 2
+                }, scene);
+
+                const glassMaterial = new BABYLON.StandardMaterial("glassMaterial", scene);
+                glassMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
+                glassMaterial.alpha = 0.3;
+                glass.material = glassMaterial;
+                glass.parent = frame;
+
+                let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + frameWidth / 2;
+                let yPos = wallHeight / 2 - equipment.positionY * this.config.scale - frameHeight / 2;
+                let zPos = this.config.wallDepth / 2 + this.config.equipmentDepth / 2;
+
+                frame.position = new BABYLON.Vector3(-xPos, yPos, zPos);
+                frame.rotation.y = Math.PI;
+                frame.parent = wall;
+                return frame;
             }
-            equipmentMesh.material = material;
+            // Pour les radiateurs
+            else if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "radiateur") {
+                const radiatorContainer = new BABYLON.TransformNode("radiatorContainer", scene);
+                const width = equipment.longueur * this.config.scale;
+                const height = equipment.hauteur * this.config.scale;
+                const depth = this.config.equipmentDepth;
+                const finSpacing = 0.03;
+                const finThickness = 0.005;
+                const finDepth = depth * 0.8;
+                const numberOfFins = Math.floor(width / finSpacing);
 
-            // Position ajustée pour partir du coin gauche
-            equipmentMesh.position = new BABYLON.Vector3(-xPos, yPos, zPos);
-            equipmentMesh.rotation.y = Math.PI;
+                const frame = [
+                    {
+                        dimensions: { width: width, height: 0.02, depth: depth },
+                        position: new BABYLON.Vector3(0, height / 2 - 0.01, 0)
+                    },
+                    {
+                        dimensions: { width: width, height: 0.02, depth: depth },
+                        position: new BABYLON.Vector3(0, -height / 2 + 0.01, 0)
+                    },
+                    {
+                        dimensions: { width: 0.02, height: height, depth: depth },
+                        position: new BABYLON.Vector3(-width / 2 + 0.01, 0, 0)
+                    },
+                    {
+                        dimensions: { width: 0.02, height: height, depth: depth },
+                        position: new BABYLON.Vector3(width / 2 - 0.01, 0, 0)
+                    }
+                ];
 
-            equipmentMesh.parent = wall;
-            return equipmentMesh;
+                frame.forEach((part, index) => {
+                    const framePart = BABYLON.MeshBuilder.CreateBox(`radiatorFrame${index}`, part.dimensions, scene);
+                    framePart.position = part.position;
+                    const frameMaterial = new BABYLON.StandardMaterial(`radiatorFrameMaterial${index}`, scene);
+                    frameMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+                    frameMaterial.metallic = 0.8;
+                    frameMaterial.roughness = 0.3;
+                    framePart.material = frameMaterial;
+                    framePart.parent = radiatorContainer;
+                });
+
+                for (let i = 0; i < numberOfFins; i++) {
+                    const fin = BABYLON.MeshBuilder.CreateBox(`radiatorFin${i}`, {
+                        width: finThickness,
+                        height: height - 0.04,
+                        depth: finDepth
+                    }, scene);
+                    fin.position = new BABYLON.Vector3(
+                        -width / 2 + 0.02 + (i * finSpacing),
+                        0,
+                        0
+                    );
+                    const finMaterial = new BABYLON.StandardMaterial(`radiatorFinMaterial${i}`, scene);
+                    finMaterial.diffuseColor = new BABYLON.Color3(0.85, 0.85, 0.85);
+                    finMaterial.metallic = 0.7;
+                    finMaterial.roughness = 0.4;
+                    fin.material = finMaterial;
+                    fin.parent = radiatorContainer;
+                }
+
+                const pipeRadius = 0.01;
+                const pipeHeight = 0.1;
+                for (let i = 0; i < 2; i++) {
+                    const pipe = BABYLON.MeshBuilder.CreateCylinder(`radiatorPipe${i}`, {
+                        height: pipeHeight,
+                        diameter: pipeRadius * 2
+                    }, scene);
+                    pipe.position = new BABYLON.Vector3(
+                        (i === 0 ? -1 : 1) * (width / 4),
+                        -height / 2 - pipeHeight / 2,
+                        0
+                    );
+                    const pipeMaterial = new BABYLON.StandardMaterial(`radiatorPipeMaterial${i}`, scene);
+                    pipeMaterial.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+                    pipeMaterial.metallic = 0.9;
+                    pipeMaterial.roughness = 0.2;
+                    pipe.material = pipeMaterial;
+                    pipe.parent = radiatorContainer;
+                }
+
+                let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + width / 2;
+                let yPos = wallHeight / 2 - equipment.positionY * this.config.scale - height / 2;
+                let zPos = this.config.wallDepth / 2 + depth / 2;
+
+                radiatorContainer.position = new BABYLON.Vector3(-xPos, yPos, zPos);
+                radiatorContainer.rotation.y = Math.PI;
+                radiatorContainer.parent = wall;
+
+                return radiatorContainer;
+            }
+            // Pour les autres équipements (comportement par défaut)
+            else {
+                const width = equipment.longueur * this.config.scale;
+                const height = equipment.hauteur * this.config.scale;
+                const depth = this.config.equipmentDepth;
+
+                let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + width / 2;
+                let yPos = wallHeight / 2 - equipment.positionY * this.config.scale - height / 2;
+                let zPos = this.config.wallDepth / 2 + depth / 2;
+
+                const equipmentMesh = BABYLON.MeshBuilder.CreateBox(equipment.nom, {
+                    width: width,
+                    height: height,
+                    depth: depth
+                }, scene);
+
+                const material = new BABYLON.StandardMaterial(equipment.nom + "Material", scene);
+                material.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+                equipmentMesh.material = material;
+
+                equipmentMesh.position = new BABYLON.Vector3(-xPos, yPos, zPos);
+                equipmentMesh.rotation.y = Math.PI;
+                equipmentMesh.parent = wall;
+
+                return equipmentMesh;
+            }
         },
 
         renderSensor: function (scene, sensor, wall, wallWidth, wallHeight) {
@@ -50,13 +208,9 @@
             const height = sensor.hauteur * this.config.scale;
             const depth = this.config.equipmentDepth * 0.5;
 
-            // Position de base, en partant du haut à gauche
-            let xPos = -wallWidth / 2 + sensor.positionX * this.config.scale + width / 2;
-            let yPos = wallHeight / 2 - sensor.positionY * this.config.scale - height / 2;
-            let zPos = this.config.wallDepth / 2 + depth / 2;
+            const sensorContainer = new BABYLON.TransformNode("sensorContainer", scene);
 
-            const sensorContainer = new BABYLON.TransformNode("sensor_" + sensor.nom, scene);
-
+            // Boîtier principal du capteur
             const sensorBox = BABYLON.MeshBuilder.CreateBox("sensorBox", {
                 width: width,
                 height: height,
@@ -64,26 +218,52 @@
             }, scene);
 
             const boxMaterial = new BABYLON.StandardMaterial("sensorBoxMaterial", scene);
-            boxMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            boxMaterial.diffuseColor = new BABYLON.Color3(0.9, 0.9, 0.9);
+            boxMaterial.metallic = 0.3;
+            boxMaterial.roughness = 0.7;
             sensorBox.material = boxMaterial;
 
-            const screen = BABYLON.MeshBuilder.CreatePlane("screen", {
-                width: width * 0.7,
-                height: height * 0.7
+            // Écran avec marge de 15%
+            const marginRatio = 0.15;
+            const screenWidth = width * (1 - 2 * marginRatio);
+            const screenHeight = height * (1 - 2 * marginRatio);
+            const screen = BABYLON.MeshBuilder.CreateBox("screen", {
+                width: screenWidth,
+                height: screenHeight,
+                depth: 0.001
             }, scene);
 
             const screenMaterial = new BABYLON.StandardMaterial("screenMaterial", scene);
-            screenMaterial.emissiveColor = new BABYLON.Color3(0, 0.5, 0);
+            screenMaterial.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+            screenMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.3, 0.4);
+            screenMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
             screen.material = screenMaterial;
 
-            // Position ajustée pour partir du coin gauche
+            // Grille de ventilation
+            const ventWidth = width * 0.6;
+            const ventHeight = height * 0.15;
+            const ventilation = BABYLON.MeshBuilder.CreatePlane("ventilation", {
+                width: ventWidth,
+                height: ventHeight
+            }, scene);
+
+            const ventMaterial = new BABYLON.StandardMaterial("ventMaterial", scene);
+            ventMaterial.diffuseColor = new BABYLON.Color3(0.3, 0.3, 0.3);
+            ventMaterial.alpha = 0.8;
+            ventilation.material = ventMaterial;
+
+            let xPos = -wallWidth / 2 + sensor.positionX * this.config.scale + width / 2;
+            let yPos = wallHeight / 2 - sensor.positionY * this.config.scale - height / 2;
+            let zPos = this.config.wallDepth / 2 + depth / 2;
+
             sensorContainer.position = new BABYLON.Vector3(-xPos, yPos, zPos);
-
             screen.position.z = depth / 2 + 0.001;
-            screen.rotation.y = 0;
+            ventilation.position = new BABYLON.Vector3(0, -height / 3, depth / 2 + 0.001);
 
-            sensorBox.parent = sensorContainer;
+            sensorContainer.rotation.y = Math.PI;
             screen.parent = sensorContainer;
+            ventilation.parent = sensorContainer;
+            sensorBox.parent = sensorContainer;
             sensorContainer.parent = wall;
 
             return sensorContainer;

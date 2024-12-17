@@ -278,9 +278,141 @@
                                 <strong>Bâtiment:</strong> @salle.Batiment.Nom<br>
                                 <strong>Type:</strong> @salle.TypeSalle.Nom
                             </div>
-
                             <div class="room-walls-container">
-                                <!-- Visualisation schématique de la salle -->
+                                @{
+                                    const int SCALE = 40;
+                                    const int MARGIN = 80;
+                                    const int WALL_THICKNESS = 32;
+
+                                    double currentX = MARGIN;
+                                    double currentY = MARGIN;
+                                    double minX = currentX;
+                                    double minY = currentY;
+                                    double maxX = currentX;
+                                    double maxY = currentY;
+
+                                    foreach (var mur in salle.Murs)
+                                    {
+                                        switch (mur.Orientation)
+                                        {
+                                            case Models.Orientation.Nord:
+                                                currentX += mur.Longueur * SCALE;
+                                                break;
+                                            case Models.Orientation.Sud:
+                                                currentX -= mur.Longueur * SCALE;
+                                                break;
+                                            case Models.Orientation.Est:
+                                                currentY += mur.Longueur * SCALE;
+                                                break;
+                                            case Models.Orientation.Ouest:
+                                                currentY -= mur.Longueur * SCALE;
+                                                break;
+                                        }
+                                        minX = Math.Min(minX, currentX);
+                                        minY = Math.Min(minY, currentY);
+                                        maxX = Math.Max(maxX, currentX);
+                                        maxY = Math.Max(maxY, currentY);
+                                    }
+
+                                    int width = (int)(maxX - minX + 2 * MARGIN);
+                                    int height = (int)(maxY - minY + 2 * MARGIN);
+                                    int offsetX = (int)(-minX + MARGIN);
+                                    int offsetY = (int)(-minY + MARGIN);
+
+                                    width = Math.Max(width, 400);
+                                    height = Math.Max(height, 300);
+
+                                    currentX = MARGIN + offsetX;
+                                    currentY = MARGIN + offsetY;
+                                }
+
+                                <svg viewBox="0 0 @width @height" class="room-svg" style="width: 100%; min-height: 300px;">
+                                    <pattern id="grid-@salle.SalleId" width="@SCALE" height="@SCALE" patternUnits="userSpaceOnUse">
+                                        <path d="M @SCALE 0 L 0 0 0 @SCALE" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
+                                    </pattern>
+                                    <rect width="100%" height="100%" fill="url(#grid-@salle.SalleId)" />
+
+                                    @{
+                                        currentX = MARGIN + offsetX;
+                                        currentY = MARGIN + offsetY;
+                                    }
+
+                                    @foreach (var mur in salle.Murs)
+                                    {
+                                        double previousX = currentX;
+                                        double previousY = currentY;
+                                        double wallLength = mur.Longueur * SCALE;
+                                        double rectX = previousX;
+                                        double rectY = previousY;
+                                        double rectWidth = 0;
+                                        double rectHeight = 0;
+
+                                        switch (mur.Orientation)
+                                        {
+                                            case Models.Orientation.Nord:
+                                                currentX += wallLength;
+                                                rectX = previousX;
+                                                rectY = previousY - WALL_THICKNESS / 2;
+                                                rectWidth = wallLength;
+                                                rectHeight = WALL_THICKNESS;
+                                                break;
+                                            case Models.Orientation.Sud:
+                                                currentX -= wallLength;
+                                                rectX = currentX;
+                                                rectY = currentY - WALL_THICKNESS / 2;
+                                                rectWidth = wallLength;
+                                                rectHeight = WALL_THICKNESS;
+                                                break;
+                                            case Models.Orientation.Est:
+                                                currentY += wallLength;
+                                                rectX = previousX - WALL_THICKNESS / 2;
+                                                rectY = previousY;
+                                                rectWidth = WALL_THICKNESS;
+                                                rectHeight = wallLength;
+                                                break;
+                                            case Models.Orientation.Ouest:
+                                                currentY -= wallLength;
+                                                rectX = previousX - WALL_THICKNESS / 2;
+                                                rectY = currentY;
+                                                rectWidth = WALL_THICKNESS;
+                                                rectHeight = wallLength;
+                                                break;
+                                        }
+
+                                        <rect x="@rectX" y="@rectY"
+                                              width="@rectWidth" height="@rectHeight"
+                                              fill="#000" />
+
+                                        <circle cx="@currentX" cy="@currentY" r="2" fill="#666" />
+
+                                        double labelX = (previousX + currentX) / 2;
+                                        double labelY = (previousY + currentY) / 2;
+                                        double offset = WALL_THICKNESS + 10;
+
+                                        switch (mur.Orientation)
+                                        {
+                                            case Models.Orientation.Nord:
+                                                labelY -= offset;
+                                                break;
+                                            case Models.Orientation.Sud:
+                                                labelY += offset;
+                                                break;
+                                            case Models.Orientation.Est:
+                                                labelX += offset;
+                                                break;
+                                            case Models.Orientation.Ouest:
+                                                labelX -= offset;
+                                                break;
+                                        }
+
+                                        @((MarkupString)$"<text x='{labelX}' y='{labelY}' text-anchor='middle' fill='#333' style='font-size: 12px;'>{mur.Nom} ({mur.Longueur}m)</text>")
+                                    }
+
+                                    <!-- Barre d'échelle -->
+                                    <line x1="@MARGIN" y1="@(height - MARGIN/2)" x2="@(MARGIN + SCALE)" y2="@(height - MARGIN/2)"
+                                          stroke="#666" stroke-width="2" />
+                                    @((MarkupString)$"<text x='{MARGIN + SCALE / 2}' y='{height - MARGIN / 2 - 5}' text-anchor='middle' fill='#666' style='font-size: 12px;'>1m</text>")
+                                </svg>
                             </div>
                         </div>
                     </div>

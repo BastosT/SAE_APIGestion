@@ -6,82 +6,10 @@
     Object.assign(window.babylonInterop, {
         config: {
             scale: 0.09,
-            wallDepth: 0.10,
-            debugPillarSize: 0.1,
+            wallDepth: 0.30,
 
         },
 
-        isInteriorCorner: function (currentOrientation, nextOrientation) {
-            return (currentOrientation + 1) % 4 === nextOrientation ||
-                (currentOrientation === 3 && nextOrientation === 0);
-        },
-
-        calculateCornerAdjustment: function (currentOrientation, nextOrientation) {
-            const wallDepth = this.config.wallDepth;
-
-            // Direction vectors for each orientation
-            const directionVectors = {
-                0: { x: 0, z: -1 },  // North
-                1: { x: -1, z: 0 },  // West
-                2: { x: 0, z: 1 },   // South
-                3: { x: 1, z: 0 }    // East
-            };
-
-            const currentDir = directionVectors[currentOrientation];
-            const nextDir = directionVectors[nextOrientation];
-
-            // Calculate angle between walls (clockwise positive)
-            const angle = Math.atan2(
-                currentDir.x * nextDir.z - currentDir.z * nextDir.x,
-                currentDir.x * nextDir.x + currentDir.z * nextDir.z
-            );
-
-            // Determine if we're dealing with an interior or exterior corner
-            const isInteriorCorner = (
-                (currentOrientation + 1) % 4 === nextOrientation ||
-                (currentOrientation === 3 && nextOrientation === 0)
-            );
-
-            // Calculate adjustment for the current wall end
-            let adjustX = 0;
-            let adjustZ = 0;
-
-            if (isInteriorCorner) {
-                // Interior corner adjustments
-                switch (currentOrientation) {
-                    case 0: // North
-                        adjustX = -wallDepth;
-                        break;
-                    case 1: // West
-                        adjustZ = -wallDepth;
-                        break;
-                    case 2: // South
-                        adjustX = wallDepth;
-                        break;
-                    case 3: // East
-                        adjustZ = wallDepth;
-                        break;
-                }
-            } else {
-                // Exterior corner adjustments
-                switch (currentOrientation) {
-                    case 0: // North
-                        adjustX = wallDepth;
-                        break;
-                    case 1: // West
-                        adjustZ = wallDepth;
-                        break;
-                    case 2: // South
-                        adjustX = -wallDepth;
-                        break;
-                    case 3: // East
-                        adjustZ = -wallDepth;
-                        break;
-                }
-            }
-
-            return [adjustX, adjustZ];
-        },
         calculateRoomSize: function (room) {
             if (!room.murs || room.murs.length === 0) return { width: 0, depth: 0 };
 
@@ -115,126 +43,7 @@
                 depth: maxZ * 2  // *2 car on veut la profondeur totale
             };
         },
-        calculateBuildingSize: function (building) {
-            let maxWidth = 0;
-            let totalDepth = 0;
-
-            (building.salles || []).forEach(room => {
-                const roomSize = this.calculateRoomSize(room);
-                maxWidth = Math.max(maxWidth, roomSize.width);
-                totalDepth += roomSize.depth;
-            });
-
-            return {
-                width: maxWidth,
-                depth: totalDepth
-            };
-        },
-
-        debugWallPosition: function (startPoint, endPoint, orientation) {
-            console.log(`Wall: ${orientation}`);
-            console.log(`Start: (${startPoint.x.toFixed(3)}, ${startPoint.z.toFixed(3)})`);
-            console.log(`End: (${endPoint.x.toFixed(3)}, ${endPoint.z.toFixed(3)})`);
-            console.log('---');
-        },
-
-        calculateCornerPosition: function (startPoint, currentWall, nextWall) {
-            const length = currentWall.longueur * this.config.scale;
-            let endPoint = startPoint.clone();
-
-            // Base position according to wall orientation
-            switch (currentWall.orientation) {
-                case 0: // North
-                    endPoint.z -= length;
-                    break;
-                case 1: // West
-                    endPoint.x -= length;
-                    break;
-                case 2: // South
-                    endPoint.z += length;
-                    break;
-                case 3: // East
-                    endPoint.x += length;
-                    break;
-            }
-
-            // Apply corner adjustment if there's a next wall
-            if (nextWall) {
-                const [adjustX, adjustZ] = this.calculateCornerAdjustment(
-                    currentWall.orientation,
-                    nextWall.orientation
-                );
-                endPoint.x += adjustX;
-                endPoint.z += adjustZ;
-            }
-
-            return endPoint;
-        },
-
-        calculateWallOffset: function (orientation, previousWall) {
-            const offset = this.config.wallDepth / 2;
-            let adjustedOffset = new BABYLON.Vector3(0, 0, 0);
-
-            // Base offset based on current wall orientation
-            switch (orientation) {
-                case 0: // North
-                    adjustedOffset.x = offset;
-                    break;
-                case 1: // West
-                    adjustedOffset.z = -offset;
-                    break;
-                case 2: // South
-                    adjustedOffset.x = -offset;
-                    break;
-                case 3: // East
-                    adjustedOffset.z = offset;
-                    break;
-            }
-
-            // If there's a previous wall, adjust the starting position
-            if (previousWall) {
-                const isInteriorCorner = (
-                    (previousWall.orientation + 1) % 4 === orientation ||
-                    (previousWall.orientation === 3 && orientation === 0)
-                );
-
-                if (isInteriorCorner) {
-                    // Adjust the offset for interior corners
-                    switch (previousWall.orientation) {
-                        case 0: // Previous wall facing North
-                            adjustedOffset.x += this.config.wallDepth;
-                            break;
-                        case 1: // Previous wall facing West
-                            adjustedOffset.z += this.config.wallDepth;
-                            break;
-                        case 2: // Previous wall facing South
-                            adjustedOffset.x -= this.config.wallDepth;
-                            break;
-                        case 3: // Previous wall facing East
-                            adjustedOffset.z -= this.config.wallDepth;
-                            break;
-                    }
-                }
-            }
-
-            return adjustedOffset;
-        },
-        createDebugPillar: function (scene, position) {
-            const pillar = BABYLON.MeshBuilder.CreateBox("debugPillar", {
-                height: 3,
-                width: this.config.debugPillarSize,
-                depth: this.config.debugPillarSize
-            }, scene);
-
-            const material = new BABYLON.StandardMaterial("pillarMaterial", scene);
-            material.diffuseColor = new BABYLON.Color3(1, 0, 0);
-            pillar.material = material;
-
-            pillar.position = position.clone();
-            pillar.position.y = 1.5;
-
-            return pillar;
-        },
+      
 
         createWall: function (scene, wallData) {
             const width = wallData.longueur * this.config.scale;
@@ -369,27 +178,20 @@
 
             let currentPoint = new BABYLON.Vector3(startPoint.x, startPoint.y, startPoint.z);
             let walls = [];
-            let debugPillars = [];
 
             console.log("Starting room render at:", currentPoint);
-            debugPillars.push(this.createDebugPillar(scene, currentPoint));
 
             for (let i = 0; i < room.murs.length; i++) {
                 const wallData = room.murs[i];
-
                 console.log(`Processing wall ${i}:`, wallData);
-
                 const wall = this.createWall(scene, wallData);
                 const nextPoint = this.positionWall(wall, wallData, currentPoint);
                 walls.push(wall);
-
                 currentPoint = new BABYLON.Vector3(nextPoint.x, nextPoint.y, nextPoint.z);
-                debugPillars.push(this.createDebugPillar(scene, currentPoint));
-
                 console.log(`Next wall will start at:`, currentPoint);
             }
 
-            return { walls, debugPillars };
+            return { walls };
         },
 
         initializeScene: function (canvasId, buildingsDataJson) {
@@ -411,31 +213,29 @@
                 let buildingOffset = new BABYLON.Vector3(0, 0, 0);
 
                 parsedData.forEach((building, buildingIndex) => {
-                    const buildingSize = this.calculateBuildingSize(building);
                     let roomOffset = buildingOffset.clone();
 
                     (building.salles || []).forEach((room, roomIndex) => {
                         const roomSize = this.calculateRoomSize(room);
                         console.log(`Rendering room ${roomIndex} at offset:`, roomOffset);
                         this.renderRoom(scene, room, roomOffset);
-                        // Ajoute la taille de la pièce plus un petit espace (20% de la taille)
                         roomOffset.x += roomSize.width * 1.2;
                     });
 
-                    // Ajoute la taille du bâtiment plus un petit espace (20% de la taille)
-                    buildingOffset.z += buildingSize.depth * 1.2;
+                    buildingOffset.z += 20; // Espacement fixe entre les bâtiments
                 });
 
-                // Ajuste la caméra en fonction de la taille totale de la scène
+                // Camera setup
                 const camera = new BABYLON.ArcRotateCamera("camera",
                     0,
                     Math.PI / 3,
-                    Math.max(buildingOffset.x, buildingOffset.z) * 2, // Distance ajustée automatiquement
+                    50, // Distance fixe qui peut être ajustée selon vos besoins
                     new BABYLON.Vector3(0, 0, 0),
                     scene
                 );
                 camera.attachControl(canvas, true);
 
+                // Lighting setup
                 const light = new BABYLON.HemisphericLight("light",
                     new BABYLON.Vector3(0, 1, 0),
                     scene

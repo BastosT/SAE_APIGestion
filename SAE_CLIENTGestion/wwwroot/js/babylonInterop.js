@@ -5,9 +5,10 @@
 
     Object.assign(window.babylonInterop, {
         config: {
-            scale: 0.01,
+            scale: 0.09,
             wallDepth: 0.10,
-            debugPillarSize: 0.1
+            debugPillarSize: 0.1,
+
         },
 
         isInteriorCorner: function (currentOrientation, nextOrientation) {
@@ -81,13 +82,62 @@
 
             return [adjustX, adjustZ];
         },
+        calculateRoomSize: function (room) {
+            if (!room.murs || room.murs.length === 0) return { width: 0, depth: 0 };
 
-        debugWallPosition: function(startPoint, endPoint, orientation) {
-        console.log(`Wall: ${orientation}`);
-        console.log(`Start: (${startPoint.x.toFixed(3)}, ${startPoint.z.toFixed(3)})`);
-        console.log(`End: (${endPoint.x.toFixed(3)}, ${endPoint.z.toFixed(3)})`);
-        console.log('---');
-    },
+            let maxX = 0;
+            let maxZ = 0;
+            let currentX = 0;
+            let currentZ = 0;
+
+            room.murs.forEach(wall => {
+                const length = wall.longueur * this.config.scale;
+                switch (wall.orientation) {
+                    case 0: // North
+                        currentZ -= length;
+                        break;
+                    case 1: // West
+                        currentX -= length;
+                        break;
+                    case 2: // South
+                        currentZ += length;
+                        break;
+                    case 3: // East
+                        currentX += length;
+                        break;
+                }
+                maxX = Math.max(Math.abs(currentX), maxX);
+                maxZ = Math.max(Math.abs(currentZ), maxZ);
+            });
+
+            return {
+                width: maxX * 2, // *2 car on veut la largeur totale
+                depth: maxZ * 2  // *2 car on veut la profondeur totale
+            };
+        },
+        calculateBuildingSize: function (building) {
+            let maxWidth = 0;
+            let totalDepth = 0;
+
+            (building.salles || []).forEach(room => {
+                const roomSize = this.calculateRoomSize(room);
+                maxWidth = Math.max(maxWidth, roomSize.width);
+                totalDepth += roomSize.depth;
+            });
+
+            return {
+                width: maxWidth,
+                depth: totalDepth
+            };
+        },
+
+        debugWallPosition: function (startPoint, endPoint, orientation) {
+            console.log(`Wall: ${orientation}`);
+            console.log(`Start: (${startPoint.x.toFixed(3)}, ${startPoint.z.toFixed(3)})`);
+            console.log(`End: (${endPoint.x.toFixed(3)}, ${endPoint.z.toFixed(3)})`);
+            console.log('---');
+        },
+
         calculateCornerPosition: function (startPoint, currentWall, nextWall) {
             const length = currentWall.longueur * this.config.scale;
             let endPoint = startPoint.clone();
@@ -120,6 +170,7 @@
 
             return endPoint;
         },
+
         calculateWallOffset: function (orientation, previousWall) {
             const offset = this.config.wallDepth / 2;
             let adjustedOffset = new BABYLON.Vector3(0, 0, 0);
@@ -342,7 +393,7 @@
         },
 
         initializeScene: function (canvasId, buildingsDataJson) {
-            console.log("Initializing scene with sequential wall rendering");
+            console.log("Initializing scene with dynamic spacing");
 
             const canvas = document.getElementById(canvasId);
             if (!canvas) throw new Error('Canvas not found');
@@ -360,21 +411,26 @@
                 let buildingOffset = new BABYLON.Vector3(0, 0, 0);
 
                 parsedData.forEach((building, buildingIndex) => {
+                    const buildingSize = this.calculateBuildingSize(building);
                     let roomOffset = buildingOffset.clone();
 
                     (building.salles || []).forEach((room, roomIndex) => {
+                        const roomSize = this.calculateRoomSize(room);
                         console.log(`Rendering room ${roomIndex} at offset:`, roomOffset);
                         this.renderRoom(scene, room, roomOffset);
-                        roomOffset.x += 15;
+                        // Ajoute la taille de la pièce plus un petit espace (20% de la taille)
+                        roomOffset.x += roomSize.width * 1.2;
                     });
 
-                    buildingOffset.z += 15;
+                    // Ajoute la taille du bâtiment plus un petit espace (20% de la taille)
+                    buildingOffset.z += buildingSize.depth * 1.2;
                 });
 
+                // Ajuste la caméra en fonction de la taille totale de la scène
                 const camera = new BABYLON.ArcRotateCamera("camera",
                     0,
                     Math.PI / 3,
-                    20,
+                    Math.max(buildingOffset.x, buildingOffset.z) * 2, // Distance ajustée automatiquement
                     new BABYLON.Vector3(0, 0, 0),
                     scene
                 );

@@ -42,12 +42,12 @@ SELECT setval('t_e_batiment_bat_bat_id_seq', (SELECT MAX(bat_id) FROM t_e_batime
 INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_orientation, sal_id)
 VALUES 
     -- D103 : Salle en L
-    (1, 'M1', 4090, 2085, 0, null),
-    (2, 'M6', 4285, 2085, 1, null),
-    (3, 'M5', 2435, 2085, 2, null),
-    (4, 'M4', 2187, 2085, 3, null),
-    (5, 'M3', 1575, 2085, 2, null),
-    (6, 'M2', 2120, 2085, 3, null),
+    (1, 'M1', 409.0, 208.5, 0, null),
+    (2, 'M6', 428.5, 208.5, 1, null),
+    (3, 'M5', 243.5, 208.5, 2, null),
+    (4, 'M4', 218.7, 208.5, 3, null),
+    (5, 'M3', 157.5, 208.5, 2, null),
+    (6, 'M2', 212.0, 208.5, 3, null),
 
     -- D104 : Salle rectangulaire simple
     (7, 'Mur Nord', 400, 270, 0, null),     -- Mur du haut

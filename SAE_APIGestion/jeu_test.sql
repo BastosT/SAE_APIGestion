@@ -77,9 +77,17 @@ INSERT INTO t_e_capteur_cap (
     sal_id, mur_id
 )
 VALUES 
-    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 2, 8),
-    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 2, 8),
-    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 2, 10);
+    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 1, 8),
+    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 1, 8),
+    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 10),
+
+    (4, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 1),
+    (5, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 2),
+    (6, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 3),
+    (7, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 4),
+    (8, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 5),
+    (9, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 6);
+
 SELECT setval('t_e_capteur_cap_cap_id_seq', (SELECT MAX(cap_id) FROM t_e_capteur_cap));
 
 -- 6. Equipements

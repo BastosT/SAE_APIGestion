@@ -67,102 +67,207 @@
 
                 const glass = BABYLON.MeshBuilder.CreatePlane("windowGlass", {
                     width: frameWidth - frameThickness * 2,
-                    height: frameHeight - frameThickness * 2
+                    height: frameHeight - frameThickness * 2,
+                    sideOrientation: BABYLON.Mesh.DOUBLESIDE 
                 }, scene);
 
                 const glassMaterial = new BABYLON.StandardMaterial("glassMaterial", scene);
                 glassMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 1.0);
                 glassMaterial.alpha = 0.3;
+                glassMaterial.backFaceCulling = false;  // Ajouter cette ligne aussi
                 glass.material = glassMaterial;
+                glass.position.z = frameThickness / 2;
                 glass.parent = frame;
 
-                let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + frameWidth / 2;
-                let yPos = wallHeight / 2 - equipment.positionY * this.config.scale - frameHeight / 2;
-                let zPos = this.config.wallDepth / 2 + this.config.equipmentDepth / 2;
+                // Nouveau calcul de position aligné avec les trous
+                const xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + frameWidth / 2;
+                const yPos = wallHeight / 2 - equipment.positionY * this.config.scale - frameHeight / 2;
 
-                frame.position = new BABYLON.Vector3(-xPos, yPos, zPos);
-                frame.rotation.y = Math.PI;
+                frame.position = new BABYLON.Vector3(
+                    xPos,
+                    yPos,
+                    0  // Centré dans le mur
+                );
+
                 frame.parent = wall;
                 return frame;
             }
+
             // Pour les radiateurs
             else if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "radiateur") {
                 const radiatorContainer = new BABYLON.TransformNode("radiatorContainer", scene);
                 const width = equipment.longueur * this.config.scale;
                 const height = equipment.hauteur * this.config.scale;
                 const depth = this.config.equipmentDepth;
-                const finSpacing = 0.03;
-                const finThickness = 0.005;
-                const finDepth = depth * 0.8;
-                const numberOfFins = Math.floor(width / finSpacing);
 
-                const frame = [
-                    {
-                        dimensions: { width: width, height: 0.02, depth: depth },
-                        position: new BABYLON.Vector3(0, height / 2 - 0.01, 0)
-                    },
-                    {
-                        dimensions: { width: width, height: 0.02, depth: depth },
-                        position: new BABYLON.Vector3(0, -height / 2 + 0.01, 0)
-                    },
-                    {
-                        dimensions: { width: 0.02, height: height, depth: depth },
-                        position: new BABYLON.Vector3(-width / 2 + 0.01, 0, 0)
-                    },
-                    {
-                        dimensions: { width: 0.02, height: height, depth: depth },
-                        position: new BABYLON.Vector3(width / 2 - 0.01, 0, 0)
+                // Paramètres pour les sections
+                const numberOfSections = 3; // Nombre de sections du radiateur
+                const sectionSpacing = 0.02; // Espacement entre les sections
+                const sectionWidth = (width - (sectionSpacing * (numberOfSections - 1))) / numberOfSections;
+
+                // Paramètres des ailettes
+                const finSpacing = 0.12;
+                const finThickness = 0.06;
+                const finDepth = depth * 0.85;
+
+                // Création du panneau arrière principal
+                const mainBackPanel = BABYLON.MeshBuilder.CreateBox("mainBackPanel", {
+                    width: width,
+                    height: height,
+                    depth: 0.02
+                }, scene);
+                mainBackPanel.position = new BABYLON.Vector3(0, 0, -depth / 2 + 0.01);
+                const backPanelMaterial = new BABYLON.PBRMaterial("mainBackPanelMaterial", scene);
+                backPanelMaterial.metallic = 0.7;
+                backPanelMaterial.roughness = 0.4;
+                backPanelMaterial.albedoColor = new BABYLON.Color3(0.85, 0.85, 0.85);
+                mainBackPanel.material = backPanelMaterial;
+                mainBackPanel.parent = radiatorContainer;
+
+                // Création des sections
+                for (let section = 0; section < numberOfSections; section++) {
+                    const sectionContainer = new BABYLON.TransformNode(`section${section}`, scene);
+                    sectionContainer.parent = radiatorContainer;
+
+                    // Position de la section
+                    const sectionOffset = -width / 2 + (sectionWidth / 2) + (section * (sectionWidth + sectionSpacing));
+                    sectionContainer.position.x = sectionOffset;
+
+                    // Cadre de la section
+                    const sectionFrame = [
+                        // Haut
+                        {
+                            dimensions: { width: sectionWidth, height: 0.04, depth: depth },
+                            position: new BABYLON.Vector3(0, height / 2 - 0.02, 0)
+                        },
+                        // Bas
+                        {
+                            dimensions: { width: sectionWidth, height: 0.04, depth: depth },
+                            position: new BABYLON.Vector3(0, -height / 2 + 0.02, 0)
+                        },
+                        // Gauche
+                        {
+                            dimensions: { width: 0.04, height: height, depth: depth },
+                            position: new BABYLON.Vector3(-sectionWidth / 2 + 0.02, 0, 0)
+                        },
+                        // Droite
+                        {
+                            dimensions: { width: 0.04, height: height, depth: depth },
+                            position: new BABYLON.Vector3(sectionWidth / 2 - 0.02, 0, 0)
+                        }
+                    ];
+
+                    // Création du cadre de section
+                    sectionFrame.forEach((part, idx) => {
+                        const framePart = BABYLON.MeshBuilder.CreateBox(`sectionFrame${section}_${idx}`, part.dimensions, scene);
+                        framePart.position = part.position;
+                        const frameMaterial = new BABYLON.PBRMaterial(`sectionFrameMaterial${section}_${idx}`, scene);
+                        frameMaterial.metallic = 0.8;
+                        frameMaterial.roughness = 0.3;
+                        frameMaterial.albedoColor = new BABYLON.Color3(0.9, 0.9, 0.9);
+                        framePart.material = frameMaterial;
+                        framePart.parent = sectionContainer;
+                    });
+
+                    // Ailettes de la section
+                    const numberOfFins = Math.floor(sectionWidth / finSpacing);
+                    for (let i = 0; i < numberOfFins; i++) {
+                        const fin = BABYLON.MeshBuilder.CreateBox(`fin${section}_${i}`, {
+                            width: finThickness,
+                            height: height - 0.08,
+                            depth: finDepth
+                        }, scene);
+
+                        fin.position = new BABYLON.Vector3(
+                            -sectionWidth / 2 + 0.04 + (i * finSpacing),
+                            0,
+                            0
+                        );
+
+                        const finMaterial = new BABYLON.PBRMaterial(`finMaterial${section}_${i}`, scene);
+                        finMaterial.metallic = 0.85;
+                        finMaterial.roughness = 0.35;
+                        finMaterial.albedoColor = new BABYLON.Color3(0.92, 0.92, 0.92);
+                        fin.material = finMaterial;
+                        fin.parent = sectionContainer;
                     }
-                ];
 
-                frame.forEach((part, index) => {
-                    const framePart = BABYLON.MeshBuilder.CreateBox(`radiatorFrame${index}`, part.dimensions, scene);
-                    framePart.position = part.position;
-                    const frameMaterial = new BABYLON.StandardMaterial(`radiatorFrameMaterial${index}`, scene);
-                    frameMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-                    frameMaterial.metallic = 0.8;
-                    frameMaterial.roughness = 0.3;
-                    framePart.material = frameMaterial;
-                    framePart.parent = radiatorContainer;
-                });
-
-                for (let i = 0; i < numberOfFins; i++) {
-                    const fin = BABYLON.MeshBuilder.CreateBox(`radiatorFin${i}`, {
-                        width: finThickness,
-                        height: height - 0.04,
-                        depth: finDepth
-                    }, scene);
-                    fin.position = new BABYLON.Vector3(
-                        -width / 2 + 0.02 + (i * finSpacing),
-                        0,
-                        0
-                    );
-                    const finMaterial = new BABYLON.StandardMaterial(`radiatorFinMaterial${i}`, scene);
-                    finMaterial.diffuseColor = new BABYLON.Color3(0.85, 0.85, 0.85);
-                    finMaterial.metallic = 0.7;
-                    finMaterial.roughness = 0.4;
-                    fin.material = finMaterial;
-                    fin.parent = radiatorContainer;
+                    // Ajout de détails décoratifs entre les sections
+                    if (section < numberOfSections - 1) {
+                        const connector = BABYLON.MeshBuilder.CreateBox(`sectionConnector${section}`, {
+                            width: sectionSpacing,
+                            height: height * 0.8,
+                            depth: depth * 0.7
+                        }, scene);
+                        connector.position = new BABYLON.Vector3(
+                            sectionOffset + sectionWidth / 2 + sectionSpacing / 2,
+                            0,
+                            0
+                        );
+                        const connectorMaterial = new BABYLON.PBRMaterial(`connectorMaterial${section}`, scene);
+                        connectorMaterial.metallic = 0.75;
+                        connectorMaterial.roughness = 0.45;
+                        connectorMaterial.albedoColor = new BABYLON.Color3(0.88, 0.88, 0.88);
+                        connector.material = connectorMaterial;
+                        connector.parent = radiatorContainer;
+                    }
                 }
 
-                const pipeRadius = 0.01;
-                const pipeHeight = 0.1;
+                // Tuyaux avec connexions améliorées
+                const pipeRadius = 0.012;
+                const pipeHeight = 0.15;
+
                 for (let i = 0; i < 2; i++) {
-                    const pipe = BABYLON.MeshBuilder.CreateCylinder(`radiatorPipe${i}`, {
+                    // Tuyau principal
+                    const pipe = BABYLON.MeshBuilder.CreateCylinder(`mainPipe${i}`, {
                         height: pipeHeight,
-                        diameter: pipeRadius * 2
+                        diameter: pipeRadius * 2,
+                        tessellation: 20
                     }, scene);
                     pipe.position = new BABYLON.Vector3(
                         (i === 0 ? -1 : 1) * (width / 4),
                         -height / 2 - pipeHeight / 2,
                         0
                     );
-                    const pipeMaterial = new BABYLON.StandardMaterial(`radiatorPipeMaterial${i}`, scene);
-                    pipeMaterial.diffuseColor = new BABYLON.Color3(0.7, 0.7, 0.7);
+
+                    // Connecteur horizontal
+                    const connector = BABYLON.MeshBuilder.CreateCylinder(`pipeConnector${i}`, {
+                        height: 0.05,
+                        diameter: pipeRadius * 1.8,
+                        tessellation: 20
+                    }, scene);
+                    connector.rotation.z = Math.PI / 2;
+                    connector.position = new BABYLON.Vector3(
+                        (i === 0 ? -1 : 1) * (width / 4),
+                        -height / 2 - 0.03,
+                        0
+                    );
+
+                    // Vanne décorative
+                    const valve = BABYLON.MeshBuilder.CreateTorus(`valve${i}`, {
+                        diameter: pipeRadius * 4,
+                        thickness: pipeRadius * 0.5,
+                        tessellation: 20
+                    }, scene);
+                    valve.rotation.x = Math.PI / 2;
+                    valve.position = new BABYLON.Vector3(
+                        (i === 0 ? -1 : 1) * (width / 4),
+                        -height / 2 - pipeHeight + 0.02,
+                        pipeRadius * 2
+                    );
+
+                    const pipeMaterial = new BABYLON.PBRMaterial(`pipeMaterial${i}`, scene);
                     pipeMaterial.metallic = 0.9;
-                    pipeMaterial.roughness = 0.2;
+                    pipeMaterial.roughness = 0.15;
+                    pipeMaterial.albedoColor = new BABYLON.Color3(0.8, 0.8, 0.8);
+
                     pipe.material = pipeMaterial;
+                    connector.material = pipeMaterial;
+                    valve.material = pipeMaterial;
+
                     pipe.parent = radiatorContainer;
+                    connector.parent = radiatorContainer;
+                    valve.parent = radiatorContainer;
                 }
 
                 let xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + width / 2;
@@ -295,71 +400,119 @@
                 const wallData = room.murs[i];
                 const width = wallData.longueur * this.config.scale;
                 const height = wallData.hauteur * this.config.scale;
-                const wall = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
+
+                const wallContainer = new BABYLON.TransformNode("wallContainer_" + wallData.name, scene);
+
+                // Créer le mur principal complet
+                const wallMesh = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
                     width: width,
                     height: height,
                     depth: this.config.wallDepth
                 }, scene);
 
-                const innerMaterial = new BABYLON.StandardMaterial("wallInnerMaterial", scene);
-                innerMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.6, 1);
-                const outerMaterial = new BABYLON.StandardMaterial("wallOuterMaterial", scene);
+                // Appliquer les matériaux
+                const innerMaterial = new BABYLON.StandardMaterial("wallInnerMaterial_" + i, scene);
+                innerMaterial.diffuseColor = new BABYLON.Color3(0.96, 0.93, 0.86);
+                const outerMaterial = new BABYLON.StandardMaterial("wallOuterMaterial_" + i, scene);
                 outerMaterial.diffuseColor = new BABYLON.Color3(0.8, 0.8, 0.8);
-                const multiMat = new BABYLON.MultiMaterial("multiMat", scene);
+
+                const multiMat = new BABYLON.MultiMaterial("multiMat_" + i, scene);
                 multiMat.subMaterials = [innerMaterial, outerMaterial, outerMaterial, outerMaterial, outerMaterial, outerMaterial];
-                wall.material = multiMat;
-                wall.subMeshes = [];
-                let verticesCount = wall.getTotalVertices();
-                for (let j = 0; j < 6; j++) {
-                    wall.subMeshes.push(new BABYLON.SubMesh(j, 0, verticesCount, j * 6, 6, wall));
-                }
+                wallMesh.material = multiMat;
 
-                const wallDepth = this.config.wallDepth;
+                // CSG pour créer les trous pour les fenêtres/vitres
+                let mainCSG = BABYLON.CSG.FromMesh(wallMesh);
 
-                // Calcul de la position du mur suivant l'orientation
-                let endPoint = currentPoint.clone();
+                // Filtrer les fenêtres et vitres
+                const openings = (wallData.equipements || [])
+                    .filter(eq => eq.typeEquipement &&
+                        (eq.typeEquipement.nom.toLowerCase() === "fenetre" ||
+                            eq.typeEquipement.nom.toLowerCase() === "vitre"));
+
+                // Créer les trous pour chaque ouverture
+                openings.forEach(opening => {
+                    const openingWidth = opening.longueur * this.config.scale;
+                    const openingHeight = opening.hauteur * this.config.scale;
+                    const openingX = opening.positionX * this.config.scale;
+                    const openingY = opening.positionY * this.config.scale;
+
+                    const hole = BABYLON.MeshBuilder.CreateBox("hole", {
+                        width: openingWidth,
+                        height: openingHeight,
+                        depth: this.config.wallDepth * 2
+                    }, scene);
+
+                    hole.position = new BABYLON.Vector3(
+                        -width / 2 + openingX + openingWidth / 2,
+                        height / 2 - openingY - openingHeight / 2,
+                        0
+                    );
+
+                    const holeCSG = BABYLON.CSG.FromMesh(hole);
+                    mainCSG = mainCSG.subtract(holeCSG);
+                    hole.dispose();
+                });
+
+                // Convertir le CSG final en mesh
+                const finalWall = mainCSG.toMesh("finalWall", wallMesh.material, scene);
+                finalWall.parent = wallContainer;
+
+                // Nettoyer le mesh original
+                wallMesh.dispose();
+
+                // Positionner le mur selon son orientation
                 switch (wallData.orientation) {
                     case 0:
-                        wall.rotation.y = -Math.PI / 2;
-                        endPoint.z -= width;
-                        wall.position.x = currentPoint.x + wallDepth / 2;
-                        wall.position.z = (currentPoint.z + endPoint.z) / 2;
+                        wallContainer.rotation.y = -Math.PI / 2;
+                        currentPoint.z -= width;
+                        wallContainer.position.x = currentPoint.x + this.config.wallDepth / 2;
+                        wallContainer.position.z = (currentPoint.z + (currentPoint.z + width)) / 2;
                         break;
                     case 1:
-                        wall.rotation.y = 0;
-                        endPoint.x -= width;
-                        wall.position.z = currentPoint.z - wallDepth / 2;
-                        wall.position.x = (currentPoint.x + endPoint.x) / 2;
+                        wallContainer.rotation.y = 0;
+                        currentPoint.x -= width;
+                        wallContainer.position.z = currentPoint.z - this.config.wallDepth / 2;
+                        wallContainer.position.x = (currentPoint.x + (currentPoint.x + width)) / 2;
                         break;
                     case 2:
-                        wall.rotation.y = Math.PI / 2;
-                        endPoint.z += width;
-                        wall.position.x = currentPoint.x - wallDepth / 2;
-                        wall.position.z = (currentPoint.z + endPoint.z) / 2;
+                        wallContainer.rotation.y = Math.PI / 2;
+                        currentPoint.z += width;
+                        wallContainer.position.x = currentPoint.x - this.config.wallDepth / 2;
+                        wallContainer.position.z = (currentPoint.z + (currentPoint.z - width)) / 2;
                         break;
                     case 3:
-                        wall.rotation.y = Math.PI;
-                        endPoint.x += width;
-                        wall.position.z = currentPoint.z + wallDepth / 2;
-                        wall.position.x = (currentPoint.x + endPoint.x) / 2;
+                        wallContainer.rotation.y = Math.PI;
+                        currentPoint.x += width;
+                        wallContainer.position.z = currentPoint.z + this.config.wallDepth / 2;
+                        wallContainer.position.x = (currentPoint.x + (currentPoint.x - width)) / 2;
                         break;
                 }
 
-                wall.position.y = wallData.hauteur * this.config.scale / 2;
+                wallContainer.position.y = height / 2;
 
+                // Ajouter les équipements (y compris les fenêtres et vitres)
                 if (wallData.equipements) {
                     wallData.equipements.forEach(equipment => {
-                        this.renderEquipment(scene, equipment, wall, width, height);
-                    });
-                }
-                if (wallData.capteurs) {
-                    wallData.capteurs.forEach(sensor => {
-                        this.renderSensor(scene, sensor, wall, width, height);
+                        if (equipment.typeEquipement &&
+                            (equipment.typeEquipement.nom.toLowerCase() === "fenetre" ||
+                                equipment.typeEquipement.nom.toLowerCase() === "vitre")) {
+                            // Rendre la fenêtre/vitre avec les mêmes coordonnées que son trou
+                            this.renderEquipment(scene, equipment, wallContainer, width, height);
+                        } else {
+                            // Rendre les autres équipements normalement
+                            this.renderEquipment(scene, equipment, wallContainer, width, height);
+                        }
                     });
                 }
 
-                walls.push(wall);
-                currentPoint = endPoint;
+                // Ajouter les capteurs
+                if (wallData.capteurs) {
+                    wallData.capteurs.forEach(sensor => {
+                        this.renderSensor(scene, sensor, wallContainer, width, height);
+                    });
+                }
+
+                walls.push(wallContainer);
             }
 
             return { walls, size: roomSize };

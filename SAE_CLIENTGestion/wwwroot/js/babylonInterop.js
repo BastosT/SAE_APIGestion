@@ -293,7 +293,6 @@
 
             for (let i = 0; i < room.murs.length; i++) {
                 const wallData = room.murs[i];
-
                 const width = wallData.longueur * this.config.scale;
                 const height = wallData.hauteur * this.config.scale;
                 const wall = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
@@ -311,42 +310,42 @@
                 wall.material = multiMat;
                 wall.subMeshes = [];
                 let verticesCount = wall.getTotalVertices();
-                for (let i = 0; i < 6; i++) {
-                    wall.subMeshes.push(new BABYLON.SubMesh(i, 0, verticesCount, i * 6, 6, wall));
+                for (let j = 0; j < 6; j++) {
+                    wall.subMeshes.push(new BABYLON.SubMesh(j, 0, verticesCount, j * 6, 6, wall));
                 }
 
                 const wallDepth = this.config.wallDepth;
-                let offset = { x: 0, z: 0 };
+
+                // Calcul de la position du mur suivant l'orientation
+                let endPoint = currentPoint.clone();
                 switch (wallData.orientation) {
-                    case 0: offset = { x: wallDepth, z: 0 }; break;
-                    case 1: offset = { x: 0, z: -wallDepth }; break;
-                    case 2: offset = { x: -wallDepth, z: 0 }; break;
-                    case 3: offset = { x: 0, z: wallDepth }; break;
+                    case 0:
+                        wall.rotation.y = -Math.PI / 2;
+                        endPoint.z -= width;
+                        wall.position.x = currentPoint.x + wallDepth / 2;
+                        wall.position.z = (currentPoint.z + endPoint.z) / 2;
+                        break;
+                    case 1:
+                        wall.rotation.y = 0;
+                        endPoint.x -= width;
+                        wall.position.z = currentPoint.z - wallDepth / 2;
+                        wall.position.x = (currentPoint.x + endPoint.x) / 2;
+                        break;
+                    case 2:
+                        wall.rotation.y = Math.PI / 2;
+                        endPoint.z += width;
+                        wall.position.x = currentPoint.x - wallDepth / 2;
+                        wall.position.z = (currentPoint.z + endPoint.z) / 2;
+                        break;
+                    case 3:
+                        wall.rotation.y = Math.PI;
+                        endPoint.x += width;
+                        wall.position.z = currentPoint.z + wallDepth / 2;
+                        wall.position.x = (currentPoint.x + endPoint.x) / 2;
+                        break;
                 }
 
-                let endPoint = new BABYLON.Vector3(
-                    currentPoint.x + offset.x,
-                    currentPoint.y,
-                    currentPoint.z + offset.z
-                );
-
-                switch (wallData.orientation) {
-                    case 0: endPoint.z -= width; break;
-                    case 1: endPoint.x -= width; break;
-                    case 2: endPoint.z += width; break;
-                    case 3: endPoint.x += width; break;
-                }
-
-                wall.position.x = (currentPoint.x + endPoint.x) / 2;
-                wall.position.z = (currentPoint.z + endPoint.z) / 2;
                 wall.position.y = wallData.hauteur * this.config.scale / 2;
-
-                switch (wallData.orientation) {
-                    case 0: wall.rotation.y = -Math.PI / 2; break;
-                    case 1: wall.rotation.y = 0; break;
-                    case 2: wall.rotation.y = Math.PI / 2; break;
-                    case 3: wall.rotation.y = Math.PI; break;
-                }
 
                 if (wallData.equipements) {
                     wallData.equipements.forEach(equipment => {
@@ -360,11 +359,7 @@
                 }
 
                 walls.push(wall);
-                currentPoint = new BABYLON.Vector3(
-                    endPoint.x - offset.x,
-                    endPoint.y,
-                    endPoint.z - offset.z
-                );
+                currentPoint = endPoint;
             }
 
             return { walls, size: roomSize };

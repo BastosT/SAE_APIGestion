@@ -12,7 +12,7 @@ TRUNCATE t_e_typesalle_tys CASCADE;
 
 -- 1. Types de base
 INSERT INTO t_e_typesalle_tys (tys_id, tys_nom, tys_description)
-VALUES (1, 'type salle', 'aucune');
+VALUES (1, 'Salle de pause', 'Aucune...');
 SELECT setval('t_e_typesalle_tys_tys_id_seq', (SELECT MAX(tys_id) FROM t_e_typesalle_tys));
 
 INSERT INTO t_e_typeequipement_tye (tye_id, tye_nom)
@@ -42,18 +42,18 @@ SELECT setval('t_e_batiment_bat_bat_id_seq', (SELECT MAX(bat_id) FROM t_e_batime
 INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_orientation, sal_id)
 VALUES 
     -- D103 : Salle en L
-    (1, 'M1', 409.0, 208.5, 0, null),
+    (1, 'M1', 401.0, 208.5, 0, null),
     (2, 'M6', 428.5, 208.5, 1, null),
     (3, 'M5', 243.5, 208.5, 2, null),
-    (4, 'M4', 218.7, 208.5, 3, null),
+    (4, 'M4', 208.5, 208.5, 3, null),
     (5, 'M3', 157.5, 208.5, 2, null),
-    (6, 'M2', 212.0, 208.5, 3, null),
+    (6, 'M2', 220.0, 208.5, 3, null),
 
     -- D104 : Salle rectangulaire simple
     (7, 'Mur Nord', 575, 270, 0, null),     -- Mur du haut
     (8, 'Mur Ouest', 736, 270, 1, null),   -- Mur de gauche
     (9, 'Mur Sud', 575, 270, 2, null),      -- Mur du bas
-    (10, 'Mur Est', 734, 270, 3, null);      -- Mur de droite
+    (10, 'Mur Est', 736, 270, 3, null);      -- Mur de droite
 SELECT setval('t_e_mur_mur_mur_id_seq', (SELECT MAX(mur_id) FROM t_e_mur_mur));
 
 -- 4. Salle en L
@@ -79,14 +79,14 @@ INSERT INTO t_e_capteur_cap (
 VALUES 
     (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 1, 8),
     (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 1, 8),
-    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 10),
+    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 10),
 
-    (4, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 1),
-    (5, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 2),
-    (6, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 3),
-    (7, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 4),
-    (8, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 5),
-    (9, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 0, 100, 80, 1, 6);
+    (4, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 1),
+    (5, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 2),
+    (6, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 3),
+    (7, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 4),
+    (8, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 5),
+    (9, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 6);
 
 SELECT setval('t_e_capteur_cap_cap_id_seq', (SELECT MAX(cap_id) FROM t_e_capteur_cap));
 

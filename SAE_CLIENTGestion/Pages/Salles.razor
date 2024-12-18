@@ -8,6 +8,45 @@
 
 <PageTitle>Gestion des Salles</PageTitle>
 
+<style>
+    .custom-table tr:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
+    }
+
+    .btn-light:hover {
+        background-color: var(--bs-light);
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+        .card:hover {
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+        }
+
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+        }
+
+    .btn-light:hover {
+        background-color: var(--bs-light);
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    .room-svg {
+        border-radius: 0.5rem;
+    }
+</style>
+
 <div class="container-fluid main-content overflow-auto">
     @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
     {
@@ -26,299 +65,412 @@
     }
 
     <!-- Section Batiment-->
-    <div class="mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3>Batiments</h3>
-            <button class="btn btn-primary" @onclick="() => { currentBatiment = new(); showBatimentModal = true; isNewBatiment = true; }">
-                <i class="fas fa-plus"></i> Nouveau Batiment
-            </button>
-        </div>
-
-        @if (ViewModel.IsLoading)
-        {
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Chargement...</span>
+    <div class="container-fluid p-4">
+        <div class="card shadow border-0 rounded-3">
+            <!-- Header avec gradient subtil -->
+            <div class="card-header  py-4 border-bottom border-light" style="background-color: #a1a1a1">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-building fs-4 text-white"></i>
+                        <h3 class="mb-0 fw-bold text-white">Batiments</h3>
+                    </div>
+                    <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm"
+                            @onclick="() => { currentBatiment = new(); showBatimentModal = true; isNewBatiment = true; }">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>Nouveau Batiment</span>
+                    </button>
                 </div>
             </div>
-        }
-        else if (!ViewModel.Batiments.Any())
-        {
-            <div class="alert alert-info">Aucun batiment n'a été créé.</div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Adresse</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var batiment in ViewModel.Batiments)
-                        {
-                            <tr>
-                                <td>@batiment.Nom</td>
-                                <td>@batiment.Adresse</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditBatiment(batiment)">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteBatiment(batiment)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+
+            <div class=" p-4" >
+                @if (ViewModel.IsLoading)
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5">
+                        <div class="spinner-border mb-3" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <span class="text-muted">Chargement des bâtiments...</span>
+                    </div>
+                }
+                else if (!ViewModel.Batiments.Any())
+                {
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
+                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Aucun bâtiment</h6>
+                            <small class="text-muted">Commencez par créer votre premier bâtiment</small>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 custom-table">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Nom</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Adresse</div>
+                                    </th>
+                                    <th class="text-end fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Actions</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                @foreach (var batiment in ViewModel.Batiments)
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="px-4 py-3">
+                                            <div class="fw-semibold">@batiment.Nom</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-muted">@batiment.Adresse</td>
+                                        <td class="px-4 py-3 text-end">
+                                            <div class="btn-group">
+                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick="() => EditBatiment(batiment)"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Modifier">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteBatiment(batiment)"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Supprimer">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 
     <!-- Section Types de Salle -->
-    <div class="mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h3>Types de Salle</h3>
-            <button class="btn btn-primary" @onclick="() => { currentTypeSalle = new(); showTypeSalleModal = true; isNewTypeSalle = true; }">
-                <i class="fas fa-plus"></i> Nouveau Type de Salle
-            </button>
-        </div>
-
-        @if (ViewModel.IsLoading)
-        {
-            <div class="d-flex justify-content-center">
-                <div class="spinner-border" role="status">
-                    <span class="visually-hidden">Chargement...</span>
+    <div class="container-fluid p-4">
+        <div class="card shadow border-0 rounded-3">
+            <!-- Header avec gradient subtil -->
+            <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-grid-3x3-gap fs-4 text-white"></i>
+                        <h3 class="mb-0 fw-bold text-white">Types de Salle</h3>
+                    </div>
+                    <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm"
+                            @onclick="() => { currentTypeSalle = new(); showTypeSalleModal = true; isNewTypeSalle = true; }">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>Nouveau Type de Salle</span>
+                    </button>
                 </div>
             </div>
-        }
-        else if (!ViewModel.TypesSalle.Any())
-        {
-            <div class="alert alert-info">Aucun type de salle n'a été créé.</div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Nom</th>
-                            <th>Description</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var typeSalle in ViewModel.TypesSalle)
-                        {
-                            <tr>
-                                <td>@typeSalle.Nom</td>
-                                <td>@typeSalle.Description</td>
-                                <td>
-                                    <button class="btn btn-warning btn-sm me-2" @onclick="() => EditTypeSalle(typeSalle)">
-                                        <i class="bi bi-pencil-square"></i>
-                                    </button>
-                                    <button class="btn btn-danger btn-sm" @onclick="() => DeleteTypeSalle(typeSalle)">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+
+            <div class=" p-4" >
+                @if (ViewModel.IsLoading)
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5">
+                        <div class="spinner-border  mb-3" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <span class="text-muted">Chargement des types de salle...</span>
+                    </div>
+                }
+                else if (!ViewModel.TypesSalle.Any())
+                {
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
+                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Aucun type de salle</h6>
+                            <small class="text-muted">Commencez par créer votre premier type de salle</small>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 custom-table">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Nom</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Description</div>
+                                    </th>
+                                    <th class="text-end fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Actions</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                @foreach (var typeSalle in ViewModel.TypesSalle)
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="px-4 py-3">
+                                            <div class="fw-semibold">@typeSalle.Nom</div>
+                                        </td>
+                                        <td class="px-4 py-3 text-muted">@typeSalle.Description</td>
+                                        <td class="px-4 py-3 text-end">
+                                            <div class="btn-group">
+                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick="() => EditTypeSalle(typeSalle)"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Modifier">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteTypeSalle(typeSalle)"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Supprimer">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             </div>
-        }
+        </div>
     </div>
 
     <!-- Section existante pour les Salles -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Gestion des Salles</h2>
-        <button class="btn btn-primary" @onclick="() => { currentSalleDTO = new(); showModal = true; isNewSalle = true; }">
-            <i class="fas fa-plus"></i> Nouvelle Salle
-        </button>
-    </div>
-
-    @if (ViewModel.IsLoading)
-    {
-        <div class="d-flex justify-content-center">
-            <div class="spinner-border" role="status">
-                <span class="visually-hidden">Chargement...</span>
+    <div class="container-fluid p-4">
+        <div class="card shadow border-0 rounded-3">
+            <!-- Header -->
+            <div class="card-header bg-gradient py-4 border-bottom" style="background-color: #a1a1a1">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-door-open fs-4 text-white"></i>
+                        <h2 class="mb-0 fw-bold text-white">Gestion des Salles</h2>
+                    </div>
+                    <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm"
+                            @onclick="() => { currentSalleDTO = new(); showModal = true; isNewSalle = true; }">
+                        <i class="bi bi-plus-circle-fill"></i>
+                        <span>Nouvelle Salle</span>
+                    </button>
+                </div>
             </div>
-        </div>
-    }
-    else if (ViewModel.Salles.Count == 0)
-    {
-        <div class="alert alert-info">Aucune salle n'a été créée.</div>
-    }
-    else
-    {
-        <div class="row">
-            @foreach (var salle in ViewModel.Salles)
-            {
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">@salle.Nom</h5>
-                            <div>
-                                <button class="btn btn-warning btn-sm me-2" @onclick="() => EditSalle(salle)">
-                                    <i class="bi bi-pencil-square"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteSalle(salle)">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </div>
+
+            <div class="p-4" style="background-color: #cdcdcd;">
+                @if (ViewModel.IsLoading)
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5">
+                        <div class="spinner-border text-primary mb-3" role="status">
+                            <span class="visually-hidden">Chargement...</span>
                         </div>
-                        <div class="card-body">
-                            <div class="mb-3">
-                                <strong>Surface:</strong> @salle.Surface m²<br>
-                                <strong>Bâtiment:</strong> @salle.Batiment.Nom<br>
-                                <strong>Type:</strong> @salle.TypeSalle.Nom
-                            </div>
-                            <div class="room-walls-container">
-                                @{
-                                    const int SCALE = 40;
-                                    const int MARGIN = 80;
-                                    const int WALL_THICKNESS = 32;
-
-                                    double currentX = MARGIN;
-                                    double currentY = MARGIN;
-                                    double minX = currentX;
-                                    double minY = currentY;
-                                    double maxX = currentX;
-                                    double maxY = currentY;
-
-                                    foreach (var mur in salle.Murs)
-                                    {
-                                        switch (mur.Orientation)
-                                        {
-                                            case Models.Orientation.Nord:
-                                                currentX += mur.Longueur * SCALE;
-                                                break;
-                                            case Models.Orientation.Sud:
-                                                currentX -= mur.Longueur * SCALE;
-                                                break;
-                                            case Models.Orientation.Est:
-                                                currentY += mur.Longueur * SCALE;
-                                                break;
-                                            case Models.Orientation.Ouest:
-                                                currentY -= mur.Longueur * SCALE;
-                                                break;
-                                        }
-                                        minX = Math.Min(minX, currentX);
-                                        minY = Math.Min(minY, currentY);
-                                        maxX = Math.Max(maxX, currentX);
-                                        maxY = Math.Max(maxY, currentY);
-                                    }
-
-                                    int width = (int)(maxX - minX + 2 * MARGIN);
-                                    int height = (int)(maxY - minY + 2 * MARGIN);
-                                    int offsetX = (int)(-minX + MARGIN);
-                                    int offsetY = (int)(-minY + MARGIN);
-
-                                    width = Math.Max(width, 400);
-                                    height = Math.Max(height, 300);
-
-                                    currentX = MARGIN + offsetX;
-                                    currentY = MARGIN + offsetY;
-                                }
-
-                                <svg viewBox="0 0 @width @height" class="room-svg" style="width: 100%; min-height: 300px;">
-                                    <pattern id="grid-@salle.SalleId" width="@SCALE" height="@SCALE" patternUnits="userSpaceOnUse">
-                                        <path d="M @SCALE 0 L 0 0 0 @SCALE" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
-                                    </pattern>
-                                    <rect width="100%" height="100%" fill="url(#grid-@salle.SalleId)" />
-
-                                    @{
-                                        currentX = MARGIN + offsetX;
-                                        currentY = MARGIN + offsetY;
-                                    }
-
-                                    @foreach (var mur in salle.Murs)
-                                    {
-                                        double previousX = currentX;
-                                        double previousY = currentY;
-                                        double wallLength = mur.Longueur * SCALE;
-                                        double rectX = previousX;
-                                        double rectY = previousY;
-                                        double rectWidth = 0;
-                                        double rectHeight = 0;
-
-                                        switch (mur.Orientation)
-                                        {
-                                            case Models.Orientation.Nord:
-                                                currentX += wallLength;
-                                                rectX = previousX;
-                                                rectY = previousY - WALL_THICKNESS / 2;
-                                                rectWidth = wallLength;
-                                                rectHeight = WALL_THICKNESS;
-                                                break;
-                                            case Models.Orientation.Sud:
-                                                currentX -= wallLength;
-                                                rectX = currentX;
-                                                rectY = currentY - WALL_THICKNESS / 2;
-                                                rectWidth = wallLength;
-                                                rectHeight = WALL_THICKNESS;
-                                                break;
-                                            case Models.Orientation.Est:
-                                                currentY += wallLength;
-                                                rectX = previousX - WALL_THICKNESS / 2;
-                                                rectY = previousY;
-                                                rectWidth = WALL_THICKNESS;
-                                                rectHeight = wallLength;
-                                                break;
-                                            case Models.Orientation.Ouest:
-                                                currentY -= wallLength;
-                                                rectX = previousX - WALL_THICKNESS / 2;
-                                                rectY = currentY;
-                                                rectWidth = WALL_THICKNESS;
-                                                rectHeight = wallLength;
-                                                break;
-                                        }
-                                        <rect x="@rectX" y="@rectY"
-                                              width="@rectWidth" height="@rectHeight"
-                                              fill="#ff00ff"
-                                              opacity="1" />
-
-                                        <circle cx="@currentX" cy="@currentY" r="2" fill="#666" />
-
-                                        double labelX = (previousX + currentX) / 2;
-                                        double labelY = (previousY + currentY) / 2;
-                                        double offset = WALL_THICKNESS + 10;
-
-                                        switch (mur.Orientation)
-                                        {
-                                            case Models.Orientation.Nord:
-                                                labelY -= offset;
-                                                break;
-                                            case Models.Orientation.Sud:
-                                                labelY += offset;
-                                                break;
-                                            case Models.Orientation.Est:
-                                                labelX += offset;
-                                                break;
-                                            case Models.Orientation.Ouest:
-                                                labelX -= offset;
-                                                break;
-                                        }
-
-                                        @((MarkupString)$"<text x='{labelX}' y='{labelY}' text-anchor='middle' fill='#333' style='font-size: 12px;'>{mur.Nom} ({mur.Longueur}m)</text>")
-                                    }
-
-                                    <!-- Barre d'échelle -->
-                                    <line x1="@MARGIN" y1="@(height - MARGIN/2)" x2="@(MARGIN + SCALE)" y2="@(height - MARGIN/2)"
-                                          stroke="#666" stroke-width="2" />
-                                    @((MarkupString)$"<text x='{MARGIN + SCALE / 2}' y='{height - MARGIN / 2 - 5}' text-anchor='middle' fill='#666' style='font-size: 12px;'>1m</text>")
-                                </svg>
-                            </div>
+                        <span class="text-muted">Chargement des salles...</span>
+                    </div>
+                }
+                else if (ViewModel.Salles.Count == 0)
+                {
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
+                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Aucune salle</h6>
+                            <small class="text-muted">Commencez par créer votre première salle</small>
                         </div>
                     </div>
-                </div>
-            }
+                }
+                else
+                {
+                    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                        @foreach (var salle in ViewModel.Salles)
+                        {
+                            <div class="col">
+                                <div class="card h-100 shadow-sm hover-card border-0" style="background-color: #f0f7ff;">
+                                    <div class="card-header py-3 border-bottom border-light" style="background-color: #e1f0ff;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <h5 class="mb-0 fw-semibold text-primary">@salle.Nom</h5>
+                                            <div class="btn-group">
+                                                <button class="btn btn-white btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick="() => EditSalle(salle)"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Modifier">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </button>
+                                                <button class="btn btn-white btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteSalle(salle)"
+                                                        data-bs-toggle="tooltip"
+                                                        title="Supprimer">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-4">
+                                        <div class="mb-4">
+                                            <div class="d-flex align-items-center mb-2 p-2 bg-white rounded">
+                                                <i class="bi bi-rulers me-2 text-primary"></i>
+                                                <strong>Surface:</strong>
+                                                <span class="ms-2">@salle.Surface m²</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2 p-2 bg-white rounded">
+                                                <i class="bi bi-building me-2 text-primary"></i>
+                                                <strong>Bâtiment:</strong>
+                                                <span class="ms-2">@salle.Batiment.Nom</span>
+                                            </div>
+                                            <div class="d-flex align-items-center p-2 bg-white rounded">
+                                                <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
+                                                <strong>Type:</strong>
+                                                <span class="ms-2">@salle.TypeSalle.Nom</span>
+                                            </div>
+                                        </div>
+                                    
+                                    <div class="room-walls-container bg-light rounded-3 p-3">
+                                        @{
+                                            const int SCALE = 40;
+                                            const int MARGIN = 80;
+                                            const int WALL_THICKNESS = 32;
+
+                                            double currentX = MARGIN;
+                                            double currentY = MARGIN;
+                                            double minX = currentX;
+                                                double minY = currentY;
+                                                double maxX = currentX;
+                                                double maxY = currentY;
+
+                                                foreach (var mur in salle.Murs)
+                                                {
+                                                    switch (mur.Orientation)
+                                                    {
+                                                        case Models.Orientation.Nord:
+                                                            currentX += mur.Longueur * SCALE;
+                                                            break;
+                                                        case Models.Orientation.Sud:
+                                                            currentX -= mur.Longueur * SCALE;
+                                                            break;
+                                                        case Models.Orientation.Est:
+                                                            currentY += mur.Longueur * SCALE;
+                                                            break;
+                                                        case Models.Orientation.Ouest:
+                                                            currentY -= mur.Longueur * SCALE;
+                                                            break;
+                                                    }
+                                                    minX = Math.Min(minX, currentX);
+                                                    minY = Math.Min(minY, currentY);
+                                                    maxX = Math.Max(maxX, currentX);
+                                                    maxY = Math.Max(maxY, currentY);
+                                                }
+
+                                                int width = (int)(maxX - minX + 2 * MARGIN);
+                                                int height = (int)(maxY - minY + 2 * MARGIN);
+                                                int offsetX = (int)(-minX + MARGIN);
+                                                int offsetY = (int)(-minY + MARGIN);
+
+                                                width = Math.Max(width, 400);
+                                                height = Math.Max(height, 300);
+
+                                                currentX = MARGIN + offsetX;
+                                                currentY = MARGIN + offsetY;
+                                            }
+
+                                            <svg viewBox="0 0 @width @height" class="room-svg" style="width: 100%; min-height: 300px;">
+                                                <pattern id="grid-@salle.SalleId" width="@SCALE" height="@SCALE" patternUnits="userSpaceOnUse">
+                                                    <path d="M @SCALE 0 L 0 0 0 @SCALE" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
+                                                </pattern>
+                                                <rect width="100%" height="100%" fill="url(#grid-@salle.SalleId)" />
+
+                                                @{
+                                                    currentX = MARGIN + offsetX;
+                                                    currentY = MARGIN + offsetY;
+                                                }
+
+                                                @foreach (var mur in salle.Murs)
+                                                {
+                                                    double previousX = currentX;
+                                                    double previousY = currentY;
+                                                    double wallLength = mur.Longueur * SCALE;
+                                                    double rectX = previousX;
+                                                    double rectY = previousY;
+                                                    double rectWidth = 0;
+                                                    double rectHeight = 0;
+
+                                                    switch (mur.Orientation)
+                                                    {
+                                                        case Models.Orientation.Nord:
+                                                            currentX += wallLength;
+                                                            rectX = previousX;
+                                                            rectY = previousY - WALL_THICKNESS / 2;
+                                                            rectWidth = wallLength;
+                                                            rectHeight = WALL_THICKNESS;
+                                                            break;
+                                                        case Models.Orientation.Sud:
+                                                            currentX -= wallLength;
+                                                            rectX = currentX;
+                                                            rectY = currentY - WALL_THICKNESS / 2;
+                                                            rectWidth = wallLength;
+                                                            rectHeight = WALL_THICKNESS;
+                                                            break;
+                                                        case Models.Orientation.Est:
+                                                            currentY += wallLength;
+                                                            rectX = previousX - WALL_THICKNESS / 2;
+                                                            rectY = previousY;
+                                                            rectWidth = WALL_THICKNESS;
+                                                            rectHeight = wallLength;
+                                                            break;
+                                                        case Models.Orientation.Ouest:
+                                                            currentY -= wallLength;
+                                                            rectX = previousX - WALL_THICKNESS / 2;
+                                                            rectY = currentY;
+                                                            rectWidth = WALL_THICKNESS;
+                                                            rectHeight = wallLength;
+                                                            break;
+                                                    }
+                                                    <rect x="@rectX" y="@rectY"
+                                                          width="@rectWidth" height="@rectHeight"
+                                                          fill="#ff00ff"
+                                                          opacity="1" />
+
+                                                    <circle cx="@currentX" cy="@currentY" r="2" fill="#666" />
+
+                                                    double labelX = (previousX + currentX) / 2;
+                                                    double labelY = (previousY + currentY) / 2;
+                                                    double offset = WALL_THICKNESS + 10;
+
+                                                    switch (mur.Orientation)
+                                                    {
+                                                        case Models.Orientation.Nord:
+                                                            labelY -= offset;
+                                                            break;
+                                                        case Models.Orientation.Sud:
+                                                            labelY += offset;
+                                                            break;
+                                                        case Models.Orientation.Est:
+                                                            labelX += offset;
+                                                            break;
+                                                        case Models.Orientation.Ouest:
+                                                            labelX -= offset;
+                                                            break;
+                                                    }
+
+                                                    @((MarkupString)$"<text x='{labelX}' y='{labelY}' text-anchor='middle' fill='#333' style='font-size: 12px;'>{mur.Nom} ({mur.Longueur}m)</text>")
+                                                }
+
+                                                <!-- Barre d'échelle -->
+                                                <line x1="@MARGIN" y1="@(height - MARGIN/2)" x2="@(MARGIN + SCALE)" y2="@(height - MARGIN/2)"
+                                                      stroke="#666" stroke-width="2" />
+                                                @((MarkupString)$"<text x='{MARGIN + SCALE / 2}' y='{height - MARGIN / 2 - 5}' text-anchor='middle' fill='#666' style='font-size: 12px;'>1m</text>")
+                                            </svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
         </div>
-    }
+    </div>
+
 
     <!-- Modal pour Ajout/Modification de Type de Salle -->
     @if (showTypeSalleModal)

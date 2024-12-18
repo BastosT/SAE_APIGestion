@@ -1,10 +1,25 @@
 ﻿@inherits LayoutComponentBase
+
 <div class="layout-container">
-    <Sidebar @ref="sidebar"
-             IconName="IconName.BootstrapFill"
-             Title="Client Gestion"
-             DataProvider="SidebarDataProvider" />
-    <main class="">
+    <header class="main-header">
+        <div class="header-section left-section">
+            <div class="brand d-flex align-items-center">
+                <span class="brand-name">Client Gestion</span>
+            </div>
+            <nav class="header-nav">
+                <NavLink href="/" Match="NavLinkMatch.All" class="nav-link">
+                    <i class="bi bi-house-door-fill me-1"></i>
+                    Accueil
+                </NavLink>
+                <NavLink href="/salles" class="nav-link">
+                    <i class="bi bi-bounding-box-circles me-1"></i>
+                    Salles
+                </NavLink>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main-content">
         <div class="content">
             @Body
         </div>
@@ -14,42 +29,176 @@
 <style>
     .layout-container {
         display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+        background-color: #f5f6fa;
+    }
+
+    .main-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 64px;
+        background-color: #ffffff;
+        padding: 0 1.5rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+
+    .header-section {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        height: 100%;
+    }
+
+    .brand {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+
+    .brand-name {
+        color: #1a1a1a;
+    }
+
+    .header-nav {
+        display: flex;
+        gap: 1rem;
+        height: 100%;
+    }
+
+    .nav-link {
+        display: flex;
+        align-items: center;
+        padding: 0 1rem;
+        color: #4b5563;
+        text-decoration: none;
+        height: 100%;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+        color: #2563eb;
+    }
+
+    .nav-link.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+    }
+
+    .search-box {
+        position: relative;
+        width: 300px;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 0.9rem;
+    }
+
+    .search-box input {
+        padding: 0.5rem 0.75rem 0.5rem 2.25rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        background-color: #f9fafb;
         width: 100%;
-        height: 100vh;
-        overflow: hidden;
+        transition: all 0.2s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+
+    .user-actions {
+        height: 100%;
+    }
+
+    .notifications {
+        position: relative;
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .notifications i {
+        font-size: 1.25rem;
+        color: #4b5563;
+    }
+
+    .notification-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: #ef4444;
+        color: white;
+        border-radius: 50%;
+        width: 18px;
+        height: 18px;
+        font-size: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .user-profile {
+        padding: 0.5rem;
+        cursor: pointer;
+    }
+
+    .user-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .user-name {
+        color: #1a1a1a;
+        font-weight: 500;
     }
 
     .main-content {
         flex: 1;
-        height: 100vh;
-        overflow: hidden;
-        position: relative;
+        padding: 1.5rem;
     }
 
     .content {
-        height: 100%;
-        width: 100%;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        min-height: calc(100vh - 64px - 3rem);
+    }
+
+    @@media (max-width: 768px) {
+        .search-box {
+            width: 200px;
+        }
+        
+        .user-name {
+            display: none;
+        }
+    }
+
+    @@media (max-width: 576px) {
+        .main-header {
+            padding: 0 1rem;
+        }
+        
+        .search-box {
+            display: none;
+        }
+        
+        .header-nav {
+            gap: 0.5rem;
+        }
     }
 </style>
-
-@code {
-    Sidebar sidebar;
-    IEnumerable<NavItem> navItems;
-    
-    private async Task<SidebarDataProviderResult> SidebarDataProvider(SidebarDataProviderRequest request)
-    {
-        if (navItems is null)
-            navItems = GetNavItems();
-        return await Task.FromResult(request.ApplyTo(navItems));
-    }
-    
-    private IEnumerable<NavItem> GetNavItems()
-    {
-        navItems = new List<NavItem>
-        {
-            new NavItem { Id = "1", Href = "/", IconName = IconName.HouseDoorFill, Text = "Accueil", Match=NavLinkMatch.All},
-            new NavItem { Id = "3", Href = "/salles", IconName = IconName.BoundingBoxCircles, Text = "Salles", Match=NavLinkMatch.All},
-        };
-        return navItems;
-    }
-}

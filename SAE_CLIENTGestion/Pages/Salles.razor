@@ -74,10 +74,10 @@
                         <i class="bi bi-building fs-4 text-white"></i>
                         <h3 class="mb-0 fw-bold text-white">Batiments</h3>
                     </div>
-                    <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm"
+                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
                             @onclick="() => { currentBatiment = new(); showBatimentModal = true; isNewBatiment = true; }">
-                        <i class="bi bi-plus-circle-fill"></i>
-                        <span>Nouveau Batiment</span>
+                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                        <span class="fw-medium">Nouveau Bâtiment</span>
                     </button>
                 </div>
             </div>
@@ -106,8 +106,8 @@
                 {
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 custom-table">
-                            <thead class="bg-light">
-                                <tr>
+                            <thead class="bg-light border-bottom">
+                                <tr> 
                                     <th class="fw-semibold px-4 py-3 border-0">
                                         <div class="text-primary">Nom</div>
                                     </th>
@@ -126,7 +126,7 @@
                                         <td class="px-4 py-3">
                                             <div class="fw-semibold">@batiment.Nom</div>
                                         </td>
-                                        <td class="px-4 py-3 text-muted">@batiment.Adresse</td>
+                                        <td class="px-4 py-3 fw-semibold">@batiment.Adresse</td>
                                         <td class="px-4 py-3 text-end">
                                             <div class="btn-group">
                                                 <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
@@ -163,10 +163,10 @@
                         <i class="bi bi-grid-3x3-gap fs-4 text-white"></i>
                         <h3 class="mb-0 fw-bold text-white">Types de Salle</h3>
                     </div>
-                    <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm"
+                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
                             @onclick="() => { currentTypeSalle = new(); showTypeSalleModal = true; isNewTypeSalle = true; }">
-                        <i class="bi bi-plus-circle-fill"></i>
-                        <span>Nouveau Type de Salle</span>
+                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                        <span class="fw-medium">Nouveau Type de Salle</span>
                     </button>
                 </div>
             </div>
@@ -195,7 +195,7 @@
                 {
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 custom-table">
-                            <thead class="bg-light">
+                            <thead class="bg-light border-bottom">
                                 <tr>
                                     <th class="fw-semibold px-4 py-3 border-0">
                                         <div class="text-primary">Nom</div>
@@ -215,7 +215,7 @@
                                         <td class="px-4 py-3">
                                             <div class="fw-semibold">@typeSalle.Nom</div>
                                         </td>
-                                        <td class="px-4 py-3 text-muted">@typeSalle.Description</td>
+                                        <td class="px-4 py-3 fw-semibold">@typeSalle.Description</td>
                                         <td class="px-4 py-3 text-end">
                                             <div class="btn-group">
                                                 <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
@@ -252,10 +252,10 @@
                         <i class="bi bi-door-open fs-4 text-white"></i>
                         <h2 class="mb-0 fw-bold text-white">Gestion des Salles</h2>
                     </div>
-                    <button class="btn btn-primary d-flex align-items-center gap-2 rounded-pill px-4 shadow-sm"
+                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
                             @onclick="() => { currentSalleDTO = new(); showModal = true; isNewSalle = true; }">
-                        <i class="bi bi-plus-circle-fill"></i>
-                        <span>Nouvelle Salle</span>
+                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                        <span class="fw-medium">Nouvelle Salle</span>
                     </button>
                 </div>
             </div>
@@ -1391,7 +1391,6 @@
     private BatimentDTO currentBatiment = new();
     private BatimentDTO batimentToDelete;
 
-    @code {
         private Mur selectedWall;
         private ElementReference svgElement;
         private bool isDragging;
@@ -1517,6 +1516,14 @@
             startX = e.ClientX;
             startY = e.ClientY;
         }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 
     public class MurCreateParameters

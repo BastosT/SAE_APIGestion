@@ -27,11 +27,19 @@
 </div>
 
 <style>
+
+    html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%; /* S'assure que html et body remplissent toute la fenêtre */
+        overflow: hidden; /* Empêche le défilement de la page */
+    }
+
     .layout-container {
         display: flex;
         flex-direction: column;
-        min-height: 100vh;
-        background-color: #f5f6fa;
+        height: 100vh; /* Utilise la hauteur de la fenêtre */
+        overflow: hidden; /* Empêche le défilement au sein du conteneur */
     }
 
     .main-header {
@@ -166,14 +174,17 @@
     }
 
     .main-content {
-        flex: 1;
+        flex: 1; /* Permet à la section main-content de prendre tout l'espace restant */
+        overflow: hidden; /* Empêche le défilement dans cette zone */
     }
 
     .content {
         background-color: #ffffff;
         border-radius: 8px;
         box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        min-height: calc(100vh - 64px - 3rem);
+        height: 100%; /* Remplit toute la hauteur disponible */
+        width: 100%;
+        overflow: hidden; /* Empêche le défilement au sein de ce bloc */
     }
 
     @@media (max-width: 768px) {

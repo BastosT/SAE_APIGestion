@@ -98,16 +98,17 @@ INSERT INTO t_e_equipement_equ (
 )
 VALUES 
     -- Radiateurs
-    (1, 'Radiateur 1', 80, 100, 150, 180, 1, 9, 2),
-    (2, 'Radiateur 2', 80, 100, 350, 180, 1, 9, 2),
+    (1, 'Radiateur 1', 80, 100, 34, 180, 1, 9, 1),
+    (2, 'Radiateur 2', 80, 100, 256, 180, 1, 9, 1),
     -- Fenetres
-    (3, 'Fenetre 1', 165, 100, 100, 3, 2, 9, 2),
-    (4, 'Fenetre 2', 165, 100, 300, 3, 2, 9, 2),
+    (3, 'Fenetre 1', 165, 100, 6, 3, 2, 9, 1),
+    (4, 'Fenetre 2', 165, 100, 345, 3, 2, 9, 1),
     -- Vitres
-    (5, 'Vitre 1', 161, 89, 200, 6, 3, 9, 2),
-    (6, 'Vitre 2', 161, 89, 50, 6, 3, 9, 2),
+    (5, 'Vitre 1', 161, 89, 125, 6, 3, 9, 1),
+    (6, 'Vitre 2', 161, 89, 237, 6, 3, 9, 1),
+    (7, 'Vitre 3', 161, 89, 482, 6, 3, 9, 1),
     -- Porte
-    (7, 'Porte', 205, 93, 55, 67, 4, 7, 2);
+    (8, 'Porte', 205, 93, 55, 67, 4, 7, 2);
 SELECT setval('t_e_equipement_equ_equ_id_seq', (SELECT MAX(equ_id) FROM t_e_equipement_equ));
 
 -- 7. Données des capteurs

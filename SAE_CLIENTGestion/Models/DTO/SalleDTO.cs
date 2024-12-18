@@ -7,11 +7,7 @@
         public double Surface { get; set; }
         public int TypeSalleId { get; set; }
         public int BatimentId { get; set; }
-        public ICollection<int> MursIds { get; set; }
 
-        public SalleDTO()
-        {
-            MursIds = new HashSet<int>();
-        }
     }
+
 }

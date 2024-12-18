@@ -133,111 +133,10 @@
         }
     </div>
 
-    <!-- Modal pour Ajout/Modification de Type de Salle -->
-    @if (showTypeSalleModal)
-    {
-        <div class="modal fade show" style="display: block;" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@(isNewTypeSalle ? "Nouveau Type de Salle" : "Modifier le Type de Salle")</h5>
-                        <button type="button" class="btn-close" @onclick="CloseTypeSalleModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <EditForm Model="@currentTypeSalle" OnValidSubmit="HandleTypeSalleSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-
-                            <div class="mb-3">
-                                <label class="form-label">Nom</label>
-                                <InputText class="form-control" @bind-Value="currentTypeSalle.Nom" />
-                                <ValidationMessage For="@(() => currentTypeSalle.Nom)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Description</label>
-                                <InputText class="form-control" @bind-Value="currentTypeSalle.Description" />
-                                <ValidationMessage For="@(() => currentTypeSalle.Description)" />
-                            </div>
-
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseTypeSalleModal">Annuler</button>
-                            </div>
-                        </EditForm>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-backdrop fade show"></div>
-    }
-
-    <!-- Modal pour Ajout/Modification de Batiment -->
-    @if (showBatimentModal)
-    {
-        <div class="modal fade show" style="display: block;" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@(isNewTypeSalle ? "Nouveau Batiment" : "Modifier le Batiment")</h5>
-                        <button type="button" class="btn-close" @onclick="CloseBatimentModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <EditForm Model="@currentBatiment" OnValidSubmit="HandleBatimentSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-
-                            <div class="mb-3">
-                                <label class="form-label">Nom</label>
-                                <InputText class="form-control" @bind-Value="currentBatiment.Nom" />
-                                <ValidationMessage For="@(() => currentBatiment.Nom)" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Adresse</label>
-                                <InputText class="form-control" @bind-Value="currentBatiment.Adresse" />
-                                <ValidationMessage For="@(() => currentBatiment.Adresse)" />
-                            </div>
-
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseBatimentModal">Annuler</button>
-                            </div>
-                        </EditForm>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-backdrop fade show"></div>
-    }
-
-    <!-- Modal de confirmation pour la suppression de Type de Salle -->
-    @if (showDeleteTypeSalleConfirmation)
-    {
-        <div class="modal fade show" style="display: block;" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirmer la suppression</h5>
-                        <button type="button" class="btn-close" @onclick="() => showDeleteTypeSalleConfirmation = false"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Êtes-vous sûr de vouloir supprimer ce type de salle ?</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" @onclick="() => showDeleteTypeSalleConfirmation = false">Annuler</button>
-                        <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteTypeSalle">Supprimer</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="modal-backdrop fade show"></div>
-    }
-
     <!-- Section existante pour les Salles -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2>Gestion des Salles</h2>
-        <button class="btn btn-primary" @onclick="() => { currentSalle = new(); showModal = true; isNewSalle = true; }">
+        <button class="btn btn-primary" @onclick="() => { currentSalleDTO = new(); showModal = true; isNewSalle = true; }">
             <i class="fas fa-plus"></i> Nouvelle Salle
         </button>
     </div>
@@ -378,10 +277,10 @@
                                                 rectHeight = wallLength;
                                                 break;
                                         }
-
                                         <rect x="@rectX" y="@rectY"
                                               width="@rectWidth" height="@rectHeight"
-                                              fill="#000" />
+                                              fill="#ff00ff"
+                                              opacity="1" />
 
                                         <circle cx="@currentX" cy="@currentY" r="2" fill="#666" />
 
@@ -421,14 +320,238 @@
         </div>
     }
 
-    <!-- Modal pour Ajout/Modification de Salle -->
+    <!-- Modal pour Ajout/Modification de Type de Salle -->
+    @if (showTypeSalleModal)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewTypeSalle ? "Nouveau Type de Salle" : "Modifier le Type de Salle")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseTypeSalleModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentTypeSalle" OnValidSubmit="HandleTypeSalleSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentTypeSalle.Nom" />
+                                <ValidationMessage For="@(() => currentTypeSalle.Nom)" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <InputText class="form-control" @bind-Value="currentTypeSalle.Description" />
+                                <ValidationMessage For="@(() => currentTypeSalle.Description)" />
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseTypeSalleModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
+    <!-- Modal pour Ajout/Modification de Batiment -->
+@if (showModalModif)
+{
+    <div class="modal fade show" style="display: block;" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier la Salle</h5>
+                    <button type="button" class="btn-close" @onclick="CloseModalModif"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        
+                        <!-- Informations générales de la salle -->
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentSalle.Nom" />
+                                <ValidationMessage For="@(() => currentSalle.Nom)" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Surface (m²)</label>
+                                <InputNumber class="form-control" @bind-Value="currentSalle.Surface" />
+                                <ValidationMessage For="@(() => currentSalle.Surface)" />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Bâtiment</label>
+                                <InputSelect class="form-control" @bind-Value="currentSalle.BatimentId">
+                                    <option value="">Sélectionner un bâtiment</option>
+                                    @foreach (var batiment in ViewModel.Batiments)
+                                    {
+                                        <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Type de Salle</label>
+                                <InputSelect class="form-control" @bind-Value="currentSalle.TypeSalleId">
+                                    <option value="">Sélectionner un type de salle</option>
+                                    @foreach (var typeSalle in ViewModel.TypesSalle)
+                                    {
+                                        <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
+                                    }
+                                </InputSelect>
+                            </div>
+                        </div>
+
+                        <!-- Éditeur de murs -->
+                        <div class="card mt-3">
+                            <div class="card-header">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Configuration des murs</h5>
+                                    <button type="button" class="btn btn-primary btn-sm" @onclick="AddNewWall">
+                                        <i class="bi bi-plus"></i> Ajouter un mur
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <!-- Visualisation de la salle -->
+                                    <div class="col-md-8">
+                                        <div class="border rounded p-2">
+                                            <svg @ref="svgElement" width="100%" height="400" viewBox="0 0 800 600" @onmousedown="OnSvgMouseDown" @onmousemove="OnSvgMouseMove" @onmouseup="OnSvgMouseUp">
+                                                <!-- Grille de fond -->
+                                                <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
+                                                </pattern>
+                                                <rect width="100%" height="100%" fill="url(#grid)" />
+
+                                                @foreach (var mur in currentSalle.Murs)
+                                                {
+                                                    var isSelected = mur == selectedWall;
+                                                    var color = isSelected ? "#007bff" : "#dee2e6";
+                                                    
+                                                    <!-- Dessin du mur -->
+                                                    <g @onclick="() => SelectWall(mur)" style="cursor: pointer;">
+                                                        @{
+                                                            var (x, y, width, height) = CalculateWallDimensions(mur);
+                                                            <rect 
+                                                                x="@x" 
+                                                                y="@y" 
+                                                                width="@width" 
+                                                                height="@height" 
+                                                                fill="@color"
+                                                                stroke="@(isSelected ? "#0056b3" : "none")"
+                                                                stroke-width="2"
+                                                            />
+                                                            <!-- Points de contrôle pour le redimensionnement -->
+                                                   
+                                                        }
+                                                    </g>
+                                                }
+                                            </svg>
+                                        </div>
+                                        <div class="mt-2">
+                                            <small class="text-muted">
+                                                Cliquez sur un mur pour le sélectionner. 
+                                                Utilisez les points aux extrémités pour redimensionner.
+                                            </small>
+                                        </div>
+                                    </div>
+
+                                    <!-- Propriétés du mur sélectionné -->
+                                    <div class="col-md-4">
+                                        @if (selectedWall != null)
+                                        {
+                                            <div class="border rounded p-3">
+                                                <h6>Propriétés du mur</h6>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nom</label>
+                                                    <InputText class="form-control" @bind-Value="selectedWall.Nom" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Longueur (m)</label>
+                                                    <InputNumber class="form-control" @bind-Value="selectedWall.Longueur" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Hauteur (m)</label>
+                                                    <InputNumber class="form-control" @bind-Value="selectedWall.Hauteur" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Orientation</label>
+                                                    <InputSelect class="form-control" @bind-Value="selectedWall.Orientation">
+                                                            @foreach (Models.Orientation orientation in Enum.GetValues(typeof(Models.Orientation)))
+                                                        {
+                                                            <option value="@orientation">@orientation</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                                <button type="button" class="btn btn-danger btn-sm" @onclick="() => DeleteWall(selectedWall)">
+                                                    <i class="bi bi-trash"></i> Supprimer
+                                                </button>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="text-center text-muted p-3">
+                                                Sélectionnez un mur pour modifier ses propriétés
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseModalModif">Annuler</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-backdrop fade show"></div>
+}
+
+    <!-- Modal de confirmation pour la suppression de Type de Salle -->
+    @if (showDeleteTypeSalleConfirmation)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmer la suppression</h5>
+                        <button type="button" class="btn-close" @onclick="() => showDeleteTypeSalleConfirmation = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir supprimer ce type de salle ?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showDeleteTypeSalleConfirmation = false">Annuler</button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteTypeSalle">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
+    <!-- Modal pour Ajout de Salle -->
     @if (showModal)
     {
         <div class="modal fade show" style="display: block;" tabindex="-1">
             <div class="modal-dialog modal-lg">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">@(isNewSalle ? "Nouvelle Salle" : "Modifier la Salle")</h5>
+                        <h5 class="modal-title">Nouvelle Salle</h5>
                         <button type="button" class="btn-close" @onclick="CloseModal"></button>
                     </div>
                     <div class="modal-body">
@@ -474,7 +597,7 @@
                             </div>
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    Dimensions de la salle
+                                    Dimensions de la salle (La forme de la salle pourra être modifié)
                                 </div>
                                 <div class="card-body">
                                     <div>
@@ -491,12 +614,186 @@
                                             <InputNumber class="form-control" @bind-Value="currentDimensions.Hauteur" />
                                         </div>
                                     </div>
-                                    <small class="text-muted">La modification des dimensions mettra à jour tous les murs de la salle.</small>
+                                    <small class="text-muted">Lors de la modification il est possible d'ajouter des murs et de modifier leurs dimenssions.'.</small>
                                 </div>
                             </div>
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
                                 <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-backdrop fade show"></div>
+    }
+
+    <!-- Modal pour Modif de Salle -->
+    @if (showModalModif)
+    {
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Modifier la Salle</h5>
+                        <button type="button" class="btn-close" @onclick="CloseModalModif"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+                            <div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Nom</label>
+                                    <InputText class="form-control" @bind-Value="currentSalle.Nom" />
+                                    <ValidationMessage For="@(() => currentSalle.Nom)" />
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Surface (m²)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentSalle.Surface" />
+                                    <ValidationMessage For="@(() => currentSalle.Surface)" />
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Bâtiment</label>
+                                    <InputSelect class="form-control" @bind-Value="currentSalle.BatimentId">
+                                        <option value="">Sélectionner un bâtiment</option>
+                                        @foreach (var batiment in ViewModel.Batiments)
+                                        {
+                                            <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => currentSalle.BatimentId)" />
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">Type de Salle</label>
+                                    <InputSelect class="form-control" @bind-Value="currentSalle.TypeSalleId">
+                                        <option value="">Sélectionner un type de salle</option>
+                                        @foreach (var typeSalle in ViewModel.TypesSalle)
+                                        {
+                                            <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
+                                </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    Dimensions de la salle (La forme de la salle pourra être modifié)
+                                </div>
+                                <div class="card-body">
+                                    <div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Longueur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Longueur" />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Largeur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Largeur" />
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <label class="form-label">Hauteur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Hauteur" />
+                                        </div>
+                                    </div>
+                                    <small class="text-muted">Lors de la modification il est possible d'ajouter des murs et de modifier leurs dimenssions.'.</small>
+                                </div>
+                            </div>
+                            <!-- Nouvelle section pour les murs -->
+                            <div class="card mt-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5>Modification des murs</h5>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-primary me-2" @onclick="PreviousWall">
+                                            <i class="bi bi-arrow-left"></i>
+                                        </button>
+                                        <span>Mur @(currentWallIndex + 1)/@currentSalle.Murs?.Count</span>
+                                        <button type="button" class="btn btn-sm btn-primary ms-2" @onclick="NextWall">
+                                            <i class="bi bi-arrow-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    @if (currentWall != null)
+                                    {
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nom du mur</label>
+                                                    <InputText class="form-control" @bind-Value="currentWall.Nom" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Longueur (m)</label>
+                                                    <InputNumber class="form-control" @bind-Value="currentWall.Longueur" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Hauteur (m)</label>
+                                                    <InputNumber class="form-control" @bind-Value="currentWall.Hauteur" />
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Orientation</label>
+                                                    <InputSelect class="form-control" @bind-Value="currentWall.Orientation">
+                                                        @foreach (Models.Orientation orientation in Enum.GetValues(typeof(Models.Orientation)))
+                                                        {
+                                                            <option value="@orientation">@orientation</option>
+                                                        }
+                                                    </InputSelect>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <!-- Aperçu en direct -->
+                                                <div class="border rounded p-2">
+                                                    <svg width="100%" height="200" viewBox="0 0 400 300" class="room-preview">
+                                                        <!-- Grille de fond -->
+                                                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
+                                                        </pattern>
+                                                        <rect width="100%" height="100%" fill="url(#grid)" />
+
+                                                        @{
+                                                            double currentX = 200;
+                                                            double currentY = 150;
+                                                            foreach (var mur in currentSalle.Murs)
+                                                            {
+                                                                double wallLength = mur.Longueur * 40; // Échelle
+                                                                string color = mur == currentWall ? "#007bff" : "#dee2e6";
+
+                                                                <g transform="translate(@currentX @currentY)">
+                                                                    @switch (mur.Orientation)
+                                                                    {
+                                                                        case Models.Orientation.Nord:
+                                                                            <line x2="@wallLength" y2="0" stroke="@color" stroke-width="8" />
+                                                                            currentX += wallLength;
+                                                                            break;
+                                                                        case Models.Orientation.Sud:
+                                                                            <line x2="-@wallLength" y2="0" stroke="@color" stroke-width="8" />
+                                                                            currentX -= wallLength;
+                                                                            break;
+                                                                        case Models.Orientation.Est:
+                                                                            <line x2="0" y2="@wallLength" stroke="@color" stroke-width="8" />
+                                                                            currentY += wallLength;
+                                                                            break;
+                                                                        case Models.Orientation.Ouest:
+                                                                            <line x2="0" y2="-@wallLength" stroke="@color" stroke-width="8" />
+                                                                            currentY -= wallLength;
+                                                                            break;
+                                                                    }
+                                                                </g>
+                                                            }
+                                                        }
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModalModif">Annuler</button>
                             </div>
                         </EditForm>
                     </div>
@@ -891,6 +1188,7 @@
 
     private bool showBatimentModal = false;
     private bool showModal = false;
+    private bool showModalModif = false;
     private bool showWallModal = false;
     private bool showDeleteConfirmation = false;
     private bool showDeleteBatimentConfirmation = false;
@@ -908,7 +1206,8 @@
     private bool isNewTypeSalle = false;
 
 
-    private SalleDTO currentSalle = new();
+    private Salle currentSalle = new();
+    private SalleDTO currentSalleDTO = new();
     private Salle salleToDelete;
     private Mur currentMur;
     private MurCreateParameters murParameters = new();
@@ -920,6 +1219,133 @@
     private BatimentDTO currentBatiment = new();
     private BatimentDTO batimentToDelete;
 
+    @code {
+        private Mur selectedWall;
+        private ElementReference svgElement;
+        private bool isDragging;
+        private string resizingPoint;
+        private double startX, startY;
+
+        private void AddNewWall()
+        {
+            var newWall = new Mur
+            {
+                Nom = $"Mur {currentSalle.Murs.Count + 1}",
+                Longueur = 5,
+                Hauteur = 3,
+                Orientation = Models.Orientation.Nord
+            };
+
+            currentSalle.Murs.Add(newWall);
+            SelectWall(newWall);
+        }
+
+        private void SelectWall(Mur wall)
+        {
+            selectedWall = wall;
+            StateHasChanged();
+        }
+
+        private void DeleteWall(Mur wall)
+        {
+            currentSalle.Murs.Remove(wall);
+            selectedWall = null;
+            StateHasChanged();
+        }
+
+        private (double x, double y, double width, double height) CalculateWallDimensions(Mur wall)
+        {
+            const int SCALE = 40; // pixels par mètre
+            const int WALL_THICKNESS = 8;
+
+            double x = 400; // Centre de la vue
+            double y = 300;
+            double width = 0;
+            double height = 0;
+
+            switch (wall.Orientation)
+            {
+                case Models.Orientation.Nord:
+                    width = wall.Longueur * SCALE;
+                    height = WALL_THICKNESS;
+                    break;
+                case Models.Orientation.Sud:
+                    width = wall.Longueur * SCALE;
+                    height = WALL_THICKNESS;
+                    y += wall.Longueur * SCALE;
+                    break;
+                case Models.Orientation.Est:
+                    width = WALL_THICKNESS;
+                    height = wall.Longueur * SCALE;
+                    x += wall.Longueur * SCALE;
+                    break;
+                case Models.Orientation.Ouest:
+                    width = WALL_THICKNESS;
+                    height = wall.Longueur * SCALE;
+                    break;
+            }
+
+            return (x - width / 2, y - height / 2, width, height);
+        }
+
+        private void OnSvgMouseDown(MouseEventArgs e)
+        {
+            if (selectedWall != null)
+            {
+                isDragging = true;
+                startX = e.ClientX;
+                startY = e.ClientY;
+            }
+        }
+
+        private void OnSvgMouseMove(MouseEventArgs e)
+        {
+            if (isDragging && selectedWall != null)
+            {
+                var deltaX = e.ClientX - startX;
+                var deltaY = e.ClientY - startY;
+
+                // Mettre à jour la position du mur sélectionné
+                // Convertir les pixels en mètres
+                const double SCALE = 40.0; // pixels par mètre
+
+                if (Math.Abs(deltaX) > SCALE || Math.Abs(deltaY) > SCALE)
+                {
+                    // Mettre à jour la longueur en fonction de l'orientation
+                    if (selectedWall.Orientation == Models.Orientation.Nord || selectedWall.Orientation == Models.Orientation.Sud)
+                    {
+                        selectedWall.Longueur += deltaX / SCALE;
+                    }
+                    else
+                    {
+                        selectedWall.Longueur += deltaY / SCALE;
+                    }
+
+                    // S'assurer que la longueur reste positive
+                    selectedWall.Longueur = Math.Max(1, selectedWall.Longueur);
+
+                    startX = e.ClientX;
+                    startY = e.ClientY;
+                    StateHasChanged();
+                }
+            }
+        }
+
+        private void OnSvgMouseUp()
+        {
+            isDragging = false;
+            resizingPoint = null;
+        }
+
+        private void StartResizing(MouseEventArgs e, Mur wall, string point)
+        {
+            selectedWall = wall;
+            isDragging = true;
+            resizingPoint = point;
+            startX = e.ClientX;
+            startY = e.ClientY;
+        }
+    }
 
     public class MurCreateParameters
     {
@@ -975,6 +1401,45 @@
         }
     }
 
+    private int currentWallIndex = 0;
+    private Mur currentWall => currentSalle.Murs?.ElementAtOrDefault(currentWallIndex);
+
+    private void NextWall()
+    {
+        if (currentSalle.Murs != null && currentWallIndex < currentSalle.Murs.Count - 1)
+        {
+            currentWallIndex++;
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousWall()
+    {
+        if (currentWallIndex > 0)
+        {
+            currentWallIndex--;
+            StateHasChanged();
+        }
+    }
+
+    // Modifiez votre méthode EditSalle pour inclure les murs
+    private void EditSalle(Salle salle)
+    {
+        currentSalle = new Salle
+            {
+                SalleId = salle.SalleId,
+                Nom = salle.Nom,
+                Surface = salle.Surface,
+                TypeSalleId = salle.TypeSalleId,
+                BatimentId = salle.BatimentId,
+                Murs = salle.Murs?.ToList() ?? new List<Mur>()
+            };
+
+        currentWallIndex = 0;
+        isNewSalle = false;
+        showModalModif = true;
+    }
+
     private string GetEquipementStrokeColor(int typeEquipementId)
     {
         try
@@ -1008,21 +1473,6 @@
         await ViewModel.LoadDataAsync();
     }
 
-    private void EditSalle(Salle salle)
-    {
-        currentSalle = new SalleDTO
-            {
-                SalleId = salle.SalleId,
-                Nom = salle.Nom,
-                Surface = salle.Surface,
-                TypeSalleId = salle.TypeSalleId,
-                BatimentId = salle.BatimentId,
-            };
-
-
-        isNewSalle = false;
-        showModal = true;
-    }
 
     private void DeleteSalle(Salle salle)
     {
@@ -1069,16 +1519,28 @@
         }
     }
 
+
+
     private async Task HandleValidSubmit()
     {
-        bool success;
+        bool success = false;
         try
         {
             if (isNewSalle)
             {
+                var createdSalle = await ViewModel.AddSalleAsync(currentSalleDTO);
+                if (createdSalle != null)
+                {
+                    // Créer les murs avec les dimensions spécifiées et l'ID de la salle
+                    Mur m1 = await ViewModel.AddMurAsync("M1", Models.Orientation.Nord, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m2 = await ViewModel.AddMurAsync("M2", Models.Orientation.Ouest, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m3 = await ViewModel.AddMurAsync("M3", Models.Orientation.Sud, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m4 = await ViewModel.AddMurAsync("M4", Models.Orientation.Est, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    success = true;
+                }
 
 
-                success = await ViewModel.AddSalleAsync(currentSalle);
+
             }
             else
             {
@@ -1086,7 +1548,7 @@
                 var salle = await ViewModel.GetSalleByIdAsync(currentSalle.SalleId);
 
 
-                success = await ViewModel.UpdateSalleAsync(currentSalle);
+                success = await ViewModel.UpdateSalleAsync(currentSalleDTO);
             }
 
             if (success)
@@ -1209,7 +1671,7 @@
 
     private void AddNewEquipement()
     {
-        
+
         currentEquipement = new EquipementDTO { MurId = currentMur.MurId };
         isNewEquipement = true;
         showEquipementModal = true;
@@ -1380,6 +1842,7 @@
         else
         {
             success = await ViewModel.UpdateBatimentAsync(currentBatiment);
+            await ViewModel.LoadDataAsync();
         }
         if (success)
         {
@@ -1397,6 +1860,7 @@
         else
         {
             success = await ViewModel.UpdateTypeSalleAsync(currentTypeSalle);
+            await ViewModel.LoadDataAsync();
         }
         if (success)
         {
@@ -1414,6 +1878,12 @@
     {
         showModal = false;
         showWallModal = false;
+        currentSalleDTO = new();
+    }
+
+    private void CloseModalModif()
+    {
+        showModalModif = false;
         currentSalle = new();
     }
 

@@ -51,6 +51,9 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<Salle> _salles = new List<Salle>();
 
         [ObservableProperty]
+        private List<Mur> _murs = new List<Mur>();
+
+        [ObservableProperty]
         private List<BatimentDTO> _batiments = new List<BatimentDTO>();
 
         [ObservableProperty]
@@ -140,6 +143,18 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        private async Task LoadMurAsync()
+        {
+            try
+            {
+                Murs = await _murService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des murs : {ex.Message}";
+            }
+        }
+
         private async Task LoadBatimentsAsync()
         {
             try
@@ -184,22 +199,22 @@ namespace SAE_CLIENTGestion.ViewModels
             return await _salleService.GetByIdAsync(salleId);
         }
 
-        public async Task<bool> AddSalleAsync(SalleDTO salle)
+        public async Task<SalleDTO?> AddSalleAsync(SalleDTO salle)
         {
             IsLoading = true;
             try
             {
-                await _salleServiceDTO.PostAsync(salle);
+                var createdSalle = await _salleServiceDTO.PostAsync(salle);
                 await LoadSallesAsync();
                 SuccessMessage = "Salle ajoutée avec succès";
                 ErrorMessage = null;
-                return true;
+                return createdSalle;
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors de l'ajout de la salle : {ex.Message}";
                 SuccessMessage = null;
-                return false;
+                return null;
             }
             finally
             {
@@ -282,6 +297,14 @@ namespace SAE_CLIENTGestion.ViewModels
                 foreach (var equipement in EquipementsSalle)
                 {
                     await _equipementService.DeleteAsync(equipement.EquipementId);
+                }
+
+                foreach (var mur in Murs)
+                {
+                    if (mur.SalleId == id)
+                    {
+                        await _murService.DeleteAsync(mur.MurId);
+                    }
                 }
 
                 // Suppression de la salle
@@ -443,7 +466,7 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<Mur> AddMurAsync(string nom, Orientation orientation, double longueurMur, double hauteurMur)
+        public async Task<Mur> AddMurAsync(string nom, Orientation orientation, double longueurMur, double hauteurMur, int salleid)
         {
             try
             {
@@ -452,7 +475,8 @@ namespace SAE_CLIENTGestion.ViewModels
                     Nom = nom,
                     Longueur = longueurMur,
                     Hauteur = hauteurMur,
-                    Orientation = orientation
+                    Orientation = orientation,
+                    SalleId = salleid
                 };
 
                 var createdMur = await _murService.PostAsync(mur);

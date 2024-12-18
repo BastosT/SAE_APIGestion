@@ -680,28 +680,6 @@
                                     <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
                                 </div>
                             </div>
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    Dimensions de la salle (La forme de la salle pourra être modifié)
-                                </div>
-                                <div class="card-body">
-                                    <div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">Longueur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Longueur" />
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">Largeur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Largeur" />
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">Hauteur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Hauteur" />
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Lors de la modification il est possible d'ajouter des murs et de modifier leurs dimenssions.'.</small>
-                                </div>
-                            </div>
                             <!-- Nouvelle section pour les murs -->
                             <div class="card mt-3">
                                 <div class="card-header d-flex justify-content-between align-items-center">
@@ -744,46 +722,88 @@
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
-                                                <!-- Aperçu en direct -->
+                                                @{
+                                                    const int SCALE = 40;
+                                                    const int MARGIN = 40;
+                                                    const int WALL_THICKNESS = 4;
+                                                    // Ajustement du point de départ pour centrer
+                                                    double currentX = 160;  // Réduit de 200 à 160
+                                                    double currentY = 120;  // Réduit de 150 à 120
+                                                }
                                                 <div class="border rounded p-2">
-                                                    <svg width="100%" height="200" viewBox="0 0 400 300" class="room-preview">
-                                                        <!-- Grille de fond -->
-                                                        <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-                                                            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
+                                                    <svg viewBox="0 0 320 240" class="room-preview" style="width: 100%; min-height: 200px;">
+                                                        <pattern id="grid-preview" width="@SCALE" height="@SCALE" patternUnits="userSpaceOnUse">
+                                                            <path d="M @SCALE 0 L 0 0 0 @SCALE" fill="none" stroke="#f0f0f0" stroke-width="0.5" />
                                                         </pattern>
-                                                        <rect width="100%" height="100%" fill="url(#grid)" />
+                                                        <rect width="100%" height="100%" fill="url(#grid-preview)" />
 
-                                                        @{
-                                                            double currentX = 200;
-                                                            double currentY = 150;
-                                                            foreach (var mur in currentSalle.Murs)
+                                                        @foreach (var mur in currentSalle.Murs)
+                                                        {
+                                                            double previousX = currentX;
+                                                            double previousY = currentY;
+                                                            double wallLength = mur.Longueur * SCALE;
+                                                            double rectX = previousX;
+                                                            double rectY = previousY;
+                                                            double rectWidth = 0;
+                                                            double rectHeight = 0;
+                                                            double labelX = 0;
+                                                            double labelY = 0;
+
+                                                            switch (mur.Orientation)
                                                             {
-                                                                double wallLength = mur.Longueur * 40; // Échelle
-                                                                string color = mur == currentWall ? "#007bff" : "#dee2e6";
-
-                                                                <g transform="translate(@currentX @currentY)">
-                                                                    @switch (mur.Orientation)
-                                                                    {
-                                                                        case Models.Orientation.Nord:
-                                                                            <line x2="@wallLength" y2="0" stroke="@color" stroke-width="8" />
-                                                                            currentX += wallLength;
-                                                                            break;
-                                                                        case Models.Orientation.Sud:
-                                                                            <line x2="-@wallLength" y2="0" stroke="@color" stroke-width="8" />
-                                                                            currentX -= wallLength;
-                                                                            break;
-                                                                        case Models.Orientation.Est:
-                                                                            <line x2="0" y2="@wallLength" stroke="@color" stroke-width="8" />
-                                                                            currentY += wallLength;
-                                                                            break;
-                                                                        case Models.Orientation.Ouest:
-                                                                            <line x2="0" y2="-@wallLength" stroke="@color" stroke-width="8" />
-                                                                            currentY -= wallLength;
-                                                                            break;
-                                                                    }
-                                                                </g>
+                                                                case Models.Orientation.Nord:
+                                                                    currentX += wallLength;
+                                                                    rectX = previousX;
+                                                                    rectY = previousY - WALL_THICKNESS / 2;
+                                                                    rectWidth = wallLength;
+                                                                    rectHeight = WALL_THICKNESS;
+                                                                    labelX = (previousX + currentX) / 2;
+                                                                    labelY = previousY - (WALL_THICKNESS + 10);
+                                                                    break;
+                                                                case Models.Orientation.Sud:
+                                                                    currentX -= wallLength;
+                                                                    rectX = currentX;
+                                                                    rectY = currentY - WALL_THICKNESS / 2;
+                                                                    rectWidth = wallLength;
+                                                                    rectHeight = WALL_THICKNESS;
+                                                                    labelX = (previousX + currentX) / 2;
+                                                                    labelY = currentY + (WALL_THICKNESS + 10);
+                                                                    break;
+                                                                case Models.Orientation.Est:
+                                                                    currentY += wallLength;
+                                                                    rectX = previousX - WALL_THICKNESS / 2;
+                                                                    rectY = previousY;
+                                                                    rectWidth = WALL_THICKNESS;
+                                                                    rectHeight = wallLength;
+                                                                    labelX = previousX + (WALL_THICKNESS + 10);
+                                                                    labelY = (previousY + currentY) / 2;
+                                                                    break;
+                                                                case Models.Orientation.Ouest:
+                                                                    currentY -= wallLength;
+                                                                    rectX = previousX - WALL_THICKNESS / 2;
+                                                                    rectY = currentY;
+                                                                    rectWidth = WALL_THICKNESS;
+                                                                    rectHeight = wallLength;
+                                                                    labelX = previousX - (WALL_THICKNESS + 10);
+                                                                    labelY = (previousY + currentY) / 2;
+                                                                    break;
                                                             }
+
+                                                            string wallColor = mur == currentWall ? "#007bff" : "#dee2e6";
+
+                                                            <rect x="@rectX" y="@rectY"
+                                                                  width="@rectWidth" height="@rectHeight"
+                                                                  fill="@wallColor"
+                                                                  opacity="1" />
+                                                            <circle cx="@currentX" cy="@currentY" r="2" fill="#666" />
+
+                                                            @((MarkupString)$"<text x='{labelX}' y='{labelY}' text-anchor='middle' fill='#333' style='font-size: 12px;'>{mur.Nom} ({mur.Longueur}m)</text>")
                                                         }
+
+                                                        <!-- Barre d'échelle -->
+                                                        <line x1="@MARGIN" y1="@(200)" x2="@(MARGIN + SCALE)" y2="@(200)"
+                                                              stroke="#666" stroke-width="2" />
+                                                        @((MarkupString)$"<text x='{MARGIN + SCALE / 2}' y='195' text-anchor='middle' fill='#666' style='font-size: 12px;'>1m</text>")
                                                     </svg>
                                                 </div>
                                             </div>

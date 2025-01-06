@@ -7,16 +7,6 @@
 
 <PageTitle>Ajouter une Salle</PageTitle>
 
-<style>
-    .card {
-        transition: all 0.3s ease;
-    }
-
-        .card:hover {
-            box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
-        }
-</style>
-
 <div class="container-fluid p-4">
     <div class="card shadow border-0 rounded-3">
         <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
@@ -36,105 +26,139 @@
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
-                <!-- Informations de base -->
                 <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Nom</label>
-                        <InputText class="form-control" @bind-Value="currentSalleDTO.Nom" />
-                        <ValidationMessage For="@(() => currentSalleDTO.Nom)" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Surface (m²)</label>
-                        <InputNumber class="form-control" @bind-Value="currentSalleDTO.Surface" />
-                        <ValidationMessage For="@(() => currentSalleDTO.Surface)" />
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Bâtiment</label>
-                        <InputSelect class="form-control" @bind-Value="currentSalleDTO.BatimentId">
-                            <option value="">Sélectionner un bâtiment</option>
-                            @foreach (var batiment in ViewModel.Batiments)
-                            {
-                                <option value="@batiment.BatimentId">@batiment.Nom</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => currentSalleDTO.BatimentId)" />
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Type de Salle</label>
-                        <InputSelect class="form-control" @bind-Value="currentSalleDTO.TypeSalleId">
-                            <option value="">Sélectionner un type de salle</option>
-                            @foreach (var typeSalle in ViewModel.TypesSalle)
-                            {
-                                <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
-                            }
-                        </InputSelect>
-                        <ValidationMessage For="@(() => currentSalleDTO.TypeSalleId)" />
-                    </div>
-                </div>
-
-                <!-- Configuration des murs -->
-                <div class="card mt-4">
-                    <div class="card-header d-flex justify-content-between align-items-center">
-                        <span>Configuration des murs</span>
-                        <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AjouterMur">
-                            <i class="fas fa-plus"></i> Ajouter un mur
-                        </button>
-                    </div>
-                    <div class="card-body">
-                        @if (!mursList.Any())
-                        {
-                            <div class="text-center text-muted">
-                                Aucun mur configuré. Cliquez sur "Ajouter un mur" pour commencer.
+                    <!-- Colonne de gauche : Formulaire principal -->
+                    <div class="col-md-6">
+                        <!-- Informations de base -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                Informations générales
                             </div>
-                        }
-                        else
-                        {
-                            <div class="row">
-                                @foreach (var mur in mursList)
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Nom</label>
+                                    <InputText class="form-control" @bind-Value="currentSalleDTO.Nom" />
+                                    <ValidationMessage For="@(() => currentSalleDTO.Nom)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Surface (m²)</label>
+                                    <InputNumber class="form-control" @bind-Value="currentSalleDTO.Surface" />
+                                    <ValidationMessage For="@(() => currentSalleDTO.Surface)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Bâtiment</label>
+                                    <InputSelect class="form-control" @bind-Value="currentSalleDTO.BatimentId">
+                                        <option value="">Sélectionner un bâtiment</option>
+                                        @foreach (var batiment in ViewModel.Batiments)
+                                        {
+                                            <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => currentSalleDTO.BatimentId)" />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Type de Salle</label>
+                                    <InputSelect class="form-control" @bind-Value="currentSalleDTO.TypeSalleId">
+                                        <option value="">Sélectionner un type de salle</option>
+                                        @foreach (var typeSalle in ViewModel.TypesSalle)
+                                        {
+                                            <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
+                                        }
+                                    </InputSelect>
+                                    <ValidationMessage For="@(() => currentSalleDTO.TypeSalleId)" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuration des murs -->
+                        <div class="card">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <span>Configuration des murs</span>
+                                <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AjouterMur">
+                                    <i class="fas fa-plus"></i> Ajouter un mur
+                                </button>
+                            </div>
+                            <div class="card-body">
+                                @if (!mursList.Any())
                                 {
-                                    <div class="col-md-6 mb-3">
-                                        <div class="card">
-                                            <div class="card-header d-flex justify-content-between align-items-center">
-                                                <span>Mur @(mursList.IndexOf(mur) + 1)</span>
-                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                        @onclick="() => SupprimerMur(mur)">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                            <div class="card-body">
-                                                <div class="mb-2">
-                                                    <label class="form-label">Nom</label>
-                                                    <InputText class="form-control" @bind-Value="mur.Nom" />
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label">Longueur (m)</label>
-                                                    <InputNumber class="form-control" @bind-Value="mur.Longueur" />
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label">Hauteur (m)</label>
-                                                    <InputNumber class="form-control" @bind-Value="mur.Hauteur" />
-                                                </div>
-                                                <div class="mb-2">
-                                                    <label class="form-label">Position</label>
-                                                    <InputSelect class="form-control" @bind-Value="mur.Orientation">
-                                                        <option value="">Sélectionner une position</option>
-                                                        @foreach (Models.Orientation orientation in Enum.GetValues(typeof(Models.Orientation)))
-                                                        {
-                                                            <option value="@orientation">@orientation</option>
-                                                        }
-                                                    </InputSelect>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="text-center text-muted">
+                                        Aucun mur configuré. Cliquez sur "Ajouter un mur" pour commencer.
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Nom</th>
+                                                    <th>Orientation</th>
+                                                    <th>Longueur</th>
+                                                    <th>Hauteur</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var mur in mursList)
+                                                {
+                                                    <tr>
+                                                        <td>
+                                                            <InputText class="form-control form-control-sm" @bind-Value="mur.Nom" />
+                                                        </td>
+                                                        <td>
+                                                            <InputSelect class="form-control form-control-sm" @bind-Value="mur.Orientation">
+                                                                <option value="">Position</option>
+                                                                @foreach (Models.Orientation orientation in Enum.GetValues(typeof(Models.Orientation)))
+                                                                {
+                                                                    <option value="@orientation">@orientation</option>
+                                                                }
+                                                            </InputSelect>
+                                                        </td>
+                                                        <td>
+                                                            <InputNumber class="form-control form-control-sm" @bind-Value="mur.Longueur" />
+                                                        </td>
+                                                        <td>
+                                                            <InputNumber class="form-control form-control-sm" @bind-Value="mur.Hauteur" />
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                                    @onclick="() => SupprimerMur(mur)">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
                                     </div>
                                 }
                             </div>
-                        }
+                        </div>
+                    </div>
+
+                    <!-- Colonne de droite : Visualisation -->
+                    <div class="col-md-6">
+                        <RoomVisualizer Walls="@mursList" />
+                        
+                        <!-- Statistiques de la salle -->
+                        <div class="card mt-4">
+                            <div class="card-header">
+                                Statistiques
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-6">
+                                        <p><strong>Surface totale des murs:</strong> @CalculerSurfaceTotaleMurs() m²</p>
+                                    </div>
+                                    <div class="col-6">
+                                        <p><strong>Périmètre:</strong> @CalculerPerimetre() m</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -164,6 +188,16 @@
         StateHasChanged();
     }
 
+    private double CalculerSurfaceTotaleMurs()
+    {
+        return mursList.Sum(m => (m.Longueur * m.Hauteur));
+    }
+
+    private double CalculerPerimetre()
+    {
+        return mursList.Sum(m => m.Longueur);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadDataAsync();
@@ -173,19 +207,16 @@
     {
         try
         {
-            // Créer d'abord la salle
             var createdSalle = await ViewModel.AddSalleAsync(currentSalleDTO);
 
             if (createdSalle != null)
             {
-                // Ajouter chaque mur configuré
                 foreach (var mur in mursList)
                 {
                     mur.SalleId = createdSalle.SalleId;
                     await ViewModel.AddMurAsync(mur.Nom, mur.Orientation, mur.Longueur, mur.Hauteur, createdSalle.SalleId);
                 }
 
-                // Rediriger vers la page des salles avec un message de succès
                 NavigationManager.NavigateTo("/salles");
                 ViewModel.SuccessMessage = "La salle a été créée avec succès.";
             }

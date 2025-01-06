@@ -64,94 +64,6 @@
         </div>
     }
 
-    <!-- Section Batiment-->
-    <div class="container-fluid p-4">
-        <div class="card shadow border-0 rounded-3">
-            <!-- Header avec gradient subtil -->
-            <div class="card-header  py-4 border-bottom border-light" style="background-color: #a1a1a1">
-                <div class="d-flex justify-content-between align-items-center px-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="bi bi-building fs-4 text-white"></i>
-                        <h3 class="mb-0 fw-bold text-white">Batiments</h3>
-                    </div>
-                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
-                            @onclick="() => { currentBatiment = new(); showBatimentModal = true; isNewBatiment = true; }">
-                        <i class="bi bi-plus-circle-fill fs-5"></i>
-                        <span class="fw-medium">Nouveau Bâtiment</span>
-                    </button>
-                </div>
-            </div>
-
-            <div class=" p-4" >
-                @if (ViewModel.IsLoading)
-                {
-                    <div class="d-flex flex-column justify-content-center align-items-center py-5">
-                        <div class="spinner-border mb-3" role="status">
-                            <span class="visually-hidden">Chargement...</span>
-                        </div>
-                        <span class="text-muted">Chargement des bâtiments...</span>
-                    </div>
-                }
-                else if (!ViewModel.Batiments.Any())
-                {
-                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
-                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
-                        <div>
-                            <h6 class="mb-0 fw-semibold">Aucun bâtiment</h6>
-                            <small class="text-muted">Commencez par créer votre premier bâtiment</small>
-                        </div>
-                    </div>
-                }
-                else
-                {
-                    <div class="table-responsive">
-                        <table class="table table-hover align-middle mb-0 custom-table">
-                            <thead class="bg-light border-bottom">
-                                <tr> 
-                                    <th class="fw-semibold px-4 py-3 border-0">
-                                        <div class="text-primary">Nom</div>
-                                    </th>
-                                    <th class="fw-semibold px-4 py-3 border-0">
-                                        <div class="text-primary">Adresse</div>
-                                    </th>
-                                    <th class="text-end fw-semibold px-4 py-3 border-0">
-                                        <div class="text-primary">Actions</div>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody class="border-top-0">
-                                @foreach (var batiment in ViewModel.Batiments)
-                                {
-                                    <tr class="border-bottom">
-                                        <td class="px-4 py-3">
-                                            <div class="fw-semibold">@batiment.Nom</div>
-                                        </td>
-                                        <td class="px-4 py-3 fw-semibold">@batiment.Adresse</td>
-                                        <td class="px-4 py-3 text-end">
-                                            <div class="btn-group">
-                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
-                                                        @onclick="() => EditBatiment(batiment)"
-                                                        data-bs-toggle="tooltip"
-                                                        title="Modifier">
-                                                    <i class="bi bi-pencil-square text-warning"></i>
-                                                </button>
-                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
-                                                        @onclick="() => DeleteBatiment(batiment)"
-                                                        data-bs-toggle="tooltip"
-                                                        title="Supprimer">
-                                                    <i class="bi bi-trash text-danger"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
 
     <!-- Section Types de Salle -->
     <div class="container-fluid p-4">
@@ -481,7 +393,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title">@(isNewTypeSalle ? "Nouveau Type de Salle" : "Modifier le Type de Salle")</h5>
-                            <button type="button" class="btn-close" @onclick="CloseTypeSalleModal"></button>
+                            <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
                         </div>
                         <div class="modal-body">
                             <EditForm Model="@currentTypeSalle" OnValidSubmit="HandleTypeSalleSubmit">
@@ -502,7 +414,7 @@
 
                                 <div class="mt-4">
                                     <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                    <button type="button" class="btn btn-secondary" @onclick="CloseTypeSalleModal">Annuler</button>
+                                    <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Annuler</button>
                                 </div>
                             </EditForm>
                         </div>
@@ -510,42 +422,6 @@
                 </div>
             </div>
 
-    }
-
-    <!-- Modal pour Ajout/Modification de Batiment -->
-    @if (showBatimentModal)
-    {
-        <div class="modal-backdrop fade show" style="opacity: 0.8; background-color: black; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1040;"></div>
-        <div class="modal fade show" style="display: block; z-index: 1041;" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">@(isNewBatiment ? "Nouveau Batiment" : "Modifier le Batiment")</h5>
-                        <button type="button" class="btn-close" @onclick="CloseBatimentModal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <EditForm Model="@currentBatiment" OnValidSubmit="HandleBatimentSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-                            <div class="mb-3">
-                                <label class="form-label">Nom</label>
-                                <InputText class="form-control" @bind-Value="currentBatiment.Nom" />
-                                <ValidationMessage For="@(() => currentBatiment.Nom)" />
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Adresse</label>
-                                <InputText class="form-control" @bind-Value="currentBatiment.Adresse" />
-                                <ValidationMessage For="@(() => currentBatiment.Adresse)" />
-                            </div>
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseBatimentModal">Annuler</button>
-                            </div>
-                        </EditForm>
-                    </div>
-                </div>
-            </div>
-        </div>
     }
 
 
@@ -581,7 +457,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Nouvelle Salle</h5>
-                        <button type="button" class="btn-close" @onclick="CloseModal"></button>
+                        <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
                     </div>
                     <div class="modal-body">
                         <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
@@ -648,7 +524,7 @@
                             </div>
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Annuler</button>
+                                <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Annuler</button>
                             </div>
                         </EditForm>
                     </div>
@@ -667,7 +543,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Modifier la Salle</h5>
-                        <button type="button" class="btn-close" @onclick="CloseModalModif"></button>
+                        <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
                     </div>
                     <div class="modal-body">
                         <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
@@ -843,7 +719,7 @@
                             </div>
                             <div class="mt-4">
                                 <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseModalModif">Annuler</button>
+                                <button type="button" class="btn btn-secondary" @onclick="() =>CloseModal()">Annuler</button>
                             </div>
                         </EditForm>
                     </div>
@@ -883,7 +759,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">Modifier le Mur</h5>
-                        <button type="button" class="btn-close" @onclick="CloseWallModal"></button>
+                        <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
                     </div>
                     <div class="modal-body">
                         <div class="accordion" id="wallAccordion">
@@ -987,7 +863,7 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" @onclick="CloseWallModal">Fermer</button>
+                            <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Fermer</button>
                         </div>
                     </div>
                 </div>
@@ -1004,7 +880,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">@(isNewCapteur ? "Nouveau capteur" : "Modifier le capteur")</h5>
-                        <button type="button" class="btn-close" @onclick="CloseCapteurModal"></button>
+                        <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
                     </div>
                     <div class="alert alert-info mb-3">
                         <strong>Dimensions du mur (Mid: @currentMur.MurId Sid: @currentMur.SalleId):</strong>
@@ -1102,7 +978,7 @@
                             </div>
 
                             <button type="submit" class="btn btn-primary" disabled="@IsCapteurOutOfBounds()">Enregistrer</button>
-                            <button type="button" class="btn btn-secondary" @onclick="CloseCapteurModal">Annuler</button>
+                            <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Annuler</button>
                         </EditForm>
                     </div>
                 </div>
@@ -1120,7 +996,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">@(isNewEquipement ? "Nouvel équipement" : "Modifier l'équipement")</h5>
-                        <button type="button" class="btn-close" @onclick="CloseEquipementModal"></button>
+                        <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
                     </div>
                     <div class="alert alert-info mb-3">
                         <strong>Dimensions du mur (Mid: @currentMur.MurId Sid: @currentMur.SalleId):</strong>
@@ -1220,7 +1096,7 @@
 
 
                             <button type="submit" class="btn btn-primary" disabled="@IsEquipementOutOfBounds()">Enregistrer</button>
-                            <button type="button" class="btn btn-secondary" @onclick="CloseEquipementModal">Annuler</button>
+                            <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Annuler</button>
                         </EditForm>
                     </div>
                 </div>
@@ -1273,126 +1149,6 @@
         private bool isDragging;
         private string resizingPoint;
         private double startX, startY;
-
-        private void AddNewWall()
-        {
-            var newWall = new Mur
-            {
-                Nom = $"Mur {currentSalle.Murs.Count + 1}",
-                Longueur = 5,
-                Hauteur = 3,
-                Orientation = Models.Orientation.Nord
-            };
-
-            currentSalle.Murs.Add(newWall);
-            SelectWall(newWall);
-        }
-
-        private void SelectWall(Mur wall)
-        {
-            selectedWall = wall;
-            StateHasChanged();
-        }
-
-        private void DeleteWall(Mur wall)
-        {
-            currentSalle.Murs.Remove(wall);
-            selectedWall = null;
-            StateHasChanged();
-        }
-
-        private (double x, double y, double width, double height) CalculateWallDimensions(Mur wall)
-        {
-            const int SCALE = 40; // pixels par mètre
-            const int WALL_THICKNESS = 8;
-
-            double x = 400; // Centre de la vue
-            double y = 300;
-            double width = 0;
-            double height = 0;
-
-            switch (wall.Orientation)
-            {
-                case Models.Orientation.Nord:
-                    width = wall.Longueur * SCALE;
-                    height = WALL_THICKNESS;
-                    break;
-                case Models.Orientation.Sud:
-                    width = wall.Longueur * SCALE;
-                    height = WALL_THICKNESS;
-                    y += wall.Longueur * SCALE;
-                    break;
-                case Models.Orientation.Est:
-                    width = WALL_THICKNESS;
-                    height = wall.Longueur * SCALE;
-                    x += wall.Longueur * SCALE;
-                    break;
-                case Models.Orientation.Ouest:
-                    width = WALL_THICKNESS;
-                    height = wall.Longueur * SCALE;
-                    break;
-            }
-
-            return (x - width / 2, y - height / 2, width, height);
-        }
-
-        private void OnSvgMouseDown(MouseEventArgs e)
-        {
-            if (selectedWall != null)
-            {
-                isDragging = true;
-                startX = e.ClientX;
-                startY = e.ClientY;
-            }
-        }
-
-        private void OnSvgMouseMove(MouseEventArgs e)
-        {
-            if (isDragging && selectedWall != null)
-            {
-                var deltaX = e.ClientX - startX;
-                var deltaY = e.ClientY - startY;
-
-                // Mettre à jour la position du mur sélectionné
-                // Convertir les pixels en mètres
-                const double SCALE = 40.0; // pixels par mètre
-
-                if (Math.Abs(deltaX) > SCALE || Math.Abs(deltaY) > SCALE)
-                {
-                    // Mettre à jour la longueur en fonction de l'orientation
-                    if (selectedWall.Orientation == Models.Orientation.Nord || selectedWall.Orientation == Models.Orientation.Sud)
-                    {
-                        selectedWall.Longueur += deltaX / SCALE;
-                    }
-                    else
-                    {
-                        selectedWall.Longueur += deltaY / SCALE;
-                    }
-
-                    // S'assurer que la longueur reste positive
-                    selectedWall.Longueur = Math.Max(1, selectedWall.Longueur);
-
-                    startX = e.ClientX;
-                    startY = e.ClientY;
-                    StateHasChanged();
-                }
-            }
-        }
-
-        private void OnSvgMouseUp()
-        {
-            isDragging = false;
-            resizingPoint = null;
-        }
-
-        private void StartResizing(MouseEventArgs e, Mur wall, string point)
-        {
-            selectedWall = wall;
-            isDragging = true;
-            resizingPoint = point;
-            startX = e.ClientX;
-            startY = e.ClientY;
-        }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -1620,16 +1376,6 @@
         }
     }
 
-    private async Task HandleWallSubmit()
-    {
-        if (currentMur != null)
-        {
-            await ViewModel.UpdateMurAsync(currentMur);
-            await ViewModel.LoadDataAsync(); // Recharger les données
-            showWallModal = false;
-        }
-    }
-
     private void AddNewCapteur()
     {
         currentCapteur = new CapteurDTO { MurId = currentMur.MurId };
@@ -1666,6 +1412,7 @@
             StateHasChanged();
         }
     }
+
     private async Task RefreshMurData()
     {
         try
@@ -1686,7 +1433,7 @@
 
     private bool IsCapteurOutOfBounds()
     {
-        if (currentCapteur == null || currentMur == null) return true;
+        if (currentCapteur == null || cuzrrentMur == null) return true;
 
         return currentCapteur.PositionX < 0 ||
                currentCapteur.PositionY < 0 ||
@@ -1822,43 +1569,6 @@
         showDeleteConfirmation = true;
     }
 
-    private async Task ConfirmDeleteBatiment()
-    {
-        if (batimentToDelete != null)
-        {
-            if (await ViewModel.DeleteBatimentAsync(batimentToDelete.BatimentId))
-            {
-                showDeleteConfirmation = false;
-            }
-        }
-    }
-
-    private async Task HandleValidSubmitBatiment()
-    {
-        bool success;
-        if (isNewBatiment)
-        {
-            success = await ViewModel.AddBatimentAsync(currentBatiment);
-        }
-        else
-        {
-            success = await ViewModel.UpdateBatimentAsync(currentBatiment);
-        }
-
-        if (success)
-        {
-            showModal = false;
-        }
-    }
-
-    private void CloseBatimentModal()
-    {
-        showBatimentModal = false;
-        currentBatiment = new();
-        ViewModel.ErrorMessage = null;
-        ViewModel.SuccessMessage = null;
-    }
-
     private void EditTypeSalle(TypeSalleDTO typeSalle)
     {
         currentTypeSalle = new TypeSalleDTO
@@ -1924,40 +1634,57 @@
         }
     }
 
-    private void CloseTypeSalleModal()
+    private void CloseModal(string modalType = "all")
     {
-        showTypeSalleModal = false;
-        currentTypeSalle = new();
-    }
+        switch (modalType.ToLower())
+        {
+            case "typesalle":
+                showTypeSalleModal = false;
+                currentTypeSalle = new();
+                break;
 
-    private void CloseModal()
-    {
-        showModal = false;
-        showWallModal = false;
-        currentSalleDTO = new();
-    }
+            case "salle":
+                showModal = false;
+                currentSalleDTO = new();
+                break;
 
-    private void CloseModalModif()
-    {
-        showModalModif = false;
-        currentSalle = new();
-    }
+            case "sallemodif":
+                showModalModif = false;
+                currentSalle = new();
+                break;
 
-    private void CloseWallModal()
-    {
-        showWallModal = false;
-        currentMur = null;
-    }
+            case "wall":
+                showWallModal = false;
+                currentMur = null;
+                break;
 
-    private void CloseCapteurModal()
-    {
-        showCapteurModal = false;
-        currentCapteur = new();
-    }
+            case "capteur":
+                showCapteurModal = false;
+                currentCapteur = new();
+                break;
 
-    private void CloseEquipementModal()
-    {
-        showEquipementModal = false;
-        currentEquipement = new();
+            case "equipement":
+                showEquipementModal = false;
+                currentEquipement = new();
+                break;
+
+            case "all":
+            default:
+                // Ferme toutes les modales et réinitialise tous les états
+                showTypeSalleModal = false;
+                showModal = false;
+                showModalModif = false;
+                showWallModal = false;
+                showCapteurModal = false;
+                showEquipementModal = false;
+
+                currentTypeSalle = new();
+                currentSalleDTO = new();
+                currentSalle = new();
+                currentMur = null;
+                currentCapteur = new();
+                currentEquipement = new();
+                break;
+        }
     }
 }

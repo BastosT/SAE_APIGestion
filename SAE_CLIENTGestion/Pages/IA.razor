@@ -1,0 +1,67 @@
+﻿@page "/prediction"
+
+<PageTitle>Prediction IA</PageTitle>
+
+<h3>Prédiction IA</h3>
+
+<div>
+    <button @onclick="FetchPrediction">Obtenir la prédiction</button>
+</div>
+
+@if (PredictionData != null)
+{
+    <div style="margin-top: 20px;">
+        <h4>Résultat de la prédiction :</h4>
+        @foreach (var item in PredictionData)
+        {
+            <p>@item.Key : @item.Value</p>
+        }
+    </div>
+}
+else if (IsLoading)
+{
+    <p>Chargement...</p>
+}
+else if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p style="color: red;">@ErrorMessage</p>
+}
+
+@code {
+    private Dictionary<string, object> PredictionData { get; set; }
+    private bool IsLoading { get; set; } = false;
+    private string ErrorMessage { get; set; }
+
+    private async Task FetchPrediction()
+    {
+        IsLoading = true;
+        PredictionData = null;
+        ErrorMessage = string.Empty;
+
+        try
+        {
+            // Appel à l'API Flask
+            using var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5001") };
+            var response = await httpClient.GetAsync("/predict_knn");
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Désérialisation JSON en un dictionnaire flexible
+                var jsonResponse = await response.Content.ReadAsStringAsync();
+                PredictionData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonResponse);
+            }
+            else
+            {
+                ErrorMessage = $"Erreur : {response.ReasonPhrase}";
+            }
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Une erreur est survenue : {ex.Message}";
+        }
+        finally
+        {
+            IsLoading = false;
+        }
+    }
+}

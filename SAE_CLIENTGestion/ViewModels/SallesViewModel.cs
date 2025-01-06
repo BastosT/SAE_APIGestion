@@ -466,7 +466,7 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<Mur> AddMurAsync(string nom, Orientation orientation, double longueurMur, double hauteurMur, int salleid)
+        public async Task<Mur> AddMurAsync(string nom, MurOrientation orientation, double longueurMur, double hauteurMur, int salleid)
         {
             try
             {

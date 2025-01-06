@@ -255,16 +255,16 @@
                                                 {
                                                     switch (mur.Orientation)
                                                     {
-                                                        case Models.Orientation.Nord:
+                                                        case Models.MurOrientation.Nord:
                                                             currentX += mur.Longueur * SCALE;
                                                             break;
-                                                        case Models.Orientation.Sud:
+                                                        case Models.MurOrientation.Sud:
                                                             currentX -= mur.Longueur * SCALE;
                                                             break;
-                                                        case Models.Orientation.Est:
+                                                        case Models.MurOrientation.Est:
                                                             currentY += mur.Longueur * SCALE;
                                                             break;
-                                                        case Models.Orientation.Ouest:
+                                                        case Models.MurOrientation.Ouest:
                                                             currentY -= mur.Longueur * SCALE;
                                                             break;
                                                     }
@@ -309,28 +309,28 @@
 
                                                     switch (mur.Orientation)
                                                     {
-                                                        case Models.Orientation.Nord:
+                                                        case Models.MurOrientation.Nord:
                                                             currentX += wallLength;
                                                             rectX = previousX;
                                                             rectY = previousY - WALL_THICKNESS / 2;
                                                             rectWidth = wallLength;
                                                             rectHeight = WALL_THICKNESS;
                                                             break;
-                                                        case Models.Orientation.Sud:
+                                                        case Models.MurOrientation.Sud:
                                                             currentX -= wallLength;
                                                             rectX = currentX;
                                                             rectY = currentY - WALL_THICKNESS / 2;
                                                             rectWidth = wallLength;
                                                             rectHeight = WALL_THICKNESS;
                                                             break;
-                                                        case Models.Orientation.Est:
+                                                        case Models.MurOrientation.Est:
                                                             currentY += wallLength;
                                                             rectX = previousX - WALL_THICKNESS / 2;
                                                             rectY = previousY;
                                                             rectWidth = WALL_THICKNESS;
                                                             rectHeight = wallLength;
                                                             break;
-                                                        case Models.Orientation.Ouest:
+                                                        case Models.MurOrientation.Ouest:
                                                             currentY -= wallLength;
                                                             rectX = previousX - WALL_THICKNESS / 2;
                                                             rectY = currentY;
@@ -351,16 +351,16 @@
 
                                                     switch (mur.Orientation)
                                                     {
-                                                        case Models.Orientation.Nord:
+                                                        case Models.MurOrientation.Nord:
                                                             labelY -= offset;
                                                             break;
-                                                        case Models.Orientation.Sud:
+                                                        case Models.MurOrientation.Sud:
                                                             labelY += offset;
                                                             break;
-                                                        case Models.Orientation.Est:
+                                                        case Models.MurOrientation.Est:
                                                             labelX += offset;
                                                             break;
-                                                        case Models.Orientation.Ouest:
+                                                        case Models.MurOrientation.Ouest:
                                                             labelX -= offset;
                                                             break;
                                                     }
@@ -536,7 +536,7 @@
                                                 <div class="mb-3">
                                                     <label class="form-label">Orientation</label>
                                                     <InputSelect class="form-control" @bind-Value="currentWall.Orientation">
-                                                        @foreach (Models.Orientation orientation in Enum.GetValues(typeof(Models.Orientation)))
+                                                        @foreach (Models.MurOrientation orientation in Enum.GetValues(typeof(Models.MurOrientation)))
                                                         {
                                                             <option value="@orientation">@orientation</option>
                                                         }
@@ -573,7 +573,7 @@
 
                                                             switch (mur.Orientation)
                                                             {
-                                                                case Models.Orientation.Nord:
+                                                                case Models.MurOrientation.Nord:
                                                                     currentX += wallLength;
                                                                     rectX = previousX;
                                                                     rectY = previousY - WALL_THICKNESS / 2;
@@ -582,7 +582,7 @@
                                                                     labelX = (previousX + currentX) / 2;
                                                                     labelY = previousY - (WALL_THICKNESS + 10);
                                                                     break;
-                                                                case Models.Orientation.Sud:
+                                                                case Models.MurOrientation.Sud:
                                                                     currentX -= wallLength;
                                                                     rectX = currentX;
                                                                     rectY = currentY - WALL_THICKNESS / 2;
@@ -591,7 +591,7 @@
                                                                     labelX = (previousX + currentX) / 2;
                                                                     labelY = currentY + (WALL_THICKNESS + 10);
                                                                     break;
-                                                                case Models.Orientation.Est:
+                                                                case Models.MurOrientation.Est:
                                                                     currentY += wallLength;
                                                                     rectX = previousX - WALL_THICKNESS / 2;
                                                                     rectY = previousY;
@@ -600,7 +600,7 @@
                                                                     labelX = previousX + (WALL_THICKNESS + 10);
                                                                     labelY = (previousY + currentY) / 2;
                                                                     break;
-                                                                case Models.Orientation.Ouest:
+                                                                case Models.MurOrientation.Ouest:
                                                                     currentY -= wallLength;
                                                                     rectX = previousX - WALL_THICKNESS / 2;
                                                                     rectY = currentY;
@@ -1273,10 +1273,10 @@
                 if (createdSalle != null)
                 {
                     // Créer les murs avec les dimensions spécifiées et l'ID de la salle
-                    Mur m1 = await ViewModel.AddMurAsync("M1", Models.Orientation.Nord, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
-                    Mur m2 = await ViewModel.AddMurAsync("M2", Models.Orientation.Ouest, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
-                    Mur m3 = await ViewModel.AddMurAsync("M3", Models.Orientation.Sud, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
-                    Mur m4 = await ViewModel.AddMurAsync("M4", Models.Orientation.Est, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m1 = await ViewModel.AddMurAsync("M1", Models.MurOrientation.Nord, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m2 = await ViewModel.AddMurAsync("M2", Models.MurOrientation.Ouest, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m3 = await ViewModel.AddMurAsync("M3", Models.MurOrientation.Sud, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    Mur m4 = await ViewModel.AddMurAsync("M4", Models.MurOrientation.Est, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
                     success = true;
                 }
 

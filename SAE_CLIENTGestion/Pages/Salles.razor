@@ -5,6 +5,7 @@
 <link href="css/salles.css" rel="stylesheet" />
 @inject IJSRuntime JS
 @inject SallesViewModel ViewModel
+@inject NavigationManager NavigationManager
 
 <PageTitle>Gestion des Salles</PageTitle>
 
@@ -165,7 +166,7 @@
                         <h2 class="mb-0 fw-bold text-white">Gestion des Salles</h2>
                     </div>
                     <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
-                            @onclick="() => { currentSalleDTO = new(); showModal = true; isNewSalle = true; }">
+                            @onclick='() => NavigationManager.NavigateTo("/addsalle")'>
                         <i class="bi bi-plus-circle-fill fs-5"></i>
                         <span class="fw-medium">Nouvelle Salle</span>
                     </button>
@@ -448,91 +449,6 @@
         </div>
     }
 
-    <!-- Modal pour Ajout de Salle -->
-    @if (showModal)
-    {
-        <div class="modal-backdrop fade show" style="opacity: 0.8; background-color: black; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1040;"></div>
-        <div class="modal fade show" style="display: block; z-index: 1041;" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Nouvelle Salle</h5>
-                        <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
-                    </div>
-                    <div class="modal-body">
-                        <EditForm Model="@currentSalle" OnValidSubmit="HandleValidSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
-                            <div>
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Nom</label>
-                                    <InputText class="form-control" @bind-Value="currentSalle.Nom" />
-                                    <ValidationMessage For="@(() => currentSalle.Nom)" />
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Surface (m²)</label>
-                                    <InputNumber class="form-control" @bind-Value="currentSalle.Surface" />
-                                    <ValidationMessage For="@(() => currentSalle.Surface)" />
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Bâtiment</label>
-                                    <InputSelect class="form-control" @bind-Value="currentSalle.BatimentId">
-                                        <option value="">Sélectionner un bâtiment</option>
-                                        @foreach (var batiment in ViewModel.Batiments)
-                                        {
-                                            <option value="@batiment.BatimentId">@batiment.Nom</option>
-                                        }
-                                    </InputSelect>
-                                    <ValidationMessage For="@(() => currentSalle.BatimentId)" />
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">Type de Salle</label>
-                                    <InputSelect class="form-control" @bind-Value="currentSalle.TypeSalleId">
-                                        <option value="">Sélectionner un type de salle</option>
-                                        @foreach (var typeSalle in ViewModel.TypesSalle)
-                                        {
-                                            <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
-                                        }
-                                    </InputSelect>
-                                    <ValidationMessage For="@(() => currentSalle.TypeSalleId)" />
-                                </div>
-                            </div>
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    Dimensions de la salle (La forme de la salle pourra être modifié)
-                                </div>
-                                <div class="card-body">
-                                    <div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">Longueur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Longueur" />
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">Largeur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Largeur" />
-                                        </div>
-                                        <div class="col-md-4 mb-3">
-                                            <label class="form-label">Hauteur (m)</label>
-                                            <InputNumber class="form-control" @bind-Value="currentDimensions.Hauteur" />
-                                        </div>
-                                    </div>
-                                    <small class="text-muted">Lors de la modification il est possible d'ajouter des murs et de modifier leurs dimenssions.'.</small>
-                                </div>
-                            </div>
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Annuler</button>
-                            </div>
-                        </EditForm>
-                    </div>
-                </div>
-            </div>
-            </div>
-
-    }
 
     <!-- Modal pour Modif de Salle -->
     @if (showModalModif)
@@ -1109,6 +1025,19 @@
 
 
 @code {
+
+    private void AjouterMur()
+    {
+        if (currentSalle.Murs == null)
+            currentSalle.Murs = new List<Mur>();
+
+        currentSalle.Murs.Add(new Mur());
+    }
+
+    private void SupprimerMur(Mur mur)
+    {
+        currentSalle.Murs.Remove(mur);
+    }
 
 
     private bool showBatimentModal = false;

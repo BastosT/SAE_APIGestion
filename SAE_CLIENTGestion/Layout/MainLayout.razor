@@ -24,26 +24,21 @@
     </header>
     
     <main class="main-content">
-        <div class="content">
-            @Body
-        </div>
+        @Body
     </main>
 </div>
 
 <style>
-
     html, body {
         margin: 0;
         padding: 0;
-        height: 100%; /* S'assure que html et body remplissent toute la fenêtre */
-        overflow: hidden; /* Empêche le défilement de la page */
+        height: 100%;
     }
 
     .layout-container {
         display: flex;
         flex-direction: column;
-        height: 100vh; /* Utilise la hauteur de la fenêtre */
-        overflow: hidden; /* Empêche le défilement au sein du conteneur */
+        height: 100vh;
     }
 
     .main-header {
@@ -56,6 +51,8 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         position: sticky;
         top: 0;
+        z-index: 1000;
+        flex-shrink: 0;
     }
 
     .header-section {
@@ -100,101 +97,16 @@
         border-bottom-color: #2563eb;
     }
 
-    .search-box {
-        position: relative;
-        width: 300px;
-    }
-
-    .search-box i {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #9ca3af;
-        font-size: 0.9rem;
-    }
-
-    .search-box input {
-        padding: 0.5rem 0.75rem 0.5rem 2.25rem;
-        border-radius: 8px;
-        border: 1px solid #e5e7eb;
-        background-color: #f9fafb;
-        width: 100%;
-        transition: all 0.2s ease;
-    }
-
-    .search-box input:focus {
-        outline: none;
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
-    }
-
-    .user-actions {
-        height: 100%;
-    }
-
-    .notifications {
-        position: relative;
-        padding: 0.5rem;
-        cursor: pointer;
-    }
-
-    .notifications i {
-        font-size: 1.25rem;
-        color: #4b5563;
-    }
-
-    .notification-badge {
-        position: absolute;
-        top: 0;
-        right: 0;
-        background-color: #ef4444;
-        color: white;
-        border-radius: 50%;
-        width: 18px;
-        height: 18px;
-        font-size: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .user-profile {
-        padding: 0.5rem;
-        cursor: pointer;
-    }
-
-    .user-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        object-fit: cover;
-    }
-
-    .user-name {
-        color: #1a1a1a;
-        font-weight: 500;
-    }
-
     .main-content {
-        flex: 1; /* Permet à la section main-content de prendre tout l'espace restant */
-        overflow: hidden; /* Empêche le défilement dans cette zone */
-    }
-
-    .content {
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-        height: 100%; /* Remplit toute la hauteur disponible */
-        width: 100%;
-        overflow: hidden; /* Empêche le défilement au sein de ce bloc */
+        flex: 1;
+        background-color: #f9fafb;
+        overflow-y: auto;
     }
 
     @@media (max-width: 768px) {
         .search-box {
             width: 200px;
         }
-        
         .user-name {
             display: none;
         }
@@ -204,11 +116,9 @@
         .main-header {
             padding: 0 1rem;
         }
-        
         .search-box {
             display: none;
         }
-        
         .header-nav {
             gap: 0.5rem;
         }

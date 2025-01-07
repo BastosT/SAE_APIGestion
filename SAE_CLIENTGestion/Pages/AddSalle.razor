@@ -7,167 +7,185 @@
 
 <PageTitle>Ajouter une Salle</PageTitle>
 
-<div class="container-fluid p-4" style="height: 100vh; overflow-y: auto;">
-    <!-- Header section remains unchanged -->
-    <div class="card shadow border-0 rounded-3">
-        <div class="card-header py-4 border-bottom border-light position-sticky top-0" style="background-color: #a1a1a1; z-index: 1000;">
-            <div class="d-flex justify-content-between align-items-center px-2">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="bi bi-door-open fs-4 text-white"></i>
-                    <h2 class="mb-0 fw-bold text-white">Nouvelle Salle</h2>
+
+<div class="container-fluid main-content overflow-auto">
+    <div class=" p-4">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1;">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-door-open fs-4 text-white"></i>
+                        <h2 class="mb-0 fw-bold text-white">Nouvelle Salle</h2>
+                    </div>
+                    <button class="btn btn-light" @onclick="ReturnToSalles">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </button>
                 </div>
-                <button class="btn btn-light" @onclick="ReturnToSalles">
-                    <i class="bi bi-arrow-left"></i> Retour
-                </button>
             </div>
-        </div>
 
-        <div class="card-body p-4">
-            <EditForm Model="@currentSalleDTO" OnValidSubmit="HandleValidSubmit">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+            <div class="card-body p-4">
+                <EditForm Model="@currentSalleDTO" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-                <div class="row">
-                    <!-- Left column -->
-                    <div class="col-md-6">
-                        <!-- Basic Information card remains unchanged -->
-                        <div style="position: sticky; top: 80px;">
-                            <div class="card mb-4">
-                                <!-- Basic Information content remains the same -->
-                                <div class="card-header">
-                                    Informations générales
-                                </div>
-                                <div class="card-body">
-                                    <!-- Basic fields remain unchanged -->
-                                    <div class="mb-3">
-                                        <label class="form-label">Nom</label>
-                                        <InputText class="form-control" @bind-Value="currentSalleDTO.Nom" />
-                                        <ValidationMessage For="@(() => currentSalleDTO.Nom)" />
+                    <div class="row">
+                        <!-- Left column -->
+                        <div class="col-md-6">
+                            <div class="mb-4">
+                                <div class="card">
+                                    <div class="card-header">
+                                        Informations générales
                                     </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Surface (m²)</label>
-                                        <InputNumber class="form-control" @bind-Value="currentSalleDTO.Surface" />
-                                        <ValidationMessage For="@(() => currentSalleDTO.Surface)" />
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Hauteur (m)</label>
-                                        <InputNumber class="form-control" @bind-Value="roomHeight" />
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Bâtiment</label>
-                                        <InputSelect class="form-control" @bind-Value="currentSalleDTO.BatimentId">
-                                            <option value="">Sélectionner un bâtiment</option>
-                                            @foreach (var batiment in ViewModel.Batiments)
-                                            {
-                                                <option value="@batiment.BatimentId">@batiment.Nom</option>
-                                            }
-                                        </InputSelect>
-                                        <ValidationMessage For="@(() => currentSalleDTO.BatimentId)" />
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label class="form-label">Type de Salle</label>
-                                        <InputSelect class="form-control" @bind-Value="currentSalleDTO.TypeSalleId">
-                                            <option value="">Sélectionner un type de salle</option>
-                                            @foreach (var typeSalle in ViewModel.TypesSalle)
-                                            {
-                                                <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
-                                            }
-                                        </InputSelect>
-                                        <ValidationMessage For="@(() => currentSalleDTO.TypeSalleId)" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Modified Wall Configuration card -->
-                            <div class="card mb-4">
-                                <div class="card-header d-flex justify-content-between align-items-center">
-                                    <span>Configuration des murs</span>
-                                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AjouterMur">
-                                        <i class="bi bi-plus"></i> Ajouter un mur
-                                    </button>
-                                </div>
-                                <div class="card-body">
-                                    @if (!mursList.Any())
-                                    {
-                                        <div class="text-center text-muted">
-                                            Aucun mur configuré. Cliquez sur "Ajouter un mur" pour commencer.
+                                    <div class="card-body">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nom</label>
+                                            <InputText class="form-control" @bind-Value="currentSalleDTO.Nom" />
+                                            <ValidationMessage For="@(() => currentSalleDTO.Nom)" />
                                         </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="table-responsive">
-                                            <table class="table table-bordered table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Ordre</th>
-                                                        <th>Nom</th>
-                                                        <th>Orientation</th>
-                                                        <th>Longueur (m)</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @for (int i = 0; i < mursList.Count; i++)
-                                                    {
-                                                        var mur = mursList[i];
-                                                        var index = i;
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Surface (m²)</label>
+                                            <InputNumber class="form-control" @bind-Value="currentSalleDTO.Surface" />
+                                            <ValidationMessage For="@(() => currentSalleDTO.Surface)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Hauteur (m)</label>
+                                            <InputNumber class="form-control" @bind-Value="roomHeight" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Bâtiment</label>
+                                            <div>
+                                                @if (ViewModel.Batiments == null || !ViewModel.Batiments.Any())
+                                                {
+                                                    <div class="alert alert-warning mb-3">
+                                                        Aucun bâtiment n'est disponible. Veuillez en créer un d'abord.
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <InputSelect class="form-control" @bind-Value="currentSalleDTO.BatimentId">
+                                                        <option value="">Sélectionner un bâtiment</option>
+                                                        @foreach (var batiment in ViewModel.Batiments)
+                                                        {
+                                                            <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                                        }
+                                                    </InputSelect>
+                                                }
+                                            </div>
+                                            <ValidationMessage For="@(() => currentSalleDTO.BatimentId)" />
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label">Type de Salle</label>
+                                            <div>
+                                                @if (ViewModel.TypesSalle == null || !ViewModel.TypesSalle.Any())
+                                                {
+                                                    <div class="alert alert-warning mb-3">
+                                                        Aucun type de salle n'est disponible. Veuillez en créer un d'abord.
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <InputSelect class="form-control" @bind-Value="currentSalleDTO.TypeSalleId">
+                                                        <option value="">Sélectionner un type de salle</option>
+                                                        @foreach (var typeSalle in ViewModel.TypesSalle)
+                                                        {
+                                                            <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
+                                                        }
+                                                    </InputSelect>
+                                                }
+                                            </div>
+                                            <ValidationMessage For="@(() => currentSalleDTO.TypeSalleId)" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Wall Configuration card -->
+                                <div class="card mt-4">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <span>Configuration des murs</span>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AjouterMur">
+                                            <i class="bi bi-plus"></i> Ajouter un mur
+                                        </button>
+                                    </div>
+                                    <div class="card-body">
+                                        @if (!mursList.Any())
+                                        {
+                                            <div class="text-center text-muted">
+                                                Aucun mur configuré. Cliquez sur "Ajouter un mur" pour commencer.
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="table-responsive">
+                                                <table class="table table-bordered table-hover">
+                                                    <thead>
                                                         <tr>
-                                                            <td>
-                                                                <div class="d-flex align-items-center gap-2">
-                                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                                            @onclick="() => DeplacerMur(index, index - 1)"
-                                                                            disabled="@(index == 0)"
-                                                                            style="opacity: @(index == 0 ? "0.4" : "1")">
-                                                                        <i class="bi bi-arrow-up"></i>
-                                                                    </button>
-
-                                                                    <button type="button" class="btn btn-sm btn-outline-secondary"
-                                                                            @onclick="() => DeplacerMur(index, index + 1)"
-                                                                            disabled="@(index >= mursList.Count - 1)"
-                                                                            style="opacity: @(index >= mursList.Count - 1 ? "0.4" : "1")">
-                                                                        <i class="bi bi-arrow-down"></i>
-                                                                    </button>
-                                                                </div>
-                                                            </td>
-                                                            <td>
-                                                                <InputText class="form-control form-control-sm" @bind-Value="mur.Nom" />
-                                                            </td>
-                                                            <td>
-                                                                <InputSelect class="form-control form-control-sm" @bind-Value="mur.Orientation">
-                                                                    <option value="">Position</option>
-                                                                    @foreach (Models.MurOrientation orientation in Enum.GetValues(typeof(Models.MurOrientation)))
-                                                                    {
-                                                                        <option value="@orientation">@orientation</option>
-                                                                    }
-                                                                </InputSelect>
-                                                            </td>
-                                                            <td>
-                                                                <InputNumber class="form-control form-control-sm" @bind-Value="mur.Longueur" />
-                                                            </td>
-                                                            <td>
-                                                                <button type="button" class="btn btn-sm btn-outline-danger"
-                                                                        @onclick="() => SupprimerMur(mur)">
-                                                                    <i class="bi bi-trash"></i>
-                                                                </button>
-                                                            </td>
+                                                            <th>Ordre</th>
+                                                            <th>Nom</th>
+                                                            <th>Orientation</th>
+                                                            <th>Longueur (m)</th>
+                                                            <th>Actions</th>
                                                         </tr>
-                                                    }
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    }
+                                                    </thead>
+                                                    <tbody>
+                                                        @for (int i = 0; i < mursList.Count; i++)
+                                                        {
+                                                            var mur = mursList[i];
+                                                            var index = i;
+                                                            <tr>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center gap-2">
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                                @onclick="() => DeplacerMur(index, index - 1)"
+                                                                                disabled="@(index == 0)"
+                                                                                style="opacity: @(index == 0 ? "0.4" : "1")">
+                                                                            <i class="bi bi-arrow-up"></i>
+                                                                        </button>
+                                                                        <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                                @onclick="() => DeplacerMur(index, index + 1)"
+                                                                                disabled="@(index >= mursList.Count - 1)"
+                                                                                style="opacity: @(index >= mursList.Count - 1 ? "0.4" : "1")">
+                                                                            <i class="bi bi-arrow-down"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <InputText class="form-control form-control-sm" @bind-Value="mur.Nom" />
+                                                                </td>
+                                                                <td>
+                                                                    <InputSelect class="form-control form-control-sm" @bind-Value="mur.Orientation">
+                                                                        <option value="">Position</option>
+                                                                        @foreach (Models.MurOrientation orientation in Enum.GetValues(typeof(Models.MurOrientation)))
+                                                                        {
+                                                                            <option value="@orientation">@orientation</option>
+                                                                        }
+                                                                    </InputSelect>
+                                                                </td>
+                                                                <td>
+                                                                    <InputNumber class="form-control form-control-sm" @bind-Value="mur.Longueur" />
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                            @onclick="() => SupprimerMur(mur)">
+                                                                        <i class="bi bi-trash"></i>
+                                                                    </button>
+                                                                </td>
+                                                            </tr>
+                                                        }
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        }
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Right column remains unchanged -->
-                    <div class="col-md-6">
-                        <div style="position: sticky; top: 80px;">
+                        <!-- Right column -->
+                        <div class="col-md-6">
                             <!-- Room Visualization -->
                             <div class="card mb-4">
                                 <div class="card-header">Visualisation de la salle</div>
@@ -208,17 +226,23 @@
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Submit buttons -->
-                <div class="mt-4 position-sticky" style="bottom: 20px; background: white; padding: 1rem; z-index: 1000;">
-                    <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                    <button type="button" class="btn btn-secondary" @onclick="ReturnToSalles">Annuler</button>
-                </div>
-            </EditForm>
+                    <div class="mt-4 d-flex align-items-start" style="gap: 1rem;">
+                        <button type="submit" class="btn btn-primary">Enregistrer</button>
+                        <button type="button" class="btn btn-secondary" @onclick="ReturnToSalles">Annuler</button>
+                        @if (!string.IsNullOrEmpty(validationMessage))
+                        {
+                            <div class="alert alert-danger mb-0 flex-grow-1 d-flex align-items-center" role="alert">
+                                @validationMessage
+                            </div>
+                        }
+                    </div>
+                </EditForm>
+            </div>
         </div>
     </div>
 </div>
+
 
 @code {
     private SalleDTO currentSalleDTO = new();
@@ -230,6 +254,7 @@
     private double startX;
     private double startY;
     private double roomHeight = 0;
+    private string? validationMessage;
 
     private void AjouterMur()
     {
@@ -266,6 +291,74 @@
         return mursList.Sum(m => m.Longueur);
     }
 
+    private bool ValidateForm()
+    {
+        validationMessage = null;
+        var isValid = true;
+
+        // Vérification des champs obligatoires de la salle
+        if (string.IsNullOrWhiteSpace(currentSalleDTO.Nom))
+        {
+            validationMessage = "Le nom de la salle est requis.";
+            return false;
+        }
+
+        if (currentSalleDTO.Surface <= 0)
+        {
+            validationMessage = "La surface doit être supérieure à 0.";
+            return false;
+        }
+
+        if (roomHeight <= 0)
+        {
+            validationMessage = "La hauteur doit être supérieure à 0.";
+            return false;
+        }
+
+      if (currentSalleDTO.BatimentId <= 0)
+        {
+            validationMessage = "Veuillez sélectionner un bâtiment.";
+            return false;
+        }
+
+        if (currentSalleDTO.TypeSalleId <= 0)
+        {
+            validationMessage = "Veuillez sélectionner un type de salle.";
+            return false;
+        }
+
+        // Vérification du nombre minimum de murs
+        if (mursList.Count < 4)
+        {
+            validationMessage = "La salle doit avoir au moins 4 murs.";
+            return false;
+        }
+
+        // Vérification des propriétés des murs
+        foreach (var mur in mursList)
+        {
+            if (string.IsNullOrWhiteSpace(mur.Nom))
+            {
+                validationMessage = "Tous les murs doivent avoir un nom.";
+                return false;
+            }
+
+            if (mur.Longueur <= 0)
+            {
+                validationMessage = "La longueur de chaque mur doit être supérieure à 0.";
+                return false;
+            }
+
+            if (mur.Orientation == default(MurOrientation))
+            {
+                validationMessage = "Chaque mur doit avoir une orientation.";
+                return false;
+            }
+        }
+
+        return isValid;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadDataAsync();
@@ -286,6 +379,12 @@
     {
         try
         {
+            if (!ValidateForm())
+            {
+                ViewModel.ErrorMessage = validationMessage;
+                return;
+            }
+
             var createdSalle = await ViewModel.AddSalleAsync(currentSalleDTO);
             if (createdSalle != null)
             {

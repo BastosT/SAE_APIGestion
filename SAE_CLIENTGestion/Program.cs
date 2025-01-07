@@ -35,9 +35,13 @@ namespace SAE_CLIENTGestion
             builder.Services.AddScoped<IService<EquipementDTO>, WSServiceEquipementDTO>();
             builder.Services.AddScoped<IService<CapteurDTO>, WSServiceCapteurDTO>();
 
+            builder.Services.AddScoped<PredictionService>();
+
             // ViewModels
             builder.Services.AddScoped<BatimentsViewModel>();
             builder.Services.AddScoped<SallesViewModel>();
+            builder.Services.AddScoped<PredictionViewModel>();
+
 
             // BabylonJS service (seulement une fois, en singleton)
             builder.Services.AddSingleton<IBabylonJSService>(serviceProvider =>

@@ -1,67 +1,65 @@
 ﻿@page "/prediction"
+@inject PredictionViewModel ViewModel
+@inject PredictionService PredictionService
 
 <PageTitle>Prediction IA</PageTitle>
 
 <h3>Prédiction IA</h3>
 
 <div>
-    <button @onclick="FetchPrediction">Obtenir la prédiction</button>
+    <h4>Prédiction avec k-NN :</h4>
+    <button @onclick="FetchPredictKnn">Obtenir la prédiction k-NN</button>
 </div>
 
-@if (PredictionData != null)
-{
-    <div style="margin-top: 20px;">
-        <h4>Résultat de la prédiction :</h4>
-        @foreach (var item in PredictionData)
-        {
-            <p>@item.Key : @item.Value</p>
-        }
-    </div>
-}
-else if (IsLoading)
+<div style="margin-top: 20px;">
+    <h4>Prédiction avec horizon personnalisé :</h4>
+    <label for="horizon">Horizon de prédiction (en secondes) :</label>
+    <input id="horizon" type="number" @bind="ViewModel.Horizon" min="1" style="margin-right: 10px;" />
+    <button @onclick="FetchPredictionWithHorizon">Obtenir la prédiction</button>
+</div>
+
+@if (ViewModel.IsLoading)
 {
     <p>Chargement...</p>
 }
-else if (!string.IsNullOrEmpty(ErrorMessage))
+else if (ViewModel.PredictionData != null)
 {
-    <p style="color: red;">@ErrorMessage</p>
-}
-
-@code {
-    private Dictionary<string, object> PredictionData { get; set; }
-    private bool IsLoading { get; set; } = false;
-    private string ErrorMessage { get; set; }
-
-    private async Task FetchPrediction()
-    {
-        IsLoading = true;
-        PredictionData = null;
-        ErrorMessage = string.Empty;
-
-        try
+    <div style="margin-top: 20px;">
+        <h4>Résultat de la prédiction :</h4>
+        @if (ViewModel.PredictionData.ContainsKey("prediction"))
         {
-            // Appel à l'API Flask
-            using var httpClient = new HttpClient { BaseAddress = new Uri("http://localhost:5001") };
-            var response = await httpClient.GetAsync("/predict_knn");
-
-            if (response.IsSuccessStatusCode)
+            // Désérialisation des données JSON en List<List<decimal>>
+            var predictionList = ViewModel.PredictionData["prediction"] as JsonElement?;
+            if (predictionList.HasValue)
             {
-                // Désérialisation JSON en un dictionnaire flexible
-                var jsonResponse = await response.Content.ReadAsStringAsync();
-                PredictionData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonResponse);
+                var array = predictionList.Value.EnumerateArray().FirstOrDefault();
+                var firstPrediction = array[0].GetDecimal();
+                <p>Dernière valeur prédite : @firstPrediction seconde</p>
             }
             else
             {
-                ErrorMessage = $"Erreur : {response.ReasonPhrase}";
+                <p>Aucune prédiction disponible.</p>
             }
         }
-        catch (Exception ex)
+        else
         {
-            ErrorMessage = $"Une erreur est survenue : {ex.Message}";
+            <p>Erreur : données de prédiction mal formées</p>
         }
-        finally
-        {
-            IsLoading = false;
-        }
+    </div>
+}
+else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+{
+    <p style="color: red;">@ViewModel.ErrorMessage</p>
+}
+
+@code {
+    private async Task FetchPredictKnn()
+    {
+        await ViewModel.FetchPredictKnnAsync();
+    }
+
+    private async Task FetchPredictionWithHorizon()
+    {
+        await ViewModel.FetchPredictionWithHorizonAsync();
     }
 }

@@ -50,7 +50,7 @@
                                         </div>
 
                                         <div class="mb-3">
-                                            <label class="form-label">Hauteur (m)</label>
+                                            <label class="form-label">Hauteur (cm)</label>
                                             <InputNumber class="form-control" @bind-Value="roomHeight" />
                                         </div>
 
@@ -66,7 +66,7 @@
                                                 else
                                                 {
                                                     <InputSelect class="form-control" @bind-Value="currentSalleDTO.BatimentId">
-                                                        <option value="">Sélectionner un bâtiment</option>
+                                                        <option value="0" selected disabled>Sélectionner un bâtiment</option>
                                                         @foreach (var batiment in ViewModel.Batiments)
                                                         {
                                                             <option value="@batiment.BatimentId">@batiment.Nom</option>
@@ -74,7 +74,6 @@
                                                     </InputSelect>
                                                 }
                                             </div>
-                                            <ValidationMessage For="@(() => currentSalleDTO.BatimentId)" />
                                         </div>
 
                                         <div class="mb-3">
@@ -89,7 +88,7 @@
                                                 else
                                                 {
                                                     <InputSelect class="form-control" @bind-Value="currentSalleDTO.TypeSalleId">
-                                                        <option value="">Sélectionner un type de salle</option>
+                                                        <option value="0" selected disabled>Sélectionner un type de salle</option>
                                                         @foreach (var typeSalle in ViewModel.TypesSalle)
                                                         {
                                                             <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
@@ -97,7 +96,6 @@
                                                     </InputSelect>
                                                 }
                                             </div>
-                                            <ValidationMessage For="@(() => currentSalleDTO.TypeSalleId)" />
                                         </div>
                                     </div>
                                 </div>
@@ -126,7 +124,7 @@
                                                             <th>Ordre</th>
                                                             <th>Nom</th>
                                                             <th>Orientation</th>
-                                                            <th>Longueur (m)</th>
+                                                            <th>Longueur (cm)</th>
                                                             <th>Actions</th>
                                                         </tr>
                                                     </thead>
@@ -165,7 +163,10 @@
                                                                     </InputSelect>
                                                                 </td>
                                                                 <td>
-                                                                    <InputNumber class="form-control form-control-sm" @bind-Value="mur.Longueur" />
+                                                                    <InputNumber class="form-control form-control-sm"
+                                                                                 @bind-Value="mur.Longueur"
+                                                                                 min="100"
+                                                                                 max="1500" />
                                                                 </td>
                                                                 <td>
                                                                     <button type="button" class="btn btn-sm btn-outline-danger"
@@ -288,7 +289,7 @@
 
     private double CalculerPerimetre()
     {
-        return mursList.Sum(m => m.Longueur);
+        return mursList.Sum(m => m.Longueur) / 100.0;
     }
 
     private bool ValidateForm()
@@ -343,13 +344,19 @@
                 return false;
             }
 
-            if (mur.Longueur <= 0)
+            if (mur.Longueur > 1500)
             {
-                validationMessage = "La longueur de chaque mur doit être supérieure à 0.";
+                validationMessage = "La longueur de chaque mur doit être inférieur à 1500cm.";
                 return false;
             }
 
-            if (mur.Orientation == default(MurOrientation))
+            if (mur.Longueur < 100)
+            {
+                validationMessage = "La longueur de chaque mur doit être supérieur à 100cm.";
+                return false;
+            }
+
+            if (!Enum.IsDefined(typeof(MurOrientation), mur.Orientation))
             {
                 validationMessage = "Chaque mur doit avoir une orientation.";
                 return false;
@@ -362,10 +369,12 @@
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadDataAsync();
-        mursList.Add(new Mur { Nom = "Mur Nord", Orientation = MurOrientation.Nord, Longueur = 5, Hauteur = roomHeight });
-        mursList.Add(new Mur { Nom = "Mur Est", Orientation = MurOrientation.Est, Longueur = 4, Hauteur = roomHeight });
-        mursList.Add(new Mur { Nom = "Mur Sud", Orientation = MurOrientation.Sud, Longueur = 5, Hauteur = roomHeight });
-        mursList.Add(new Mur { Nom = "Mur Ouest", Orientation = MurOrientation.Ouest, Longueur = 4, Hauteur = roomHeight });
+        currentSalleDTO.BatimentId = 0;
+        currentSalleDTO.TypeSalleId = 0;
+        mursList.Add(new Mur { Nom = "Mur Nord", Orientation = MurOrientation.Nord, Longueur = 500, Hauteur = roomHeight });
+        mursList.Add(new Mur { Nom = "Mur Est", Orientation = MurOrientation.Est, Longueur = 400, Hauteur = roomHeight });
+        mursList.Add(new Mur { Nom = "Mur Sud", Orientation = MurOrientation.Sud, Longueur = 500, Hauteur = roomHeight });
+        mursList.Add(new Mur { Nom = "Mur Ouest", Orientation = MurOrientation.Ouest, Longueur = 400, Hauteur = roomHeight });
 
         var roomWidth = mursList.FirstOrDefault(m => m.Orientation == MurOrientation.Nord)?.Longueur ?? 1;
         var roomHeightCalc = mursList.FirstOrDefault(m => m.Orientation == MurOrientation.Est)?.Longueur ?? 1;

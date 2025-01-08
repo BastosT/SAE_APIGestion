@@ -125,49 +125,63 @@
                             </div>
 
                             <!-- Right column - Room Visualization -->
-
                             <div class="col">
                                 <div class="card h-100">
                                     <div class="card-header">Visualisation de la salle</div>
                                     <div class="card-body d-flex justify-content-center align-items-center">
-                                        <svg width="400" height="400" style="border: 1px solid #ccc;">
-                                            @{
-                                                // Trouver la longueur maximale des murs
-                                                double maxLength = mursList.Max(m => m.Longueur);
+                                        @if (!mursList.Any())
+                                        {
+                                            <div class="text-center text-muted">
+                                                <i class="bi bi-building fs-1"></i>
+                                                <p>Ajoutez des murs pour voir la visualisation</p>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <svg width="400" height="400" style="border: 1px solid #ccc;">
+                                                @{
+                                                    double maxLength = mursList.Any() ? mursList.Max(m => m.Longueur) : 1;
+                                                    double scale = (400 - 100) / maxLength;
 
-                                                // Calculer l'échelle (en laissant une marge de 50px de chaque côté)
-                                                double scale = (400 - 100) / maxLength;
+                                                    var currentX = 50.0;
+                                                    var currentY = 50.0;
 
-                                                // Point de départ avec marge
-                                                var currentX = 50.0;
-                                                var currentY = 50.0;
-
-                                                string GetWallColor(MurOrientation orientation)
-                                                {
-                                                    return orientation switch
+                                                    foreach (var mur in mursList)
                                                     {
-                                                        MurOrientation.Nord => "blue",
-                                                        MurOrientation.Est => "green",
-                                                        MurOrientation.Sud => "red",
-                                                        MurOrientation.Ouest => "black",
-                                                        _ => "black"
-                                                    };
-                                                }
+                                                        var nextPoint = GetNextPoint(currentX, currentY, mur.Orientation, mur.Longueur * scale);
 
-                                                foreach (var mur in mursList)
-                                                {
-                                                    var nextPoint = GetNextPoint(currentX, currentY, mur.Orientation, mur.Longueur * scale);
-                                                    <line x1="@currentX.ToString(CultureInfo.InvariantCulture)"
-                                                          y1="@currentY.ToString(CultureInfo.InvariantCulture)"
-                                                          x2="@nextPoint.x.ToString(CultureInfo.InvariantCulture)"
-                                                          y2="@nextPoint.y.ToString(CultureInfo.InvariantCulture)"
-                                                          stroke="@GetWallColor(mur.Orientation)"
-                                                          stroke-width="2" />
-                                                    currentX = nextPoint.x;
-                                                    currentY = nextPoint.y;
+                                                        <line x1="@currentX.ToString(CultureInfo.InvariantCulture)"
+                                                              y1="@currentY.ToString(CultureInfo.InvariantCulture)"
+                                                              x2="@nextPoint.x.ToString(CultureInfo.InvariantCulture)"
+                                                              y2="@nextPoint.y.ToString(CultureInfo.InvariantCulture)"
+                                                              stroke="black"
+                                                              stroke-width="2" />
+
+                                                        var midX = (currentX + nextPoint.x) / 2;
+                                                        var midY = (currentY + nextPoint.y) / 2;
+
+                                                        var (textX, textY, rotation) = mur.Orientation switch
+                                                        {
+                                                            MurOrientation.Nord => (midX, midY - 15, 0),
+                                                            MurOrientation.Sud => (midX, midY + 25, 0),
+                                                            MurOrientation.Est => (midX + 15, midY, -90),
+                                                            MurOrientation.Ouest => (midX - 15, midY, 90),
+                                                            _ => (midX, midY, 0)
+                                                        };
+
+                                                        <g transform="translate(@textX.ToString(CultureInfo.InvariantCulture), @textY.ToString(CultureInfo.InvariantCulture))">
+                                                            <text transform="rotate(@rotation)"
+                                                                  style="text-anchor: middle; dominant-baseline: middle; font-size: 12px;">
+                                                                @mur.Nom
+                                                            </text>
+                                                        </g>
+
+                                                        currentX = nextPoint.x;
+                                                        currentY = nextPoint.y;
+                                                    }
                                                 }
-                                            }
-                                        </svg>
+                                            </svg>
+                                        }
                                     </div>
                                 </div>
                             </div>
@@ -178,7 +192,10 @@
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-header d-flex justify-content-between align-items-center">
-                                        <span>Configuration des murs</span>
+                                        <div class="d-flex flex-column">
+                                            <span>Configuration des murs</span>
+                                            <small class="text-muted">Ordre recommandé (pour une salle basique avec 4 murs) : Nord → Est → Sud → Ouest</small>
+                                        </div>
                                         <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AjouterMur">
                                             <i class="bi bi-plus"></i> Ajouter un mur
                                         </button>
@@ -416,6 +433,19 @@
             return false;
         }
 
+        // Vérification de la présence des quatre orientations
+        var orientationsPresentes = mursList.Select(m => m.Orientation).Distinct().ToList();
+        var orientationsManquantes = Enum.GetValues(typeof(MurOrientation))
+                                        .Cast<MurOrientation>()
+                                        .Except(orientationsPresentes)
+                                        .ToList();
+
+        if (orientationsManquantes.Any())
+        {
+            validationMessage = $"Il manque les orientations suivantes : {string.Join(", ", orientationsManquantes)}";
+            return false;
+        }
+
         // Vérification des propriétés des murs
         foreach (var mur in mursList)
         {
@@ -439,7 +469,7 @@
 
             if (!Enum.IsDefined(typeof(MurOrientation), mur.Orientation))
             {
-                validationMessage = "Chaque mur doit avoir une orientation.";
+                validationMessage = "Chaque mur doit avoir une orientation valide.";
                 return false;
             }
         }

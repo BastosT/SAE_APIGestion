@@ -20,8 +20,8 @@ namespace SAE_CLIENTGestion.Models
     public enum MurOrientation
     {
         Nord,
-        Ouest,
+        Est,
         Sud,
-        Est
+        Ouest
     }
 }

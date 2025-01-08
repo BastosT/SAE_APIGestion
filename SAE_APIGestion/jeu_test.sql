@@ -38,7 +38,7 @@ VALUES
 SELECT setval('t_e_batiment_bat_bat_id_seq', (SELECT MAX(bat_id) FROM t_e_batiment_bat));
 
 -- 3. Murs pour la salle en L (D103)
--- Orientation: 0 = Nord, 1 = Ouest, 2 = Sud, 3 = Est
+-- Orientation: 0 = Nord, 1 = Est, 2 = Sud, 3 = Ouest 
 INSERT INTO t_e_mur_mur (mur_id, mur_nom, mur_longueur, mur_hauteur, mur_orientation, sal_id)
 VALUES 
     -- D103 : Salle en L

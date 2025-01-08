@@ -2,6 +2,7 @@
 @using SAE_CLIENTGestion.Models
 @using SAE_CLIENTGestion.Models.DTO
 @using SAE_CLIENTGestion.ViewModels
+@using System.Globalization
 @inject SallesViewModel ViewModel
 @inject NavigationManager NavigationManager
 
@@ -124,22 +125,46 @@
                             </div>
 
                             <!-- Right column - Room Visualization -->
+
                             <div class="col">
                                 <div class="card h-100">
                                     <div class="card-header">Visualisation de la salle</div>
                                     <div class="card-body d-flex justify-content-center align-items-center">
                                         <svg width="400" height="400" style="border: 1px solid #ccc;">
                                             @{
-                                                var currentX = startX;
-                                                var currentY = startY;
+                                                // Trouver la longueur maximale des murs
+                                                double maxLength = mursList.Max(m => m.Longueur);
+
+                                                // Calculer l'échelle (en laissant une marge de 50px de chaque côté)
+                                                double scale = (400 - 100) / maxLength;
+
+                                                // Point de départ avec marge
+                                                var currentX = 50.0;
+                                                var currentY = 50.0;
+
+                                                string GetWallColor(MurOrientation orientation)
+                                                {
+                                                    return orientation switch
+                                                    {
+                                                        MurOrientation.Nord => "blue",
+                                                        MurOrientation.Est => "green",
+                                                        MurOrientation.Sud => "red",
+                                                        MurOrientation.Ouest => "black",
+                                                        _ => "black"
+                                                    };
+                                                }
 
                                                 foreach (var mur in mursList)
                                                 {
-                                                    var (nextX, nextY) = GetNextPoint(currentX, currentY, mur.Orientation, mur.Longueur * scale);
-                                                    <line x1="@currentX" y1="@currentY" x2="@nextX" y2="@nextY"
-                                                          stroke="black" stroke-width="2" />
-                                                    currentX = nextX;
-                                                    currentY = nextY;
+                                                    var nextPoint = GetNextPoint(currentX, currentY, mur.Orientation, mur.Longueur * scale);
+                                                    <line x1="@currentX.ToString(CultureInfo.InvariantCulture)"
+                                                          y1="@currentY.ToString(CultureInfo.InvariantCulture)"
+                                                          x2="@nextPoint.x.ToString(CultureInfo.InvariantCulture)"
+                                                          y2="@nextPoint.y.ToString(CultureInfo.InvariantCulture)"
+                                                          stroke="@GetWallColor(mur.Orientation)"
+                                                          stroke-width="2" />
+                                                    currentX = nextPoint.x;
+                                                    currentY = nextPoint.y;
                                                 }
                                             }
                                         </svg>

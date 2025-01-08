@@ -1,0 +1,488 @@
+﻿@page "/editsalle/{SalleId:int}"
+@using SAE_CLIENTGestion.Models
+@using SAE_CLIENTGestion.Models.DTO
+@using SAE_CLIENTGestion.ViewModels
+@inject SallesViewModel ViewModel
+@inject NavigationManager NavigationManager
+
+<PageTitle>Modifier une Salle</PageTitle>
+
+<div class="container-fluid main-content overflow-auto">
+    <div class="p-4">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1;">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-door-open fs-4 text-white"></i>
+                        <h2 class="mb-0 fw-bold text-white">Modifier la Salle</h2>
+                    </div>
+                    <button class="btn btn-light" @onclick="ReturnToSalles">
+                        <i class="bi bi-arrow-left"></i> Retour
+                    </button>
+                </div>
+            </div>
+
+            @if (isLoading)
+            {
+                <div class="card-body p-4">
+                    <div class="text-center">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                    </div>
+                </div>
+            }
+            else if (currentSalleDTO == null)
+            {
+                <div class="card-body p-4">
+                    <div class="alert alert-danger">
+                        Salle non trouvée.
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="card-body p-4">
+                    <EditForm Model="@currentSalleDTO" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="row">
+                            <!-- Left column -->
+                            <div class="col-md-6">
+                                <div class="mb-4">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            Informations générales
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="mb-3">
+                                                <label class="form-label">Nom</label>
+                                                <InputText class="form-control" @bind-Value="currentSalleDTO.Nom" />
+                                                <ValidationMessage For="@(() => currentSalleDTO.Nom)" />
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Surface (m²)</label>
+                                                <InputNumber class="form-control" @bind-Value="currentSalleDTO.Surface" />
+                                                <ValidationMessage For="@(() => currentSalleDTO.Surface)" />
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Hauteur (cm)</label>
+                                                <InputNumber class="form-control" @bind-Value="roomHeight" />
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Bâtiment</label>
+                                                <div>
+                                                    @if (ViewModel.Batiments == null || !ViewModel.Batiments.Any())
+                                                    {
+                                                        <div class="alert alert-warning mb-3">
+                                                            Aucun bâtiment n'est disponible.
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <InputSelect class="form-control" @bind-Value="currentSalleDTO.BatimentId">
+                                                            @foreach (var batiment in ViewModel.Batiments)
+                                                            {
+                                                                <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                                            }
+                                                        </InputSelect>
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label class="form-label">Type de Salle</label>
+                                                <div>
+                                                    @if (ViewModel.TypesSalle == null || !ViewModel.TypesSalle.Any())
+                                                    {
+                                                        <div class="alert alert-warning mb-3">
+                                                            Aucun type de salle n'est disponible.
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <InputSelect class="form-control" @bind-Value="currentSalleDTO.TypeSalleId">
+                                                            @foreach (var typeSalle in ViewModel.TypesSalle)
+                                                            {
+                                                                <option value="@typeSalle.TypeSalleId">@typeSalle.Nom</option>
+                                                            }
+                                                        </InputSelect>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Wall Configuration card -->
+                                    <div class="card mt-4">
+                                        <div class="card-header d-flex justify-content-between align-items-center">
+                                            <span>Configuration des murs</span>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" @onclick="AjouterMur">
+                                                <i class="bi bi-plus"></i> Ajouter un mur
+                                            </button>
+                                        </div>
+                                        <div class="card-body">
+                                            @if (!mursList.Any())
+                                            {
+                                                <div class="text-center text-muted">
+                                                    Aucun mur configuré.
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Ordre</th>
+                                                                <th>Nom</th>
+                                                                <th>Orientation</th>
+                                                                <th>Longueur (cm)</th>
+                                                                <th>Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @for (int i = 0; i < mursList.Count; i++)
+                                                            {
+                                                                var mur = mursList[i];
+                                                                var index = i;
+                                                                <tr>
+                                                                    <td>
+                                                                        <div class="d-flex align-items-center gap-2">
+                                                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                                    @onclick="() => DeplacerMur(index, index - 1)"
+                                                                                    disabled="@(index == 0)">
+                                                                                <i class="bi bi-arrow-up"></i>
+                                                                            </button>
+                                                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                                                    @onclick="() => DeplacerMur(index, index + 1)"
+                                                                                    disabled="@(index >= mursList.Count - 1)">
+                                                                                <i class="bi bi-arrow-down"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <InputText class="form-control form-control-sm" @bind-Value="mur.Nom" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <InputSelect class="form-control form-control-sm" @bind-Value="mur.Orientation">
+                                                                            @foreach (Models.MurOrientation orientation in Enum.GetValues(typeof(Models.MurOrientation)))
+                                                                            {
+                                                                                <option value="@orientation">@orientation</option>
+                                                                            }
+                                                                        </InputSelect>
+                                                                    </td>
+                                                                    <td>
+                                                                        <InputNumber class="form-control form-control-sm"
+                                                                                    @bind-Value="mur.Longueur"
+                                                                                    min="100"
+                                                                                    max="1500" />
+                                                                    </td>
+                                                                    <td>
+                                                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                                                                @onclick="() => SupprimerMur(mur)">
+                                                                            <i class="bi bi-trash"></i>
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Right column -->
+                            <div class="col-md-6">
+                                <!-- Room Visualization -->
+                                <div class="card mb-4">
+                                    <div class="card-header">Visualisation de la salle</div>
+                                    <div class="card-body d-flex justify-content-center">
+                                        <svg width="400" height="400" style="border: 1px solid #ccc;">
+                                            @{
+                                                var currentX = startX;
+                                                var currentY = startY;
+
+                                                foreach (var mur in mursList)
+                                                {
+                                                    var (nextX, nextY) = GetNextPoint(currentX, currentY, mur.Orientation, mur.Longueur * scale);
+                                                    <line x1="@currentX" y1="@currentY" x2="@nextX" y2="@nextY"
+                                                          stroke="black" stroke-width="2" />
+                                                    currentX = nextX;
+                                                    currentY = nextY;
+                                                }
+                                            }
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <!-- Room Statistics -->
+                                <div class="card">
+                                    <div class="card-header">
+                                        Statistiques
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <p><strong>Surface totale des murs:</strong> @CalculerSurfaceTotaleMurs() m²</p>
+                                            </div>
+                                            <div class="col-6">
+                                                <p><strong>Périmètre:</strong> @CalculerPerimetre() m</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 d-flex align-items-start" style="gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                            <button type="button" class="btn btn-secondary" @onclick="ReturnToSalles">Annuler</button>
+                            @if (!string.IsNullOrEmpty(validationMessage))
+                            {
+                                <div class="alert alert-danger mb-0 flex-grow-1 d-flex align-items-center" role="alert">
+                                    @validationMessage
+                                </div>
+                            }
+                        </div>
+                    </EditForm>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int SalleId { get; set; }
+
+    private SalleDTO? currentSalleDTO;
+    private List<Mur> mursList = new();
+    private const int svgWidth = 400;
+    private const int svgHeight = 400;
+    private const int padding = 50;
+    private double scale;
+    private double startX;
+    private double startY;
+    private double roomHeight;
+    private string? validationMessage;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await ViewModel.LoadDataAsync();
+
+            // Charger la salle existante
+            var salle = await ViewModel.GetSalleByIdAsync(SalleId);
+            if (salle != null)
+            {
+                currentSalleDTO = new SalleDTO
+                {
+                    SalleId = salle.SalleId,
+                    Nom = salle.Nom,
+                    Surface = salle.Surface,
+                    BatimentId = salle.BatimentId,
+                    TypeSalleId = salle.TypeSalleId
+                };
+
+                // Charger les murs existants
+                var murs = salle.Murs;
+                if (murs != null && murs.Any())
+                {
+                    mursList = murs.ToList();
+                    roomHeight = mursList.FirstOrDefault()?.Hauteur ?? 0;
+                }
+
+                // Calculer l'échelle pour la visualisation
+                var roomWidth = mursList.FirstOrDefault(m => m.Orientation == MurOrientation.Nord)?.Longueur ?? 1;
+                var roomHeightCalc = mursList.FirstOrDefault(m => m.Orientation == MurOrientation.Est)?.Longueur ?? 1;
+
+                scale = Math.Min((svgWidth - padding * 2) / roomWidth, (svgHeight - padding * 2) / roomHeightCalc);
+                startX = (svgWidth - roomWidth * scale) / 2;
+                startY = (svgHeight - roomHeightCalc * scale) / 2;
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = $"Erreur lors du chargement de la salle : {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void AjouterMur()
+    {
+        var mur = new Mur { Hauteur = roomHeight, SalleId = SalleId };
+        mursList.Add(mur);
+        StateHasChanged();
+    }
+
+    private void SupprimerMur(Mur mur)
+    {
+        mursList.Remove(mur);
+        StateHasChanged();
+    }
+    private void DeplacerMur(int sourceIndex, int targetIndex)
+    {
+        if (sourceIndex >= 0 && sourceIndex < mursList.Count &&
+            targetIndex >= 0 && targetIndex < mursList.Count)
+        {
+            var mur = mursList[sourceIndex];
+            mursList.RemoveAt(sourceIndex);
+            mursList.Insert(targetIndex, mur);
+            StateHasChanged();
+        }
+    }
+
+    private double CalculerSurfaceTotaleMurs()
+    {
+        return mursList.Sum(m => (m.Longueur * roomHeight)) / 10000.0; // Conversion en m²
+    }
+
+    private double CalculerPerimetre()
+    {
+        return mursList.Sum(m => m.Longueur) / 100.0; // Conversion en mètres
+    }
+
+    private bool ValidateForm()
+    {
+        validationMessage = null;
+
+        // Vérification des champs obligatoires de la salle
+        if (string.IsNullOrWhiteSpace(currentSalleDTO?.Nom))
+        {
+            validationMessage = "Le nom de la salle est requis.";
+            return false;
+        }
+
+        if (currentSalleDTO?.Surface <= 0)
+        {
+            validationMessage = "La surface doit être supérieure à 0.";
+            return false;
+        }
+
+        if (roomHeight <= 0)
+        {
+            validationMessage = "La hauteur doit être supérieure à 0.";
+            return false;
+        }
+
+        if (currentSalleDTO?.BatimentId <= 0)
+        {
+            validationMessage = "Veuillez sélectionner un bâtiment.";
+            return false;
+        }
+
+        if (currentSalleDTO?.TypeSalleId <= 0)
+        {
+            validationMessage = "Veuillez sélectionner un type de salle.";
+            return false;
+        }
+
+        // Vérification du nombre minimum de murs
+        if (mursList.Count < 4)
+        {
+            validationMessage = "La salle doit avoir au moins 4 murs.";
+            return false;
+        }
+
+        // Vérification des propriétés des murs
+        foreach (var mur in mursList)
+        {
+            if (string.IsNullOrWhiteSpace(mur.Nom))
+            {
+                validationMessage = "Tous les murs doivent avoir un nom.";
+                return false;
+            }
+
+            if (mur.Longueur > 1500)
+            {
+                validationMessage = "La longueur de chaque mur doit être inférieure à 1500cm.";
+                return false;
+            }
+
+            if (mur.Longueur < 100)
+            {
+                validationMessage = "La longueur de chaque mur doit être supérieure à 100cm.";
+                return false;
+            }
+
+            if (!Enum.IsDefined(typeof(MurOrientation), mur.Orientation))
+            {
+                validationMessage = "Chaque mur doit avoir une orientation.";
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (!ValidateForm())
+            {
+                ViewModel.ErrorMessage = validationMessage;
+                return;
+            }
+
+            if (currentSalleDTO != null)
+            {
+                var updatedSalle = await ViewModel.UpdateSalleAsync(currentSalleDTO);
+                if (updatedSalle != null)
+                {
+                    // Mettre à jour les murs existants
+                    foreach (var mur in mursList)
+                    {
+                        mur.Hauteur = roomHeight;
+                        if (mur.MurId > 0)
+                        {
+                            await ViewModel.UpdateMurAsync(mur);
+                        }
+                        else
+                        {
+                            mur.SalleId = SalleId;
+                            await ViewModel.AddMurAsync(mur.Nom, mur.Orientation, mur.Longueur, mur.Hauteur, SalleId);
+                        }
+                    }
+
+                    NavigationManager.NavigateTo("/salles");
+                    ViewModel.SuccessMessage = "La salle a été modifiée avec succès.";
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = "Une erreur est survenue lors de la modification de la salle : " + ex.Message;
+        }
+    }
+
+    private void ReturnToSalles()
+    {
+        NavigationManager.NavigateTo("/salles");
+    }
+
+    private (double x, double y) GetNextPoint(double currentX, double currentY, MurOrientation orientation, double length)
+    {
+        return orientation switch
+        {
+            MurOrientation.Nord => (currentX + length, currentY),
+            MurOrientation.Est => (currentX, currentY + length),
+            MurOrientation.Sud => (currentX - length, currentY),
+            MurOrientation.Ouest => (currentX, currentY - length),
+            _ => (currentX, currentY)
+        };
+    }
+}

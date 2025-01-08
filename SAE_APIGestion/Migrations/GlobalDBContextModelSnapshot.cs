@@ -362,8 +362,9 @@ namespace SAE_APIGestion.Migrations
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
                         .WithMany()
                         .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
+                        .HasConstraintName("fk_capteur_salle");
 
                     b.Navigation("Mur");
 
@@ -402,8 +403,9 @@ namespace SAE_APIGestion.Migrations
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
                         .WithMany()
                         .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
+                        .HasConstraintName("fk_equipement_salle");
 
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.TypeEquipement", "TypeEquipement")
                         .WithMany("Equipements")

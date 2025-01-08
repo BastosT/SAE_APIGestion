@@ -77,6 +77,13 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_equipement_mur");
 
+                // Nouvelle relation avec la salle
+                entity.HasOne(c => c.Salle)
+                            .WithMany()
+                            .HasForeignKey(c => c.SalleId)
+                            .OnDelete(DeleteBehavior.SetNull)
+                            .HasConstraintName("fk_equipement_salle");
+
             });
 
             modelBuilder.Entity<Capteur>(entity =>
@@ -90,6 +97,13 @@ namespace SAE_APIGestion.Models.EntityFramework
                     .HasForeignKey(c => c.MurId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("fk_capteur_mur");
+
+                // Nouvelle relation avec la salle
+                entity.HasOne(c => c.Salle)
+                            .WithMany()
+                            .HasForeignKey(c => c.SalleId)
+                            .OnDelete(DeleteBehavior.SetNull)
+                            .HasConstraintName("fk_capteur_salle");
             });
 
             modelBuilder.Entity<TypeDonneesCapteur>(entity =>

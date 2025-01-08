@@ -1,0 +1,588 @@
+﻿@page "/capteursetequipements"
+@using SAE_CLIENTGestion.Models
+@using SAE_CLIENTGestion.Models.DTO
+@using SAE_CLIENTGestion.ViewModels
+@inject IJSRuntime JS
+@inject CapteursEquipementsViewModel ViewModel
+
+<PageTitle>Gestion des Capteurs et Équipements</PageTitle>
+
+<style>
+    .custom-table tr:hover {
+        background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
+    }
+
+    .btn-light:hover {
+        background-color: var(--bs-light);
+        transform: translateY(-1px);
+        transition: all 0.2s ease;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+    }
+
+    .card:hover {
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+    }
+
+    .hover-card {
+        transition: all 0.3s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+    }
+</style>
+
+<div class="container-fluid main-content overflow-auto">
+    @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+            @ViewModel.SuccessMessage
+            <button type="button" class="btn-close" @onclick="() => ViewModel.SuccessMessage = null"></button>
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+            @ViewModel.ErrorMessage
+            <button type="button" class="btn-close" @onclick="() => ViewModel.ErrorMessage = null"></button>
+        </div>
+    }
+
+    <!-- Section Capteurs -->
+    <div class="container-fluid p-4">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-cpu fs-4 text-white"></i>
+                        <h3 class="mb-0 fw-bold text-white">Capteurs</h3>
+                    </div>
+                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
+                            @onclick="() => { currentCapteur = new(); showCapteurModal = true; isNewCapteur = true; }">
+                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                        <span class="fw-medium">Nouveau Capteur</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4">
+                @if (ViewModel.IsLoading)
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5">
+                        <div class="spinner-border mb-3" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <span class="text-muted">Chargement des capteurs...</span>
+                    </div>
+                }
+                else if (!ViewModel.Capteurs.Any())
+                {
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
+                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Aucun capteur</h6>
+                            <small class="text-muted">Commencez par ajouter votre premier capteur</small>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 custom-table">
+                            <thead class="bg-light border-bottom">
+                                <tr>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Nom</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Salle</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">État</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Position</div>
+                                    </th>
+                                    <th class="text-end fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Actions</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                @foreach (var capteur in ViewModel.Capteurs)
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="px-4 py-3">
+                                            <div class="fw-semibold">@capteur.Nom</div>
+                                        </td>
+                                        <td class="px-4 py-3">@capteur.Salle?.Nom</td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge @(capteur.EstActif ? "bg-success" : "bg-danger")">
+                                                @(capteur.EstActif ? "Actif" : "Inactif")
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <small class="text-muted">
+                                                X: @capteur.PositionX, Y: @capteur.PositionY
+                                            </small>
+                                        </td>
+                                        <td class="px-4 py-3 text-end">
+                                            <div class="btn-group">
+                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick="() => EditCapteur(capteur)">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteCapteur(capteur)">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Équipements -->
+    <div class="container-fluid p-4">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="bi bi-tools fs-4 text-white"></i>
+                        <h3 class="mb-0 fw-bold text-white">Équipements</h3>
+                    </div>
+                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
+                            @onclick="() => { currentEquipement = new(); showEquipementModal = true; isNewEquipement = true; }">
+                        <i class="bi bi-plus-circle-fill fs-5"></i>
+                        <span class="fw-medium">Nouvel Équipement</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4">
+                @if (ViewModel.IsLoading)
+                {
+                    <div class="d-flex flex-column justify-content-center align-items-center py-5">
+                        <div class="spinner-border mb-3" role="status">
+                            <span class="visually-hidden">Chargement...</span>
+                        </div>
+                        <span class="text-muted">Chargement des équipements...</span>
+                    </div>
+                }
+                else if (!ViewModel.Equipements.Any())
+                {
+                    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
+                        <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                        <div>
+                            <h6 class="mb-0 fw-semibold">Aucun équipement</h6>
+                            <small class="text-muted">Commencez par ajouter votre premier équipement</small>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 custom-table">
+                            <thead class="bg-light border-bottom">
+                                <tr>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Nom</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Type</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Salle</div>
+                                    </th>
+                                    <th class="fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Dimensions</div>
+                                    </th>
+                                    <th class="text-end fw-semibold px-4 py-3 border-0">
+                                        <div class="text-primary">Actions</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody class="border-top-0">
+                                @foreach (var equipement in ViewModel.Equipements)
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="px-4 py-3">
+                                            <div class="fw-semibold">@equipement.Nom</div>
+                                        </td>
+                                        <td class="px-4 py-3">@equipement.TypeEquipement?.Nom</td>
+                                        <td class="px-4 py-3">@equipement.Salle?.Nom</td>
+                                        <td class="px-4 py-3">
+                                            <small class="text-muted">
+                                                @equipement.Longueur x @equipement.Hauteur cm
+                                            </small>
+                                        </td>
+                                        <td class="px-4 py-3 text-end">
+                                            <div class="btn-group">
+                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick="() => EditEquipement(equipement)">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteEquipement(equipement)">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Capteur -->
+    @if (showCapteurModal)
+    {
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewCapteur ? "Nouveau Capteur" : "Modifier le Capteur")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseCapteurModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentCapteur.Nom" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Salle</label>
+                                <InputSelect class="form-control" @bind-Value="currentCapteur.SalleId">
+                                    <option value="0">Sélectionner une salle</option>
+                                    @foreach (var salle in ViewModel.Salles)
+                                    {
+                                        <option value="@salle.SalleId">@salle.Nom</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">État</label>
+                                <InputSelect class="form-control" @bind-Value="currentCapteur.EstActif">
+                                    <option value="true">Actif</option>
+                                    <option value="false">Inactif</option>
+                                </InputSelect>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Position X</label>
+                                        <InputNumber class="form-control" @bind-Value="currentCapteur.PositionX" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Position Y</label>
+                                        <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Longueur (cm)</label>
+                                        <InputNumber class="form-control" @bind-Value="currentCapteur.Longueur" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Hauteur (cm)</label>
+                                        <InputNumber class="form-control" @bind-Value="currentCapteur.Hauteur" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseCapteurModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal Équipement -->
+    @if (showEquipementModal)
+    {
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">@(isNewEquipement ? "Nouvel Équipement" : "Modifier l'Équipement")</h5>
+                        <button type="button" class="btn-close" @onclick="CloseEquipementModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <EditForm Model="@currentEquipement" OnValidSubmit="HandleEquipementSubmit">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary />
+
+                            <div class="mb-3">
+                                <label class="form-label">Nom</label>
+                                <InputText class="form-control" @bind-Value="currentEquipement.Nom" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Type d'équipement</label>
+                                <InputSelect class="form-control" @bind-Value="currentEquipement.TypeEquipementId">
+                                    <option value="0">Sélectionner un type</option>
+                                    @foreach (var type in ViewModel.TypesEquipement)
+                                    {
+                                        <option value="@type.TypeEquipementId">@type.Nom</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Salle</label>
+                                <InputSelect class="form-control" @bind-Value="currentEquipement.SalleId">
+                                    <option value="0">Sélectionner une salle</option>
+                                    @foreach (var salle in ViewModel.Salles)
+                                    {
+                                        <option value="@salle.SalleId">@salle.Nom</option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Position X</label>
+                                        <InputNumber class="form-control" @bind-Value="currentEquipement.PositionX" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Position Y</label>
+                                        <InputNumber class="form-control" @bind-Value="currentEquipement.PositionY" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Longueur (cm)</label>
+                                        <InputNumber class="form-control" @bind-Value="currentEquipement.Longueur" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Hauteur (cm)</label>
+                                        <InputNumber class="form-control" @bind-Value="currentEquipement.Hauteur" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseEquipementModal">Annuler</button>
+                            </div>
+                        </EditForm>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Modal de confirmation pour la suppression -->
+    @if (showDeleteConfirmation)
+    {
+        <div class="modal-backdrop fade show"></div>
+        <div class="modal fade show" style="display: block;" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirmer la suppression</h5>
+                        <button type="button" class="btn-close" @onclick="() => showDeleteConfirmation = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        @if (itemToDelete is Capteur)
+                        {
+                            <p>Êtes-vous sûr de vouloir supprimer ce capteur ?</p>
+                        }
+                        else
+                        {
+                            <p>Êtes-vous sûr de vouloir supprimer cet équipement ?</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" @onclick="() => showDeleteConfirmation = false">Annuler</button>
+                        <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">Supprimer</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool showCapteurModal = false;
+    private bool showEquipementModal = false;
+    private bool showDeleteConfirmation = false;
+    private bool isNewCapteur = true;
+    private bool isNewEquipement = true;
+    private Capteur currentCapteur = new();
+    private Equipement currentEquipement = new();
+    private object itemToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await ViewModel.LoadDataAsync();
+    }
+
+    private void EditCapteur(Capteur capteur)
+    {
+        currentCapteur = new Capteur
+            {
+                CapteurId = capteur.CapteurId,
+                Nom = capteur.Nom,
+                EstActif = capteur.EstActif,
+                Longueur = capteur.Longueur,
+                Hauteur = capteur.Hauteur,
+                PositionX = capteur.PositionX,
+                PositionY = capteur.PositionY,
+                SalleId = capteur.SalleId,
+                MurId = capteur.MurId
+            };
+        isNewCapteur = false;
+        showCapteurModal = true;
+    }
+
+    private void EditEquipement(Equipement equipement)
+    {
+        currentEquipement = new Equipement
+            {
+                EquipementId = equipement.EquipementId,
+                Nom = equipement.Nom,
+                Hauteur = equipement.Hauteur,
+                Longueur = equipement.Longueur,
+                PositionX = equipement.PositionX,
+                PositionY = equipement.PositionY,
+                TypeEquipementId = equipement.TypeEquipementId,
+                SalleId = equipement.SalleId,
+                MurId = equipement.MurId
+            };
+        isNewEquipement = false;
+        showEquipementModal = true;
+    }
+
+    private void DeleteCapteur(Capteur capteur)
+    {
+        itemToDelete = capteur;
+        showDeleteConfirmation = true;
+    }
+
+    private void DeleteEquipement(Equipement equipement)
+    {
+        itemToDelete = equipement;
+        showDeleteConfirmation = true;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        try
+        {
+            if (itemToDelete is Capteur capteur)
+            {
+                await ViewModel.DeleteCapteurAsync(capteur.CapteurId);
+            }
+            else if (itemToDelete is Equipement equipement)
+            {
+                await ViewModel.DeleteEquipementAsync(equipement.EquipementId);
+            }
+
+            showDeleteConfirmation = false;
+            await ViewModel.LoadDataAsync();
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = "Une erreur est survenue lors de la suppression : " + ex.Message;
+        }
+    }
+
+    private async Task HandleCapteurSubmit()
+    {
+        try
+        {
+            if (isNewCapteur)
+            {
+                //await ViewModel.AddCapteurAsync(currentCapteur);
+            }
+            else
+            {
+                //await ViewModel.UpdateCapteurAsync(currentCapteur);
+            }
+
+            await ViewModel.LoadDataAsync();
+            showCapteurModal = false;
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = "Une erreur est survenue : " + ex.Message;
+        }
+    }
+
+    private async Task HandleEquipementSubmit()
+    {
+        try
+        {
+            if (isNewEquipement)
+            {
+                //await ViewModel.AddEquipementAsync(currentEquipement);
+            }
+            else
+            {
+                //await ViewModel.UpdateEquipementAsync(currentEquipement);
+            }
+
+            await ViewModel.LoadDataAsync();
+            showEquipementModal = false;
+        }
+        catch (Exception ex)
+        {
+            ViewModel.ErrorMessage = "Une erreur est survenue : " + ex.Message;
+        }
+    }
+
+    private void CloseCapteurModal()
+    {
+        showCapteurModal = false;
+        currentCapteur = new();
+    }
+
+    private void CloseEquipementModal()
+    {
+        showEquipementModal = false;
+        currentEquipement = new();
+    }
+}

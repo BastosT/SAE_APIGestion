@@ -12,8 +12,8 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Migrations
 {
     [DbContext(typeof(GlobalDBContext))]
-    [Migration("20250107130130_Migr")]
-    partial class Migr
+    [Migration("20250108202049_AjoutSalleIdCapteur")]
+    partial class AjoutSalleIdCapteur
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -365,8 +365,9 @@ namespace SAE_APIGestion.Migrations
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
                         .WithMany()
                         .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
+                        .HasConstraintName("fk_capteur_salle");
 
                     b.Navigation("Mur");
 
@@ -405,8 +406,9 @@ namespace SAE_APIGestion.Migrations
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.Salle", "Salle")
                         .WithMany()
                         .HasForeignKey("SalleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .IsRequired()
+                        .HasConstraintName("fk_equipement_salle");
 
                     b.HasOne("SAE_APIGestion.Models.EntityFramework.TypeEquipement", "TypeEquipement")
                         .WithMany("Equipements")

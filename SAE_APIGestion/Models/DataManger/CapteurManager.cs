@@ -19,20 +19,79 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Capteur>>> GetAllAsync()
         {
             return await dbContext.Capteurs
-                 .Include(b => b.DonneesCapteurs)
-                    .ThenInclude(s => s.TypeDonnees)
+                .Select(c => new Capteur
+                {
+                    CapteurId = c.CapteurId,
+                    Nom = c.Nom,
+                    EstActif = c.EstActif,
+                    DistanceFenetre = c.DistanceFenetre,
+                    Longueur = c.Longueur,
+                    Hauteur = c.Hauteur,
+                    PositionX = c.PositionX,
+                    PositionY = c.PositionY,
+                    DistancePorte = c.DistancePorte,
+                    DistanceChauffage = c.DistanceChauffage,
+                    SalleId = c.SalleId,
+                    MurId = c.MurId,
+                    Salle = new Salle
+                    {
+                        SalleId = c.Salle.SalleId,
+                        Nom = c.Salle.Nom,
+                        Surface = c.Salle.Surface,
+                        TypeSalleId = c.Salle.TypeSalleId,
+                        BatimentId = c.Salle.BatimentId
+                    },
+                    Mur = new Mur
+                    {
+                        MurId = c.Mur.MurId,
+                        Nom = c.Mur.Nom,
+                        Longueur = c.Mur.Longueur,
+                        Hauteur = c.Mur.Hauteur,
+                        Orientation = c.Mur.Orientation,
+                        SalleId = c.Mur.SalleId
+                    }
+                })
                 .ToListAsync();
         }
 
         public async Task<ActionResult<Capteur>> GetByIdAsync(int id)
         {
             return await dbContext.Capteurs
-                .Include(b => b.DonneesCapteurs)
-                    .ThenInclude(s => s.TypeDonnees)
-                .FirstOrDefaultAsync(u => u.CapteurId == id);
-
+                .Where(c => c.CapteurId == id)
+                .Select(c => new Capteur
+                {
+                    CapteurId = c.CapteurId,
+                    Nom = c.Nom,
+                    EstActif = c.EstActif,
+                    DistanceFenetre = c.DistanceFenetre,
+                    Longueur = c.Longueur,
+                    Hauteur = c.Hauteur,
+                    PositionX = c.PositionX,
+                    PositionY = c.PositionY,
+                    DistancePorte = c.DistancePorte,
+                    DistanceChauffage = c.DistanceChauffage,
+                    SalleId = c.SalleId,
+                    MurId = c.MurId,
+                    Salle = new Salle
+                    {
+                        SalleId = c.Salle.SalleId,
+                        Nom = c.Salle.Nom,
+                        Surface = c.Salle.Surface,
+                        TypeSalleId = c.Salle.TypeSalleId,
+                        BatimentId = c.Salle.BatimentId
+                    },
+                    Mur = new Mur
+                    {
+                        MurId = c.Mur.MurId,
+                        Nom = c.Mur.Nom,
+                        Longueur = c.Mur.Longueur,
+                        Hauteur = c.Mur.Hauteur,
+                        Orientation = c.Mur.Orientation,
+                        SalleId = c.Mur.SalleId
+                    }
+                })
+                .FirstOrDefaultAsync();
         }
-
         public async Task AddAsync(Capteur entity)
         {
             await dbContext.Capteurs.AddAsync(entity);

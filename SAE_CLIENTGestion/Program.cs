@@ -41,6 +41,7 @@ namespace SAE_CLIENTGestion
             builder.Services.AddScoped<BatimentsViewModel>();
             builder.Services.AddScoped<SallesViewModel>();
             builder.Services.AddScoped<PredictionViewModel>();
+            builder.Services.AddScoped<CapteursEquipementsViewModel>();
 
 
             // BabylonJS service (seulement une fois, en singleton)

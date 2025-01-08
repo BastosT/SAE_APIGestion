@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SAE_APIGestion.Migrations
 {
     /// <inheritdoc />
-    public partial class CreationBDSAE : Migration
+    public partial class AjoutSalleIdCapteur : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,22 +24,6 @@ namespace SAE_APIGestion.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_batiment", x => x.bat_id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "t_e_mur_mur",
-                columns: table => new
-                {
-                    mur_id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    mur_nom = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false),
-                    mur_longueur = table.Column<double>(type: "double precision", nullable: false),
-                    mur_hauteur = table.Column<double>(type: "double precision", nullable: false),
-                    mur_type = table.Column<int>(type: "integer", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_mur", x => x.mur_id);
                 });
 
             migrationBuilder.CreateTable(
@@ -92,11 +76,7 @@ namespace SAE_APIGestion.Migrations
                     sal_nom = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
                     sal_surface = table.Column<double>(type: "double precision", nullable: false),
                     tys_id = table.Column<int>(type: "integer", nullable: false),
-                    bat_id = table.Column<int>(type: "integer", nullable: false),
-                    mur_faceid = table.Column<int>(type: "integer", nullable: false),
-                    mur_entreeid = table.Column<int>(type: "integer", nullable: false),
-                    mur_gaucheid = table.Column<int>(type: "integer", nullable: false),
-                    mur_droiteid = table.Column<int>(type: "integer", nullable: false)
+                    bat_id = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,29 +93,28 @@ namespace SAE_APIGestion.Migrations
                         principalTable: "t_e_typesalle_tys",
                         principalColumn: "tys_id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "t_e_mur_mur",
+                columns: table => new
+                {
+                    mur_id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    mur_nom = table.Column<string>(type: "varchar(25)", maxLength: 25, nullable: false),
+                    mur_longueur = table.Column<double>(type: "double precision", nullable: false),
+                    mur_hauteur = table.Column<double>(type: "double precision", nullable: false),
+                    mur_orientation = table.Column<int>(type: "integer", nullable: false),
+                    sal_id = table.Column<int>(type: "integer", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_mur", x => x.mur_id);
                     table.ForeignKey(
-                        name: "fk_salle_murdroite",
-                        column: x => x.mur_droiteid,
-                        principalTable: "t_e_mur_mur",
-                        principalColumn: "mur_id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_salle_murentree",
-                        column: x => x.mur_entreeid,
-                        principalTable: "t_e_mur_mur",
-                        principalColumn: "mur_id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_salle_murface",
-                        column: x => x.mur_faceid,
-                        principalTable: "t_e_mur_mur",
-                        principalColumn: "mur_id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_salle_murgauche",
-                        column: x => x.mur_gaucheid,
-                        principalTable: "t_e_mur_mur",
-                        principalColumn: "mur_id",
+                        name: "fk_salle_mur",
+                        column: x => x.sal_id,
+                        principalTable: "t_e_salle_sal",
+                        principalColumn: "sal_id",
                         onDelete: ReferentialAction.Restrict);
                 });
 
@@ -161,16 +140,16 @@ namespace SAE_APIGestion.Migrations
                 {
                     table.PrimaryKey("pk_capteur", x => x.cap_id);
                     table.ForeignKey(
-                        name: "FK_t_e_capteur_cap_t_e_salle_sal_sal_id",
-                        column: x => x.sal_id,
-                        principalTable: "t_e_salle_sal",
-                        principalColumn: "sal_id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "fk_capteur_mur",
                         column: x => x.mur_id,
                         principalTable: "t_e_mur_mur",
                         principalColumn: "mur_id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "fk_capteur_salle",
+                        column: x => x.sal_id,
+                        principalTable: "t_e_salle_sal",
+                        principalColumn: "sal_id",
                         onDelete: ReferentialAction.SetNull);
                 });
 
@@ -193,12 +172,6 @@ namespace SAE_APIGestion.Migrations
                 {
                     table.PrimaryKey("pk_equipement", x => x.equ_id);
                     table.ForeignKey(
-                        name: "FK_t_e_equipement_equ_t_e_salle_sal_sal_id",
-                        column: x => x.sal_id,
-                        principalTable: "t_e_salle_sal",
-                        principalColumn: "sal_id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
                         name: "FK_t_e_equipement_equ_t_e_typeequipement_tye_tye_id",
                         column: x => x.tye_id,
                         principalTable: "t_e_typeequipement_tye",
@@ -209,6 +182,12 @@ namespace SAE_APIGestion.Migrations
                         column: x => x.mur_id,
                         principalTable: "t_e_mur_mur",
                         principalColumn: "mur_id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "fk_equipement_salle",
+                        column: x => x.sal_id,
+                        principalTable: "t_e_salle_sal",
+                        principalColumn: "sal_id",
                         onDelete: ReferentialAction.SetNull);
                 });
 
@@ -276,33 +255,14 @@ namespace SAE_APIGestion.Migrations
                 column: "tye_id");
 
             migrationBuilder.CreateIndex(
+                name: "IX_t_e_mur_mur_sal_id",
+                table: "t_e_mur_mur",
+                column: "sal_id");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_t_e_salle_sal_bat_id",
                 table: "t_e_salle_sal",
                 column: "bat_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_e_salle_sal_mur_droiteid",
-                table: "t_e_salle_sal",
-                column: "mur_droiteid",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_e_salle_sal_mur_entreeid",
-                table: "t_e_salle_sal",
-                column: "mur_entreeid",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_e_salle_sal_mur_faceid",
-                table: "t_e_salle_sal",
-                column: "mur_faceid",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_t_e_salle_sal_mur_gaucheid",
-                table: "t_e_salle_sal",
-                column: "mur_gaucheid",
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_t_e_salle_sal_tys_id",
@@ -329,6 +289,9 @@ namespace SAE_APIGestion.Migrations
                 name: "t_e_typeequipement_tye");
 
             migrationBuilder.DropTable(
+                name: "t_e_mur_mur");
+
+            migrationBuilder.DropTable(
                 name: "t_e_salle_sal");
 
             migrationBuilder.DropTable(
@@ -336,9 +299,6 @@ namespace SAE_APIGestion.Migrations
 
             migrationBuilder.DropTable(
                 name: "t_e_typesalle_tys");
-
-            migrationBuilder.DropTable(
-                name: "t_e_mur_mur");
         }
     }
 }

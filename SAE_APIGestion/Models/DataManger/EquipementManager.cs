@@ -20,6 +20,7 @@ namespace SAE_APIGestion.Models.DataManger
             return await globalDbContext.Equipements
                 .Include(b => b.Mur)
                 .Include(b => b.Salle)
+                .Include(b => b.TypeEquipement)
                 .ToListAsync();
         }
 
@@ -28,6 +29,7 @@ namespace SAE_APIGestion.Models.DataManger
             return await globalDbContext.Equipements
                                 .Include(b => b.Mur)
                 .Include(b => b.Salle)
+                .Include(b => b.TypeEquipement)
                 .FirstOrDefaultAsync(u => u.EquipementId == id);
         }
 

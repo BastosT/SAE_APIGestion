@@ -440,22 +440,20 @@
 
             if (currentSalleDTO != null)
             {
+                // 1. D'abord mettre à jour la salle
                 var updatedSalle = await ViewModel.UpdateSalleAsync(currentSalleDTO);
+
                 if (updatedSalle != null)
                 {
-                    // Mettre à jour les murs existants
+                    // 2. Supprimer tous les murs existants pour cette salle
+                    await ViewModel.DeleteAllMursForSalleAsync(SalleId);
+
+                    // 3. Recréer tous les murs
                     foreach (var mur in mursList)
                     {
                         mur.Hauteur = roomHeight;
-                        if (mur.MurId > 0)
-                        {
-                            await ViewModel.UpdateMurAsync(mur);
-                        }
-                        else
-                        {
-                            mur.SalleId = SalleId;
-                            await ViewModel.AddMurAsync(mur.Nom, mur.Orientation, mur.Longueur, mur.Hauteur, SalleId);
-                        }
+                        mur.SalleId = SalleId;
+                        await ViewModel.AddMurAsync(mur.Nom, mur.Orientation, mur.Longueur, mur.Hauteur, SalleId);
                     }
 
                     NavigationManager.NavigateTo("/salles");

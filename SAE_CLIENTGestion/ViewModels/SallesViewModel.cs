@@ -248,6 +248,28 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        public async Task DeleteAllMursForSalleAsync(int salleId)
+        {
+            try
+            {
+                // Charger tous les murs
+                var allMurs = await _murService.GetAllAsync();
+                // Filtrer les murs de la salle
+                var mursSalle = allMurs.Where(m => m.SalleId == salleId).ToList();
+
+                // Supprimer chaque mur individuellement
+                foreach (var mur in mursSalle)
+                {
+                    await _murService.DeleteAsync(mur.MurId);
+                }
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la suppression des murs : {ex.Message}";
+                throw; // On relance l'exception pour la gérer dans la méthode appelante
+            }
+        }
+
         public async Task<bool> AddCapteurToSalleAsync(CapteurDTO capteur)
         {
             try

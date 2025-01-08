@@ -1,27 +1,23 @@
 ﻿@page "/"
 @inject IBabylonJSService BabylonService
 @inject IJSRuntime JS
+@inject NavigationManager NavigationManager
 @implements IAsyncDisposable
 
 <PageTitle>Home</PageTitle>
 
 <div class="babylon-container">
-    @if (isLoaded)
+    @if (isLoaded && !hasError)
     {
         <div style="position: absolute; bottom: 10px; right: 10px; z-index: 1000;">
-            <!-- Icône d'ouverture/fermeture -->
             @if (!isHelpVisible)
             {
-                <!-- Bouton pour ouvrir -->
                 <button @onclick="ToggleHelp" class="btn btn-primary">
                     <i class="bi bi-list" style="font-size: 1.5rem;"></i>
                 </button>
             }
             else
             {
-
-
-                <!-- Contenu de l'aide -->
                 <div style="display: flex; flex-direction: column; color: white;">
                     <div style="padding: 5px; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: space-between; align-items: center; border-top-left-radius: 5px; border-top-right-radius: 5px;">
                         <p style="margin: 0; font-size: large; width: fit-content; display: flex; align-items: center; justify-content: center;">Contrôles caméra</p>
@@ -43,80 +39,120 @@
 
     <canvas id="renderCanvas"></canvas>
 
-    @if (!isLoaded)
+    @if (!isLoaded && !hasError)
     {
         <div class="loading-overlay">
             <div class="spinner"></div>
             <div class="loading-text">Chargement en cours...</div>
         </div>
     }
+
+    @if (hasError)
+    {
+        <div class="error-overlay">
+            <div class="error-container">
+                <i class="bi bi-exclamation-triangle-fill error-icon"></i>
+                <div class="error-message">@errorMessage</div>
+                <button class="btn btn-primary mt-3" @onclick="ReloadPage">Réessayer</button>
+            </div>
+        </div>
+    }
 </div>
 
 <style>
-    .babylon-container {
-        width: 100vw;
-        height: 100%;
-        overflow: hidden;
-    }
+   .babylon-container {
+       width: 100vw;
+       height: 100%;
+       overflow: hidden;
+   }
 
-    #renderCanvas {
-        width: 100%;
-        height: 100%;
-        touch-action: none;
-        display: block;
-        outline: none;
-    }
+   #renderCanvas {
+       width: 100%;
+       height: 100%;
+       touch-action: none;
+       display: block;
+       outline: none;
+   }
 
-    /* Styles pour l'écran de chargement */
-    .loading-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    }
+   .loading-overlay, .error-overlay {
+       position: absolute;
+       top: 50%;
+       left: 50%;
+       transform: translate(-50%, -50%);
+       display: flex;
+       flex-direction: column;
+       justify-content: center;
+       align-items: center;
+   }
 
-    .spinner {
-        width: 50px;
-        height: 50px;
-        border: 5px solid #f3f3f3;
-        border-top: 5px solid #3498db;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-        margin-bottom: 20px;
-    }
+   .loading-overlay {
+       background-color: rgba(0, 0, 0, 0.8);
+       padding: 2rem;
+       border-radius: 8px;
+   }
 
-    .loading-text {
-        color: white;
-        font-size: 1.2rem;
-    }
+   .error-overlay {
+       background-color: transparent;
+   }
 
-    @@keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
+   .spinner {
+       width: 50px;
+       height: 50px;
+       border: 5px solid #f3f3f3;
+       border-top: 5px solid #3498db;
+       border-radius: 50%;
+       animation: spin 1s linear infinite;
+       margin-bottom: 20px;
+   }
 
-        100% {
-            transform: rotate(360deg);
-        }
-    }
+   .loading-text {
+       color: white;
+       font-size: 1.2rem;
+   }
 
-    /* Assurer que le conteneur prend tout l'espace disponible */
-    :root, body, #app {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-    }
+   .error-container {
+       background-color: rgba(0, 0, 0, 0.8);
+       padding: 2rem;
+       border-radius: 8px;
+       text-align: center;
+       max-width: 80%;
+   }
+
+   .error-icon {
+       color: #dc3545;
+       font-size: 3rem;
+       margin-bottom: 1rem;
+   }
+
+   .error-message {
+       color: white;
+       font-size: 1.1rem;
+       margin-bottom: 1rem;
+   }
+
+   @@keyframes spin {
+       0% {
+           transform: rotate(0deg);
+       }
+
+       100% {
+           transform: rotate(360deg);
+       }
+   }
+
+   :root, body, #app {
+       margin: 0;
+       padding: 0;
+       height: 100%;
+   }
 </style>
+
 @code {
     private bool _disposed = false;
     private bool isLoaded = false;
-    private bool isHelpVisible = false; // Variable pour contrôler la visibilité de l'aide
+    private bool isHelpVisible = false;
+    private bool hasError = false;
+    private string errorMessage = string.Empty;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -124,22 +160,33 @@
         {
             try
             {
-                // Initialise la scène avec le singleton
                 await BabylonService.InitializeSceneAsync("renderCanvas");
                 isLoaded = true;
                 StateHasChanged();
             }
             catch (Exception ex)
             {
+                hasError = true;
+                errorMessage = $"Une erreur est survenue lors du chargement : {ex.Message}";
+                isLoaded = false;
                 Console.WriteLine($"Error initializing scene: {ex.Message}");
                 await JS.InvokeVoidAsync("console.log", "Error:", ex.Message);
+                StateHasChanged();
             }
         }
     }
 
     private void ToggleHelp()
     {
-        isHelpVisible = !isHelpVisible; // Alterne entre afficher et masquer l'aide
+        isHelpVisible = !isHelpVisible;
+    }
+
+    private void ReloadPage()
+    {
+        hasError = false;
+        errorMessage = string.Empty;
+        isLoaded = false;
+        NavigationManager.NavigateTo(NavigationManager.Uri, forceLoad: true);
     }
 
     public async ValueTask DisposeAsync()

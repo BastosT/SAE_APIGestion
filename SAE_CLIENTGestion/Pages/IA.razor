@@ -6,35 +6,24 @@
 
 <h3>Prédiction IA</h3>
 
+<!-- Section k-NN -->
 <div>
     <h4>Prédiction avec k-NN :</h4>
     <button @onclick="FetchPredictKnn">Obtenir la prédiction k-NN</button>
 </div>
 
-<div style="margin-top: 20px;">
-    <h4>Prédiction avec horizon personnalisé :</h4>
-    <label for="horizon">Horizon de prédiction (en secondes) :</label>
-    <input id="horizon" type="number" @bind="ViewModel.Horizon" min="1" style="margin-right: 10px;" />
-    <button @onclick="FetchPredictionWithHorizon">Obtenir la prédiction</button>
-</div>
-
-@if (ViewModel.IsLoading)
-{
-    <p>Chargement...</p>
-}
-else if (ViewModel.PredictionData != null)
+@if (ViewModel.PredictionKnnData != null)
 {
     <div style="margin-top: 20px;">
-        <h4>Résultat de la prédiction :</h4>
-        @if (ViewModel.PredictionData.ContainsKey("prediction"))
+        <h4>Résultat de la prédiction k-NN :</h4>
+        @if (ViewModel.PredictionKnnData.ContainsKey("prediction"))
         {
-            // Désérialisation des données JSON en List<List<decimal>>
-            var predictionList = ViewModel.PredictionData["prediction"] as JsonElement?;
+            var predictionList = ViewModel.PredictionKnnData["prediction"] as JsonElement?;
             if (predictionList.HasValue)
             {
                 var array = predictionList.Value.EnumerateArray().FirstOrDefault();
                 var firstPrediction = array[0].GetDecimal();
-                <p>Dernière valeur prédite : @firstPrediction seconde</p>
+                <p>Dernière valeur prédite : @firstPrediction °C</p>
             }
             else
             {
@@ -46,6 +35,53 @@ else if (ViewModel.PredictionData != null)
             <p>Erreur : données de prédiction mal formées</p>
         }
     </div>
+}
+
+<!-- Section Horizon -->
+<div style="margin-top: 20px;">
+    <h4>Prédiction avec horizon personnalisé :</h4>
+    <label for="horizon">Horizon de prédiction (en secondes) :</label>
+    <input id="horizon" type="number" @bind="ViewModel.Horizon" min="1" style="margin-right: 10px;" />
+    <button @onclick="FetchPredictionWithHorizon">Obtenir la prédiction</button>
+</div>
+
+@if (ViewModel.PredictionWithHorizonData != null)
+{
+    <div style="margin-top: 20px;">
+        <h4>Résultat de la prédiction avec horizon personnalisé :</h4>
+        @if (ViewModel.PredictionWithHorizonData.ContainsKey("predictions"))
+        {
+            var predictionsElement = ViewModel.PredictionWithHorizonData["predictions"] as JsonElement?;
+            if (predictionsElement.HasValue && predictionsElement.Value.ValueKind == JsonValueKind.Array)
+            {
+                var predictions = predictionsElement.Value.EnumerateArray().Select(p => p.GetDecimal()).ToList();
+
+                if (predictions.Any())
+                {
+                    var lastPrediction = predictions.Last(); // Récupérer la dernière valeur
+                    <p>Dernière valeur prédite : @lastPrediction seconde(s)</p>
+                }
+                else
+                {
+                    <p>Aucune prédiction disponible.</p>
+                }
+            }
+            else
+            {
+                <p>Erreur : données de prédiction mal formées ou non disponibles.</p>
+            }
+        }
+        else
+        {
+            <p>Erreur : la clé 'predictions' est absente des données retournées.</p>
+        }
+    </div>
+}
+
+
+@if (ViewModel.IsLoading)
+{
+    <p>Chargement...</p>
 }
 else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
 {

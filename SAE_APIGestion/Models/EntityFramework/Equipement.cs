@@ -31,23 +31,19 @@ namespace SAE_APIGestion.Models.EntityFramework
 
 
 
-        [Required]
         [Column("tye_id")]
-        public int TypeEquipementId { get; set; }
-
-        [ForeignKey("TypeEquipementId")]
-        public virtual TypeEquipement TypeEquipement { get; set; }
-
-        
+        public int? TypeEquipementId { get; set; }
+        [Column("sal_id")]
+        public int? SalleId { get; set; }
         [Column("mur_id")]
         public int? MurId { get; set; }
 
+
+
+        [ForeignKey("TypeEquipementId")]
+        public virtual TypeEquipement TypeEquipement { get; set; }
         [ForeignKey("MurId")]
         public virtual Mur Mur { get; set; }
-
-        [Column("sal_id")]
-        public int SalleId { get; set; }
-
         [ForeignKey("SalleId")]
         public virtual Salle Salle { get; set; }
     }

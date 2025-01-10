@@ -16,6 +16,10 @@ namespace SAE_APIGestion.Models.Mapper
                 .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
 
+            CreateMap<MurDTO, Mur>()
+                .ReverseMap()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));
+
             CreateMap<EquipementDTO, Equipement>()
                 .ReverseMap()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcValue) => srcValue != null));

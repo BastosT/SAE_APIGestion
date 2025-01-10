@@ -27,13 +27,16 @@ namespace SAE_APIGestion.Models.EntityFramework
 
         [Required]
         [Column("mur_orientation")]
-        public Orientation Orientation { get; set; }
+        public MurOrientation Orientation { get; set; }
+
+
+
 
         [InverseProperty(nameof(Equipement.Mur))]
-        public virtual List<Equipement> Equipements { get; set; } = new List<Equipement>();
+        public virtual ICollection<Equipement> Equipements { get; set; }
 
         [InverseProperty(nameof(Capteur.Mur))]
-        public virtual List<Capteur> Capteurs { get; set; } = new List<Capteur>();
+        public virtual ICollection<Capteur> Capteurs { get; set; }
 
         [Column("sal_id")]
         public int? SalleId { get; set; }
@@ -42,11 +45,11 @@ namespace SAE_APIGestion.Models.EntityFramework
         public virtual Salle? Salle { get; set; }
     }
 
-    public enum Orientation
+    public enum MurOrientation
     {
         Nord,
-        Ouest,
+        Est,
         Sud,
-        Est
+        Ouest
     }
 }

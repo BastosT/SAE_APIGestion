@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using SAE_APIGestion.Models.DTO;
 using SAE_APIGestion.Models.EntityFramework;
+using System.Text.Json;
 
 namespace SAE_APIGestion.Controllers
 {
@@ -129,21 +130,30 @@ namespace SAE_APIGestion.Controllers
         [HttpPut("dto/{id}")]
         public async Task<IActionResult> PutCapteurDTO(int id, CapteurDTO capteurDto)
         {
+
             if (id != capteurDto.CapteurId)
             {
-                return BadRequest();
+                return BadRequest("ID mismatch");
             }
 
+            // Vérification si le capteur existe
             var capteurToUpdate = await dataRepository.GetByIdAsync(id);
             if (capteurToUpdate == null)
             {
-                return NotFound();
+                return NotFound("Capteur not found");
             }
 
+            // Mapping du DTO vers l'entité Capteur
             var capteur = _mapper.Map<Capteur>(capteurDto);
+
+            // Vérification des valeurs après mapping
+
+            // Mise à jour
             await dataRepository.UpdateAsync(capteurToUpdate.Value, capteur);
+
             return NoContent();
         }
+
 
         [HttpPost("dto")]
         public async Task<ActionResult<CapteurDTO>> PostCapteurDTO(CapteurDTO capteurDto)

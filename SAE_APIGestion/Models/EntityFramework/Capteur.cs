@@ -46,7 +46,7 @@ namespace SAE_APIGestion.Models.EntityFramework
         public double? DistanceChauffage { get; set; }
 
         [Column("sal_id")]
-        public int SalleId { get; set; }
+        public int? SalleId { get; set; }
         
         [Column("mur_id")]
         public int? MurId { get; set; }

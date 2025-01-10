@@ -1102,45 +1102,43 @@
         public double Hauteur { get; set; }  // Hauteur commune à tous les murs
     }
 
-    private string GetEquipementColor(int typeEquipementId)
+    private string GetEquipementColor(int? typeEquipementId)
     {
         try
         {
             Console.WriteLine($"Debug - TypeEquipementID: {typeEquipementId}");
             Console.WriteLine($"Debug - Nombre de types: {ViewModel.TypesEquipement.Count()}");
 
-            var typeEquipement = ViewModel.TypesEquipement.FirstOrDefault(t => t.TypeEquipementId == typeEquipementId);
+            // Vérifie si l'ID est null ou si aucun type n'est trouvé
+            var typeEquipement = typeEquipementId.HasValue
+                ? ViewModel.TypesEquipement.FirstOrDefault(t => t.TypeEquipementId == typeEquipementId.Value)
+                : null;
 
             if (typeEquipement != null)
             {
                 Console.WriteLine($"Debug - Type trouvé: {typeEquipement.Nom}");
 
-                // Stockons le nom en minuscules pour la comparaison
-                var nomType = typeEquipement.Nom.ToLower();
-                var couleur = "#dee2e6"; // Couleur par défaut
-
+                // Retourne une couleur en fonction de l'ID du type d'équipement
                 return typeEquipement.TypeEquipementId switch
                 {
-                    1 => "#dee2e6",  // Radiateur - Orange
+                    1 => "#FF9800",  // Radiateur - Orange
                     2 => "#2196F3",  // Fenetre - Bleu
                     3 => "#4CE4C1",  // Vitre - Vert
                     4 => "#9C27B0",  // Porte - Violet
                     _ => "#dee2e6"   // Défaut - Gris
                 };
-
-                Console.WriteLine($"Debug - Couleur choisie pour {nomType}: {couleur}");
-                return couleur;
             }
 
             Console.WriteLine($"Debug - Aucun type trouvé pour ID: {typeEquipementId}");
-            return "#dee2e6";
+            return "#dee2e6"; // Couleur par défaut si aucun type n'est trouvé
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Debug - Erreur: {ex.Message}");
-            return "#dee2e6";
+            return "#dee2e6"; // Couleur par défaut en cas d'erreur
         }
     }
+
 
     private int currentWallIndex = 0;
     private Mur currentWall => currentSalle.Murs?.ElementAtOrDefault(currentWallIndex);
@@ -1181,11 +1179,14 @@
         showModalModif = true;
     }
 
-    private string GetEquipementStrokeColor(int typeEquipementId)
+    private string GetEquipementStrokeColor(int? typeEquipementId)
     {
         try
         {
-            var typeEquipement = ViewModel.TypesEquipement.FirstOrDefault(t => t.TypeEquipementId == typeEquipementId);
+            // Vérifie si l'ID est nul et cherche l'équipement correspondant
+            var typeEquipement = typeEquipementId.HasValue
+                ? ViewModel.TypesEquipement.FirstOrDefault(t => t.TypeEquipementId == typeEquipementId.Value)
+                : null;
 
             if (typeEquipement != null)
             {
@@ -1201,14 +1202,16 @@
                 };
             }
 
-            return "#adb5bd";
+            return "#adb5bd"; // Couleur par défaut si aucun type n'est trouvé ou si l'ID est nul
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Debug - Erreur dans GetEquipementStrokeColor: {ex.Message}");
-            return "#adb5bd";
+            return "#adb5bd"; // Couleur par défaut en cas d'erreur
         }
     }
+
+
     protected override async Task OnInitializedAsync()
     {
         await ViewModel.LoadDataAsync();
@@ -1273,10 +1276,10 @@
                 if (createdSalle != null)
                 {
                     // Créer les murs avec les dimensions spécifiées et l'ID de la salle
-                    Mur m1 = await ViewModel.AddMurAsync("M1", Models.MurOrientation.Nord, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
-                    Mur m2 = await ViewModel.AddMurAsync("M2", Models.MurOrientation.Ouest, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
-                    Mur m3 = await ViewModel.AddMurAsync("M3", Models.MurOrientation.Sud, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
-                    Mur m4 = await ViewModel.AddMurAsync("M4", Models.MurOrientation.Est, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    MurDTO m1 = await ViewModel.AddMurAsync("M1", Models.MurOrientation.Nord, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    MurDTO m2 = await ViewModel.AddMurAsync("M2", Models.MurOrientation.Ouest, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    MurDTO m3 = await ViewModel.AddMurAsync("M3", Models.MurOrientation.Sud, currentDimensions.Largeur, currentDimensions.Hauteur, createdSalle.SalleId);
+                    MurDTO m4 = await ViewModel.AddMurAsync("M4", Models.MurOrientation.Est, currentDimensions.Longueur, currentDimensions.Hauteur, createdSalle.SalleId);
                     success = true;
                 }
 

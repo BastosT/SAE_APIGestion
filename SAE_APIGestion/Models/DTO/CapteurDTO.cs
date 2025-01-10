@@ -19,7 +19,7 @@ namespace SAE_APIGestion.Models.DTO
         public double? DistanceFenetre { get; set; }
         public double? DistanceChauffage { get; set; }
 
-        public int SalleId { get; set; }
+        public int? SalleId { get; set; }
         public int? MurId { get; set; }
     }
 }

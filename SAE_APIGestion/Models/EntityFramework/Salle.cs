@@ -39,9 +39,13 @@ namespace SAE_APIGestion.Models.EntityFramework
         public int BatimentId { get; set; }
 
         [ForeignKey("BatimentId")]
-        public virtual Batiment Batiment { get; set; }
+        public virtual Batiment? Batiment { get; set; }
 
         public virtual ICollection<Mur> Murs { get; set; }
+
+        public virtual ICollection<Capteur> Capteurs { get; set; }
+
+        public virtual ICollection<Equipement> Equipements { get; set; }
 
 
     }

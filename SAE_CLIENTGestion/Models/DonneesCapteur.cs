@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
+﻿
 namespace SAE_CLIENTGestion.Models
 {
     public class DonneesCapteur

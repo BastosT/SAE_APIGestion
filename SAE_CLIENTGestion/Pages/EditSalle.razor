@@ -279,7 +279,13 @@
                         </div>
 
                         <div class="mt-4 d-flex align-items-start" style="gap: 1rem;">
-                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                            <button type="submit" class="btn btn-primary" disabled="@isProcessing">
+                                @if (isProcessing)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                }
+                                @progressStatus
+                            </button>
                             <button type="button" class="btn btn-secondary" @onclick="ReturnToSalles">Annuler</button>
                             @if (!string.IsNullOrEmpty(validationMessage))
                             {
@@ -477,47 +483,121 @@
         return true;
     }
 
+    private string progressStatus = "Modifier la salle";
+    private bool isProcessing = false;
+
     private async Task HandleValidSubmit()
     {
+        if (isProcessing) return;
+        isProcessing = true;
+        StateHasChanged();
+
         try
         {
             if (!ValidateForm())
             {
                 ViewModel.ErrorMessage = validationMessage;
+                isProcessing = false;
+                StateHasChanged();
                 return;
             }
 
             if (currentSalleDTO != null)
             {
-
-                await ViewModel.ClearSalleForCapteurAsync(currentSalleDTO.SalleId);
-
-                // 1. D'abord mettre à jour la salle
+                progressStatus = "Mise à jour de la salle...";
+                StateHasChanged();
+                Console.WriteLine($"Début de la mise à jour de la salle {currentSalleDTO.Nom}");
                 var updatedSalle = await ViewModel.UpdateSalleAsync(currentSalleDTO);
 
                 if (updatedSalle != null)
                 {
-                    // 2. Supprimer tous les murs existants pour cette salle
-                    await ViewModel.DeleteAllMursForSalleAsync(SalleId);
+                    progressStatus = "Récupération des murs existants...";
+                    StateHasChanged();
+                    var existingMurs = await ViewModel.GetMursWithCapteursBySalleId(SalleId);
+                    Console.WriteLine($"Nombre de murs existants: {existingMurs.Count}");
 
-                    // 3. Recréer tous les murs
-                    foreach (var mur in mursList)
+                    foreach (var mur in existingMurs)
                     {
-                        mur.Hauteur = roomHeight;
-                        mur.SalleId = SalleId;
-                        await ViewModel.AddMurAsync(mur.Nom, mur.Orientation, mur.Longueur, mur.Hauteur, SalleId);
+                        Console.WriteLine($"Mur existant {mur.Nom} (ID: {mur.MurId}) avec {mur.Capteurs?.Count ?? 0} capteurs");
+                    }
+
+                    Console.WriteLine($"Nombre de nouveaux murs à créer: {mursList.Count}");
+
+                    for (int i = 0; i < mursList.Count; i++)
+                    {
+                        progressStatus = $"Traitement du mur {i + 1}/{mursList.Count}...";
+                        StateHasChanged();
+                        var newMur = mursList[i];
+                        Console.WriteLine($"\nTraitement du mur {i + 1}: {newMur.Nom}");
+
+                        newMur.Hauteur = roomHeight;
+                        newMur.SalleId = SalleId;
+
+                        if (i < existingMurs.Count)
+                        {
+                            var oldMur = existingMurs[i];
+                            Console.WriteLine($"Remplacement du mur {oldMur.Nom} (ID: {oldMur.MurId}) avec {oldMur.Capteurs?.Count ?? 0} capteurs");
+
+                            progressStatus = $"Création du nouveau mur {i + 1}/{mursList.Count}...";
+                            StateHasChanged();
+                            var createdMur = await ViewModel.AddMurAsync(newMur.Nom, newMur.Orientation,
+                                newMur.Longueur, newMur.Hauteur, SalleId);
+                            Console.WriteLine($"Nouveau mur créé avec ID: {createdMur.MurId}");
+
+                            progressStatus = $"Mise à jour des capteurs du mur {i + 1}/{mursList.Count}...";
+                            StateHasChanged();
+                            Console.WriteLine($"Mise à jour des capteurs de {oldMur.MurId} vers {createdMur.MurId}");
+                            await ViewModel.UpdateCapteurMurId(oldMur.MurId, createdMur.MurId);
+
+                            progressStatus = $"Suppression de l'ancien mur {i + 1}/{mursList.Count}...";
+                            StateHasChanged();
+                            Console.WriteLine($"Suppression de l'ancien mur {oldMur.MurId}");
+                            await ViewModel.DeleteMurAsync(oldMur.MurId);
+                        }
+                        else
+                        {
+                            progressStatus = $"Ajout du nouveau mur {i + 1}/{mursList.Count}...";
+                            StateHasChanged();
+                            Console.WriteLine($"Création d'un nouveau mur supplémentaire: {newMur.Nom}");
+                            await ViewModel.AddMurAsync(newMur.Nom, newMur.Orientation,
+                                newMur.Longueur, newMur.Hauteur, SalleId);
+                        }
+                    }
+
+                    if (existingMurs.Count > mursList.Count)
+                    {
+                        progressStatus = "Suppression des murs excédentaires...";
+                        StateHasChanged();
+                        Console.WriteLine($"\nSuppression des murs excédentaires");
+                        for (int i = mursList.Count; i < existingMurs.Count; i++)
+                        {
+                            Console.WriteLine($"Suppression du mur {existingMurs[i].Nom} (ID: {existingMurs[i].MurId})");
+                            await ViewModel.DeleteMurAsync(existingMurs[i].MurId);
+                        }
+                    }
+
+                    progressStatus = "Finalisation...";
+                    StateHasChanged();
+                    NavigationManager.NavigateTo("/salles");
+                    ViewModel.SuccessMessage = "La salle a été modifiée avec succès.";
                 }
-                
-                NavigationManager.NavigateTo("/salles");
-                ViewModel.SuccessMessage = "La salle a été modifiée avec succès.";
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"ERREUR: {ex.Message}");
+            Console.WriteLine($"StackTrace: {ex.StackTrace}");
+            ViewModel.ErrorMessage = "Une erreur est survenue lors de la modification de la salle : " + ex.Message;
+            progressStatus = "Erreur lors de la modification";
+            StateHasChanged();
+        }
+        finally
+        {
+            isProcessing = false;
+            progressStatus = "Modifier la salle";
+            StateHasChanged();
+        }
     }
-    catch (Exception ex)
-    {
-        ViewModel.ErrorMessage = "Une erreur est survenue lors de la modification de la salle : " + ex.Message;
-    }
-}
 
     private void ReturnToSalles()
     {

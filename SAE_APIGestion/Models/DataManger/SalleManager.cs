@@ -56,7 +56,6 @@ namespace SAE_APIGestion.Models.DataManger
             salle.Surface = entity.Surface;
             salle.TypeSalleId = entity.TypeSalleId;
             salle.BatimentId = entity.BatimentId;
-            salle.Murs = entity.Murs;
             await globalDBContext.SaveChangesAsync();
         }
 

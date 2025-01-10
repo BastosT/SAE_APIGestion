@@ -34,6 +34,7 @@ namespace SAE_CLIENTGestion
             builder.Services.AddScoped<IService<BatimentDTO>, WSServiceBatimentDTO>();
             builder.Services.AddScoped<IService<EquipementDTO>, WSServiceEquipementDTO>();
             builder.Services.AddScoped<IService<CapteurDTO>, WSServiceCapteurDTO>();
+            builder.Services.AddScoped<IService<MurDTO>, WSServiceMurDTO>();
 
             builder.Services.AddScoped<PredictionService>();
 

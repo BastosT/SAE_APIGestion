@@ -10,10 +10,12 @@
         public double? Hauteur { get; set; }
         public double PositionX { get; set; }
         public double PositionY { get; set; }
+
         public double? DistancePorte { get; set; }
-        public double? DistanceChauffage { get; set; }
         public double? DistanceFenetre { get; set; }
-        public int SalleId { get; set; }
+        public double? DistanceChauffage { get; set; }
+
+        public int? SalleId { get; set; }
         public int? MurId { get; set; }
     }
 }

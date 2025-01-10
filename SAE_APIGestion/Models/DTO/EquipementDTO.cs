@@ -11,7 +11,7 @@
         public double PositionY { get; set; }
 
 
-        public int TypeEquipementId { get; set; }
+        public int? TypeEquipementId { get; set; }
         public int? MurId { get; set; }
         public int? SalleId { get; set; }
 

@@ -31,7 +31,7 @@ namespace SAE_APIGestion.Models.DataManger
                   .Include(b => b.Mur)
                   .Include(b => b.Salle)
                   .Include(b => b.DonneesCapteurs)
-                  .FirstOrDefaultAsync();
+                  .FirstOrDefaultAsync(b => b.CapteurId == id);
         }
         public async Task AddAsync(Capteur entity)
         {
@@ -48,21 +48,20 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task UpdateAsync(Capteur capteur, Capteur entity)
         {
-            dbContext.Entry(entity).State = EntityState.Modified;
-
-            // On met à jour uniquement les propriétés simples et les IDs
-            entity.Nom = capteur.Nom;
-            entity.Longueur = capteur.Longueur;
-            entity.Hauteur = capteur.Hauteur;
-            entity.DistanceChauffage = capteur.DistanceChauffage;
-            entity.DistancePorte = capteur.DistancePorte;
-            entity.DistanceFenetre = capteur.DistanceFenetre;
-            entity.EstActif = capteur.EstActif;
-            entity.MurId = capteur.MurId;
-            entity.SalleId = capteur.SalleId;
+            dbContext.Entry(capteur).State = EntityState.Modified;
+            capteur.Nom = entity.Nom;
+            capteur.Longueur = entity.Longueur;
+            capteur.Hauteur = entity.Hauteur;
+            capteur.DistanceChauffage = entity.DistanceChauffage;
+            capteur.DistancePorte = entity.DistancePorte;
+            capteur.DistanceFenetre = entity.DistanceFenetre;
+            capteur.EstActif = entity.EstActif;
+            capteur.MurId = entity.MurId;
+            capteur.SalleId = entity.SalleId;
 
             await dbContext.SaveChangesAsync();
         }
+
 
     }
 
@@ -111,7 +110,6 @@ namespace SAE_APIGestion.Models.DataManger
             capteur.Unite = entity.Unite;
             capteur.Nom = entity.Nom;
             capteur.DonneesCapteurs = entity.DonneesCapteurs;
-
             await dbContext.SaveChangesAsync();
         }
 

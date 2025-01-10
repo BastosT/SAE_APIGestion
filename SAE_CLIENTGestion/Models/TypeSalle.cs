@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-
-namespace SAE_CLIENTGestion.Models
+﻿namespace SAE_CLIENTGestion.Models
 {
     public class TypeSalle
 

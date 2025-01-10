@@ -13,6 +13,7 @@ namespace SAE_CLIENTGestion.ViewModels
         private readonly IService<SalleDTO> _salleServiceDTO;
         private readonly IService<BatimentDTO> _batimentService;
         private readonly IService<Mur> _murService;
+        private readonly IService<MurDTO> _murServiceDTO;
         private readonly IService<CapteurDTO> _capteurServiceDTO;
         private readonly IService<Capteur> _capteurService;
         private readonly IService<EquipementDTO> _equipementServiceDTO;
@@ -25,6 +26,7 @@ namespace SAE_CLIENTGestion.ViewModels
             IService<SalleDTO> salleServiceDTO,
             IService<BatimentDTO> batimentService,
             IService<Mur> murService,
+            IService<MurDTO> murServiceDTO,
             IService<Capteur> capteurService,
             IService<CapteurDTO> capteurServiceDTO,
             IService<Equipement> equipementService,
@@ -36,6 +38,7 @@ namespace SAE_CLIENTGestion.ViewModels
             _salleServiceDTO = salleServiceDTO;
             _batimentService = batimentService;
             _murService = murService;
+            _murServiceDTO = murServiceDTO;
             _capteurService = capteurService;
             _capteurServiceDTO = capteurServiceDTO;
             _equipementService = equipementService;
@@ -105,31 +108,49 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task LoadCapteursSalleAsync(int salleId)
+        public async Task LoadCapteursSalleAsync(int? salleId)
         {
             try
             {
                 var allCapteurs = await _capteurService.GetAllAsync();
-                CapteursSalle = allCapteurs.Where(c => c.SalleId == salleId).ToList();
+                if (allCapteurs != null)
+                {
+                    CapteursSalle = allCapteurs.Where(c => c.SalleId == salleId).ToList();
+                }
+                else
+                {
+                    CapteursSalle = new List<Capteur>(); // Valeur par défaut si la liste est nulle
+                }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors du chargement des capteurs : {ex.Message}";
+                CapteursSalle = new List<Capteur>(); // Valeur par défaut en cas d'erreur
             }
         }
 
-        public async Task LoadEquipementsSalleAsync(int salleId)
+
+        public async Task LoadEquipementsSalleAsync(int? salleId)
         {
             try
             {
                 var allEquipements = await _equipementService.GetAllAsync();
-                EquipementsSalle = allEquipements.Where(e => e.SalleId == salleId).ToList();
+                if (allEquipements != null)
+                {
+                    EquipementsSalle = allEquipements.Where(e => e.SalleId == salleId).ToList();
+                }
+                else
+                {
+                    EquipementsSalle = new List<Equipement>(); // Valeur par défaut si la liste est nulle
+                }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors du chargement des équipements : {ex.Message}";
+                EquipementsSalle = new List<Equipement>(); // Valeur par défaut en cas d'erreur
             }
         }
+
 
         private async Task LoadSallesAsync()
         {
@@ -248,32 +269,7 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task ClearSalleForCapteurAsync(int salleId)
-        {
-            var allCapteurs = await _capteurService.GetAllAsync();
-            var capteursSalle = allCapteurs.Where(c => c.SalleId == salleId).ToList();
 
-            foreach (var capteur in capteursSalle)
-            {
-                var capteurDTO = new CapteurDTO
-                {
-                    CapteurId = capteur.CapteurId,
-                    Nom = capteur.Nom,
-                    EstActif = capteur.EstActif,
-                    Longueur = capteur.Longueur,
-                    Hauteur = capteur.Hauteur,
-                    PositionX = capteur.PositionX,
-                    PositionY = capteur.PositionY,
-                    DistancePorte = capteur.DistancePorte,
-                    DistanceChauffage = capteur.DistanceChauffage,
-                    DistanceFenetre = capteur.DistanceFenetre,
-                    SalleId = capteur.SalleId,
-                    MurId = null     // On met à null
-                };
-
-                await _capteurServiceDTO.PutAsync(capteur.CapteurId, capteurDTO);
-            }
-        }
 
         public async Task DeleteAllMursForSalleAsync(int salleId)
         {
@@ -527,11 +523,11 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<Mur> AddMurAsync(string nom, MurOrientation orientation, double longueurMur, double hauteurMur, int salleid)
+        public async Task<MurDTO> AddMurAsync(string nom, MurOrientation orientation, double longueurMur, double hauteurMur, int salleid)
         {
             try
             {
-                var mur = new Mur
+                var mur = new MurDTO
                 {
                     Nom = nom,
                     Longueur = longueurMur,
@@ -540,7 +536,7 @@ namespace SAE_CLIENTGestion.ViewModels
                     SalleId = salleid
                 };
 
-                var createdMur = await _murService.PostAsync(mur);
+                var createdMur = await _murServiceDTO.PostAsync(mur);
                 SuccessMessage = $"Mur {nom} créé avec succès";
                 ErrorMessage = null;
                 return createdMur;
@@ -740,6 +736,81 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        public async Task<List<Mur>> GetMursWithCapteursBySalleId(int salleId)
+        {
+            try
+            {
+                Console.WriteLine("==========================================");
+                Console.WriteLine("==========================================");
+                Console.WriteLine("\n=== DÉBUT RÉCUPÉRATION MURS ET CAPTEURS ===");
 
+                Console.WriteLine("\nRécupération de tous les murs ---");
+                var allMurs = await _murService.GetAllAsync();
+                Console.WriteLine($"Nombre total de murs: {allMurs.Count}");
+
+                Console.WriteLine($"\nFiltrage des murs pour la salle {salleId} ---");
+                Console.WriteLine("\n--- Tous les murs et leurs SalleId ---");
+                foreach (var mur in allMurs)
+                {
+                    Console.WriteLine($"Mur {mur.Nom} (ID: {mur.MurId}) - SalleId: {mur.SalleId}");
+                }
+
+                Console.WriteLine($"\n--- Tentative de filtrage pour salleId: {salleId} ---");
+                var mursSalle = allMurs.Where(m => m.SalleId == salleId).ToList();
+                Console.WriteLine($"Nombre de murs dans la salle: {mursSalle.Count}");
+                foreach (var mur in mursSalle)
+                {
+                    Console.WriteLine($"Mur trouvé: {mur.Nom} (ID: {mur.MurId})");
+                }
+
+                Console.WriteLine("\nRécupération de tous les capteurs ---");
+                var allCapteurs = await _capteurService.GetAllAsync();
+                Console.WriteLine($"Nombre total de capteurs: {allCapteurs.Count}");
+
+                Console.WriteLine("\nAssociation des capteurs aux murs ---");
+                foreach (var mur in mursSalle)
+                {
+                    var capteursDuMur = allCapteurs.Where(c => c.MurId == mur.MurId).ToList();
+                    mur.Capteurs = capteursDuMur;
+                    Console.WriteLine($"Mur {mur.Nom} (ID: {mur.MurId}): {capteursDuMur.Count} capteurs trouvés");
+                    foreach (var capteur in capteursDuMur)
+                    {
+                        Console.WriteLine($"Capteur: {capteur.Nom} (ID: {capteur.CapteurId})");
+                    }
+                }
+
+                Console.WriteLine("\nFIN RÉCUPÉRATION MURS ET CAPTEURS ===\n");
+                Console.WriteLine("==========================================");
+                Console.WriteLine("==========================================");
+                return mursSalle;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\n=== ERREUR ===");
+                Console.WriteLine($"Message: {ex.Message}");
+                Console.WriteLine($"StackTrace: {ex.StackTrace}");
+                Console.WriteLine("=============\n");
+                ErrorMessage = $"Erreur lors de la récupération des murs avec capteurs : {ex.Message}";
+                return new List<Mur>();
+            }
+        }
+
+        public async Task<bool> DeleteMurAsync(int murId)
+        {
+            try
+            {
+                await _murService.DeleteAsync(murId);
+                await LoadMurAsync();  // Recharger la liste des murs
+                SuccessMessage = "Mur supprimé avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la suppression du mur : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+        }
     }
 }

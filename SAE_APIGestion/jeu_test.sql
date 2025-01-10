@@ -77,10 +77,10 @@ INSERT INTO t_e_capteur_cap (
     sal_id, mur_id
 )
 VALUES 
-    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 1, 8),
-    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 1, 8),
-    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 10),
+    (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 2, 8),
+    (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 2, 8),
 
+    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 10),
     (4, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 1),
     (5, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 2),
     (6, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 3),
@@ -98,15 +98,15 @@ INSERT INTO t_e_equipement_equ (
 )
 VALUES 
     -- Radiateurs
-    (1, 'Radiateur 1', 80, 100, 34, 180, 1, 9, 1),
-    (2, 'Radiateur 2', 80, 100, 256, 180, 1, 9, 1),
+    (1, 'Radiateur 1', 80, 100, 34, 180, 1, 9, 2),
+    (2, 'Radiateur 2', 80, 100, 256, 180, 1, 9, 2),
     -- Fenetres
-    (3, 'Fenetre 1', 165, 100, 6, 3, 2, 9, 1),
-    (4, 'Fenetre 2', 165, 100, 345, 3, 2, 9, 1),
+    (3, 'Fenetre 1', 165, 100, 6, 3, 2, 9, 2),
+    (4, 'Fenetre 2', 165, 100, 345, 3, 2, 9, 2),
     -- Vitres
-    (5, 'Vitre 1', 161, 89, 125, 6, 3, 9, 1),
-    (6, 'Vitre 2', 161, 89, 237, 6, 3, 9, 1),
-    (7, 'Vitre 3', 161, 89, 482, 6, 3, 9, 1),
+    (5, 'Vitre 1', 161, 89, 125, 6, 3, 9, 2),
+    (6, 'Vitre 2', 161, 89, 237, 6, 3, 9, 2),
+    (7, 'Vitre 3', 161, 89, 482, 6, 3, 9, 2),
     -- Porte
     (8, 'Porte', 205, 93, 55, 67, 4, 7, 2);
 SELECT setval('t_e_equipement_equ_equ_id_seq', (SELECT MAX(equ_id) FROM t_e_equipement_equ));

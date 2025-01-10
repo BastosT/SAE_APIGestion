@@ -127,9 +127,6 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("dto/{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutCapteurDTO(int id, CapteurDTO capteurDto)
         {
             if (id != capteurDto.CapteurId)

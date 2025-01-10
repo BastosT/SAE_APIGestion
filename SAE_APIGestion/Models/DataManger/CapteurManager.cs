@@ -19,78 +19,19 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Capteur>>> GetAllAsync()
         {
             return await dbContext.Capteurs
-                .Select(c => new Capteur
-                {
-                    CapteurId = c.CapteurId,
-                    Nom = c.Nom,
-                    EstActif = c.EstActif,
-                    DistanceFenetre = c.DistanceFenetre,
-                    Longueur = c.Longueur,
-                    Hauteur = c.Hauteur,
-                    PositionX = c.PositionX,
-                    PositionY = c.PositionY,
-                    DistancePorte = c.DistancePorte,
-                    DistanceChauffage = c.DistanceChauffage,
-                    SalleId = c.SalleId,
-                    MurId = c.MurId,
-                    Salle = new Salle
-                    {
-                        SalleId = c.Salle.SalleId,
-                        Nom = c.Salle.Nom,
-                        Surface = c.Salle.Surface,
-                        TypeSalleId = c.Salle.TypeSalleId,
-                        BatimentId = c.Salle.BatimentId
-                    },
-                    Mur = new Mur
-                    {
-                        MurId = c.Mur.MurId,
-                        Nom = c.Mur.Nom,
-                        Longueur = c.Mur.Longueur,
-                        Hauteur = c.Mur.Hauteur,
-                        Orientation = c.Mur.Orientation,
-                        SalleId = c.Mur.SalleId
-                    }
-                })
-                .ToListAsync();
+                  .Include(b => b.Mur)
+                  .Include(b => b.Salle)
+                  .Include(b => b.DonneesCapteurs)
+                  .ToListAsync();
         }
 
         public async Task<ActionResult<Capteur>> GetByIdAsync(int id)
         {
             return await dbContext.Capteurs
-                .Where(c => c.CapteurId == id)
-                .Select(c => new Capteur
-                {
-                    CapteurId = c.CapteurId,
-                    Nom = c.Nom,
-                    EstActif = c.EstActif,
-                    DistanceFenetre = c.DistanceFenetre,
-                    Longueur = c.Longueur,
-                    Hauteur = c.Hauteur,
-                    PositionX = c.PositionX,
-                    PositionY = c.PositionY,
-                    DistancePorte = c.DistancePorte,
-                    DistanceChauffage = c.DistanceChauffage,
-                    SalleId = c.SalleId,
-                    MurId = c.MurId,
-                    Salle = new Salle
-                    {
-                        SalleId = c.Salle.SalleId,
-                        Nom = c.Salle.Nom,
-                        Surface = c.Salle.Surface,
-                        TypeSalleId = c.Salle.TypeSalleId,
-                        BatimentId = c.Salle.BatimentId
-                    },
-                    Mur = new Mur
-                    {
-                        MurId = c.Mur.MurId,
-                        Nom = c.Mur.Nom,
-                        Longueur = c.Mur.Longueur,
-                        Hauteur = c.Mur.Hauteur,
-                        Orientation = c.Mur.Orientation,
-                        SalleId = c.Mur.SalleId
-                    }
-                })
-                .FirstOrDefaultAsync();
+                  .Include(b => b.Mur)
+                  .Include(b => b.Salle)
+                  .Include(b => b.DonneesCapteurs)
+                  .FirstOrDefaultAsync();
         }
         public async Task AddAsync(Capteur entity)
         {
@@ -107,17 +48,18 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task UpdateAsync(Capteur capteur, Capteur entity)
         {
-            dbContext.Entry(capteur).State = EntityState.Modified;
-            capteur.CapteurId = entity.CapteurId;
-            capteur.Nom = entity.Nom;
-            capteur.Longueur = entity.Longueur;
-            capteur.Hauteur = entity.Hauteur;
-            capteur.DistanceChauffage = entity.DistanceChauffage;
-            capteur.DistancePorte = entity.DistancePorte;
-            capteur.DistanceFenetre = entity.DistanceFenetre;
-            capteur.EstActif = entity.EstActif;
-            capteur.Mur = entity.Mur;
-            capteur.DonneesCapteurs = entity.DonneesCapteurs;
+            dbContext.Entry(entity).State = EntityState.Modified;
+
+            // On met à jour uniquement les propriétés simples et les IDs
+            entity.Nom = capteur.Nom;
+            entity.Longueur = capteur.Longueur;
+            entity.Hauteur = capteur.Hauteur;
+            entity.DistanceChauffage = capteur.DistanceChauffage;
+            entity.DistancePorte = capteur.DistancePorte;
+            entity.DistanceFenetre = capteur.DistanceFenetre;
+            entity.EstActif = capteur.EstActif;
+            entity.MurId = capteur.MurId;
+            entity.SalleId = capteur.SalleId;
 
             await dbContext.SaveChangesAsync();
         }

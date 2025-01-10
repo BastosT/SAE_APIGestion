@@ -489,8 +489,10 @@
 
             if (currentSalleDTO != null)
             {
-                // 1. D'abord mettre à jour la salle
 
+                await ViewModel.ClearSalleForCapteurAsync(currentSalleDTO.SalleId);
+
+                // 1. D'abord mettre à jour la salle
                 var updatedSalle = await ViewModel.UpdateSalleAsync(currentSalleDTO);
 
                 if (updatedSalle != null)

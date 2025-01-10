@@ -5,31 +5,22 @@ using SAE_CLIENTGestion.Services;
 
 namespace SAE_CLIENTGestion.ViewModels
 {
-    public partial class CapteursEquipementsViewModel : ObservableObject
+    public partial class CapteursViewModel : ObservableObject
     {
         private readonly IService<Capteur> _capteurService;
         private readonly IService<CapteurDTO> _capteurServiceDTO;
-        private readonly IService<Equipement> _equipementService;
-        private readonly IService<EquipementDTO> _equipementServiceDTO;
         private readonly IService<Salle> _salleService;
-        private readonly IService<TypeEquipement> _typeEquipementService;
         private readonly IService<Mur> _murService;
 
-        public CapteursEquipementsViewModel(
+        public CapteursViewModel(
             IService<Capteur> capteurService,
             IService<CapteurDTO> capteurServiceDTO,
-            IService<Equipement> equipementService,
-            IService<EquipementDTO> equipementServiceDTO,
             IService<Salle> salleService,
-            IService<TypeEquipement> typeEquipementService,
             IService<Mur> murService)
         {
             _capteurService = capteurService;
             _capteurServiceDTO = capteurServiceDTO;
-            _equipementService = equipementService;
-            _equipementServiceDTO = equipementServiceDTO;
             _salleService = salleService;
-            _typeEquipementService = typeEquipementService;
             _murService = murService;
         }
 
@@ -40,16 +31,10 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<Capteur> _capteurs = new List<Capteur>();
 
         [ObservableProperty]
-        private List<Equipement> _equipements = new List<Equipement>();
-
-        [ObservableProperty]
         private List<Salle> _salles = new List<Salle>();
 
         [ObservableProperty]
         private List<Mur> _murs = new List<Mur>();
-
-        [ObservableProperty]
-        private List<TypeEquipement> _typesEquipement = new List<TypeEquipement>();
 
         [ObservableProperty]
         private string? _successMessage;
@@ -65,10 +50,8 @@ namespace SAE_CLIENTGestion.ViewModels
                 var tasks = new List<Task>
                 {
                     LoadCapteursAsync(),
-                    LoadEquipementsAsync(),
                     LoadSallesAsync(),
-                    LoadMursAsync(),
-                    LoadTypesEquipementAsync()
+                    LoadMursAsync()
                 };
 
                 await Task.WhenAll(tasks);
@@ -98,18 +81,6 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        private async Task LoadEquipementsAsync()
-        {
-            try
-            {
-                Equipements = await _equipementService.GetAllAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur lors du chargement des équipements : {ex.Message}";
-            }
-        }
-
         private async Task LoadSallesAsync()
         {
             try
@@ -134,19 +105,6 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        private async Task LoadTypesEquipementAsync()
-        {
-            try
-            {
-                TypesEquipement = await _typeEquipementService.GetAllAsync();
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur lors du chargement des types d'équipement : {ex.Message}";
-            }
-        }
-
-        // CRUD Capteurs
         public async Task<bool> AddCapteurAsync(CapteurDTO capteur)
         {
             try
@@ -201,62 +159,6 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        // CRUD Équipements
-        public async Task<bool> AddEquipementAsync(EquipementDTO equipement)
-        {
-            try
-            {
-                await _equipementServiceDTO.PostAsync(equipement);
-                await LoadEquipementsAsync();
-                SuccessMessage = "Équipement ajouté avec succès";
-                ErrorMessage = null;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur lors de l'ajout de l'équipement : {ex.Message}";
-                SuccessMessage = null;
-                return false;
-            }
-        }
-
-        public async Task<bool> UpdateEquipementAsync(EquipementDTO equipement)
-        {
-            try
-            {
-                await _equipementServiceDTO.PutAsync(equipement.EquipementId, equipement);
-                await LoadEquipementsAsync();
-                SuccessMessage = "Équipement modifié avec succès";
-                ErrorMessage = null;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur lors de la modification de l'équipement : {ex.Message}";
-                SuccessMessage = null;
-                return false;
-            }
-        }
-
-        public async Task<bool> DeleteEquipementAsync(int equipementId)
-        {
-            try
-            {
-                await _equipementService.DeleteAsync(equipementId);
-                await LoadEquipementsAsync();
-                SuccessMessage = "Équipement supprimé avec succès";
-                ErrorMessage = null;
-                return true;
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur lors de la suppression de l'équipement : {ex.Message}";
-                SuccessMessage = null;
-                return false;
-            }
-        }
-
-        // Méthodes utilitaires
         public async Task<Capteur?> GetCapteurByIdAsync(int capteurId)
         {
             try
@@ -266,19 +168,6 @@ namespace SAE_CLIENTGestion.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors de la récupération du capteur : {ex.Message}";
-                return null;
-            }
-        }
-
-        public async Task<Equipement?> GetEquipementByIdAsync(int equipementId)
-        {
-            try
-            {
-                return await _equipementService.GetByIdAsync(equipementId);
-            }
-            catch (Exception ex)
-            {
-                ErrorMessage = $"Erreur lors de la récupération de l'équipement : {ex.Message}";
                 return null;
             }
         }

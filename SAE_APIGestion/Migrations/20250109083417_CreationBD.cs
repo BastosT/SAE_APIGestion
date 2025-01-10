@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SAE_APIGestion.Migrations
 {
     /// <inheritdoc />
-    public partial class AjoutSalleIdCapteur : Migration
+    public partial class CreationBD : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

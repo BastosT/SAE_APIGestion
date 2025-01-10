@@ -248,16 +248,40 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        public async Task ClearSalleForCapteurAsync(int salleId)
+        {
+            var allCapteurs = await _capteurService.GetAllAsync();
+            var capteursSalle = allCapteurs.Where(c => c.SalleId == salleId).ToList();
+
+            foreach (var capteur in capteursSalle)
+            {
+                var capteurDTO = new CapteurDTO
+                {
+                    CapteurId = capteur.CapteurId,
+                    Nom = capteur.Nom,
+                    EstActif = capteur.EstActif,
+                    Longueur = capteur.Longueur,
+                    Hauteur = capteur.Hauteur,
+                    PositionX = capteur.PositionX,
+                    PositionY = capteur.PositionY,
+                    DistancePorte = capteur.DistancePorte,
+                    DistanceChauffage = capteur.DistanceChauffage,
+                    DistanceFenetre = capteur.DistanceFenetre,
+                    SalleId = capteur.SalleId,
+                    MurId = null     // On met à null
+                };
+
+                await _capteurServiceDTO.PutAsync(capteur.CapteurId, capteurDTO);
+            }
+        }
+
         public async Task DeleteAllMursForSalleAsync(int salleId)
         {
             try
             {
-                // Charger tous les murs
                 var allMurs = await _murService.GetAllAsync();
-                // Filtrer les murs de la salle
                 var mursSalle = allMurs.Where(m => m.SalleId == salleId).ToList();
 
-                // Supprimer chaque mur individuellement
                 foreach (var mur in mursSalle)
                 {
                     await _murService.DeleteAsync(mur.MurId);
@@ -266,7 +290,7 @@ namespace SAE_CLIENTGestion.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors de la suppression des murs : {ex.Message}";
-                throw; // On relance l'exception pour la gérer dans la méthode appelante
+                throw;
             }
         }
 
@@ -470,6 +494,21 @@ namespace SAE_CLIENTGestion.ViewModels
             return mur;
         }
 
+        public async Task<List<Mur>> GetMursBySalleIdAsync(int salleId)
+        {
+            try
+            {
+                var allMurs = await _murService.GetAllAsync();
+                return allMurs.Where(m => m.SalleId == salleId)
+                             .ToList();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la récupération des murs : {ex.Message}";
+                return new List<Mur>();
+            }
+        }
+
         public async Task<bool> UpdateMurAsync(Mur mur)
         {
             try
@@ -657,5 +696,50 @@ namespace SAE_CLIENTGestion.ViewModels
                 IsLoading = false;
             }
         }
+
+        public async Task<bool> UpdateCapteurMurId(int oldMurId, int newMurId)
+        {
+            try
+            {
+                // Récupérer tous les capteurs
+                var allCapteurs = await _capteurService.GetAllAsync();
+                // Filtrer les capteurs qui ont l'ancien MurId
+                var capteursToUpdate = allCapteurs.Where(c => c.MurId == oldMurId).ToList();
+
+                // Pour chaque capteur trouvé, mettre à jour son MurId
+                foreach (var capteur in capteursToUpdate)
+                {
+                    var capteurDTO = new CapteurDTO
+                    {
+                        CapteurId = capteur.CapteurId,
+                        Nom = capteur.Nom,
+                        EstActif = capteur.EstActif,
+                        Longueur = capteur.Longueur,
+                        Hauteur = capteur.Hauteur,
+                        PositionX = capteur.PositionX,
+                        PositionY = capteur.PositionY,
+                        DistancePorte = capteur.DistancePorte,
+                        DistanceChauffage = capteur.DistanceChauffage,
+                        DistanceFenetre = capteur.DistanceFenetre,
+                        SalleId = capteur.SalleId,
+                        MurId = newMurId
+                    };
+
+                    await _capteurServiceDTO.PutAsync(capteur.CapteurId, capteurDTO);
+                }
+
+                SuccessMessage = "Capteurs mis à jour avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la mise à jour des capteurs : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+        }
+
+
     }
 }

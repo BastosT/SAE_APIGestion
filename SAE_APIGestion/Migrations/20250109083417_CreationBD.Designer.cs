@@ -12,8 +12,8 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Migrations
 {
     [DbContext(typeof(GlobalDBContext))]
-    [Migration("20250108202049_AjoutSalleIdCapteur")]
-    partial class AjoutSalleIdCapteur
+    [Migration("20250109083417_CreationBD")]
+    partial class CreationBD
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

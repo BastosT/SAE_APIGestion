@@ -8,8 +8,14 @@
 <PageTitle>Gestion des Capteurs</PageTitle>
 
 <style>
+    /* Styles existants */
     .custom-table tr:hover {
         background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
+    }
+
+    .table > :not(caption) > * > * {
+        background-color: transparent !important;
+        box-shadow: none !important;
     }
 
     .btn-light:hover {
@@ -25,6 +31,23 @@
         .card:hover {
             box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
         }
+
+    /* Nouveaux styles pour la hiérarchie */
+    .custom-table .building-row {
+        background-color: rgba(0, 0, 0, 0.15) !important; /* Plus foncé pour le bâtiment */
+    }
+
+    .custom-table .room-row {
+        background-color: rgba(0, 0, 0, 0.1) !important; /* Un peu plus foncé pour les salles */
+    }
+
+    .custom-table .wall-row {
+        background-color: rgba(0, 0, 0, 0.05) !important; /* Légèrement plus foncé pour les murs */
+    }
+
+    .custom-table .sensor-row {
+        background-color: white !important; /* Blanc pur pour les capteurs */
+    }
 </style>
 
 <div class="container-fluid main-content overflow-auto">
@@ -85,7 +108,7 @@
                 {
                     <div class="table-responsive">
                         <table class="table table-hover align-middle mb-0 custom-table">
-                            <thead class="bg-light border-bottom">
+                            <thead class="border-bottom building-row">
                                 <tr>
                                     <th class="fw-semibold px-4 py-3 border-0">
                                         <div class="text-primary">Localisation / Nom</div>
@@ -109,7 +132,7 @@
                                 {
                                     var batimentNom = batimentGroup.Key ?? "Sans bâtiment";
                                     <!-- Ligne Bâtiment -->
-                                    <tr class="border-bottom" style="background-color: #f8f9fa;">
+                                    <tr class="border-bottom building-row">
                                         <td colspan="5" class="px-4 py-2">
                                             <div class="fw-bold text-primary">
                                                 <i class="bi bi-building me-2"></i>
@@ -124,7 +147,7 @@
                                     {
                                         var salleNom = salleGroup.Key ?? "Sans salle";
                                         <!-- Ligne Salle -->
-                                        <tr class="border-bottom" style="background-color: #f3f4f6;">
+                                        <tr class="border-bottom room-row">
                                             <td colspan="5" class="px-4 py-2">
                                                 <div class="fw-semibold text-secondary" style="margin-left: 1.5rem!important;">
                                                     <i class="bi bi-door-closed me-2"></i>
@@ -137,11 +160,18 @@
                                         {
                                             var murId = murGroup.Key;
                                             <!-- Ligne Mur -->
-                                            <tr class="border-bottom" style="background-color: #eef0f2;">
+                                            <tr class="border-bottom wall-row">
                                                 <td colspan="5" class="px-4 py-2">
                                                     <div class="fw-semibold text-muted" style="margin-left: 3rem!important;">
                                                         <i class="bi bi-bricks me-2"></i>
-                                                        Mur @murId
+                                                        @if (murId == null || murId == 0)
+                                                        {
+                                                            <span>Non lié à un mur</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span>Mur @murId</span>
+                                                        }
                                                     </div>
                                                 </td>
                                             </tr>
@@ -190,81 +220,141 @@
         </div>
     </div>
 
-    <!-- Modal Capteur -->
     @if (showCapteurModal)
     {
         <div class="modal-backdrop fade show"></div>
         <div class="modal fade show" style="display: block;" tabindex="-1">
-            <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">@(isNewCapteur ? "Nouveau Capteur" : "Modifier le Capteur")</h5>
                         <button type="button" class="btn-close" @onclick="CloseCapteurModal"></button>
                     </div>
                     <div class="modal-body">
-                        <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
-                            <DataAnnotationsValidator />
-                            <ValidationSummary />
+                        <div class="row">
+                            <!-- Colonne du formulaire -->
+                            <div class="col-md-6">
+                                <EditForm Model="@currentCapteur" OnValidSubmit="HandleCapteurSubmit">
+                                    <DataAnnotationsValidator />
+                                    <ValidationSummary />
 
-                            <div class="mb-3">
-                                <label class="form-label">Nom</label>
-                                <InputText class="form-control" @bind-Value="currentCapteur.Nom" />
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">Salle</label>
-                                <InputSelect class="form-control" @bind-Value="currentCapteur.SalleId">
-                                    <option value="0">Sélectionner une salle</option>
-                                    @foreach (var salle in ViewModel.Salles)
-                                    {
-                                        <option value="@salle.SalleId">@salle.Nom</option>
-                                    }
-                                </InputSelect>
-                            </div>
-
-                            <div class="mb-3">
-                                <label class="form-label">État</label>
-                                <InputSelect class="form-control" @bind-Value="currentCapteur.EstActif">
-                                    <option value="true">Actif</option>
-                                    <option value="false">Inactif</option>
-                                </InputSelect>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
                                     <div class="mb-3">
-                                        <label class="form-label">Position X</label>
-                                        <InputNumber class="form-control" @bind-Value="currentCapteur.PositionX" />
+                                        <label class="form-label">Nom</label>
+                                        <InputText class="form-control" @bind-Value="currentCapteur.Nom" />
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Salle</label>
+                                        <InputSelect class="form-control" @bind-Value="currentCapteur.SalleId">
+                                            <option value="0">Sélectionner une salle</option>
+                                            @foreach (var salle in ViewModel.Salles)
+                                            {
+                                                <option value="@salle.SalleId">@salle.Nom</option>
+                                            }
+                                        </InputSelect>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">État</label>
+                                        <InputSelect class="form-control" @bind-Value="currentCapteur.EstActif">
+                                            <option value="true">Actif</option>
+                                            <option value="false">Inactif</option>
+                                        </InputSelect>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Position X</label>
+                                                <InputNumber class="form-control" @bind-Value="currentCapteur.PositionX" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Position Y</label>
+                                                <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Longueur (cm)</label>
+                                                <InputNumber class="form-control" @bind-Value="currentCapteur.Longueur" />
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="mb-3">
+                                                <label class="form-label">Hauteur (cm)</label>
+                                                <InputNumber class="form-control" @bind-Value="currentCapteur.Hauteur" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-4 d-flex align-items-start" style="gap: 1rem;">
+                                        <button type="submit" class="btn btn-primary" disabled="@isProcessing">
+                                            @if (isProcessing)
+                                            {
+                                                <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                                            }
+                                            @progressStatus
+                                        </button>
+                                        <button type="button" class="btn btn-secondary" @onclick="CloseCapteurModal">Annuler</button>
+                                        @if (!string.IsNullOrEmpty(validationMessage))
+                                        {
+                                            <div class="alert alert-danger mb-0 flex-grow-1 d-flex align-items-center" role="alert">
+                                                @validationMessage
+                                            </div>
+                                        }
+                                    </div>
+                                </EditForm>
+                            </div>
+
+                            <!-- Colonne de la visualisation -->
+                            <div class="col-md-6">
+                                <div class="h-100 d-flex flex-column justify-content-center">
+                                    <div class="mb-3">
+                                        <label class="form-label">Aperçu du positionnement</label>
+                                        <div class="border rounded p-3">
+                                            <svg width="100%" height="400" viewBox="0 0 400 300">
+                                                <!-- Grille -->
+                                                <defs>
+                                                    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                                                        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="gray" stroke-width="0.5" stroke-opacity="0.3" />
+                                                    </pattern>
+                                                </defs>
+                                                <rect width="100%" height="100%" fill="url(#grid)" style="stroke: #ccc; stroke-width: 1" />
+
+                                                <!-- Capteur -->
+                                                <rect x="@(currentCapteur.PositionX * 0.8)"
+                                                      y="@(currentCapteur.PositionY * 0.8)"
+                                                      width="@(currentCapteur.Longueur * 0.8)"
+                                                      height="@(currentCapteur.Hauteur * 0.8)"
+                                                      fill="#007bff"
+                                                      fill-opacity="0.5"
+                                                      stroke="#0056b3"
+                                                      stroke-width="2" />
+
+                                                <!-- Point d'origine -->
+                                                <circle cx="@(currentCapteur.PositionX * 0.8)"
+                                                        cy="@(currentCapteur.PositionY * 0.8)"
+                                                        r="4"
+                                                        fill="red" />
+
+                                                <!-- Informations -->
+                                                <text x="10" y="20" fill="gray" font-size="12">
+                                                    Position: (@currentCapteur.PositionX, @currentCapteur.PositionY) cm
+                                                </text>
+                                                <text x="10" y="40" fill="gray" font-size="12">
+                                                    Dimensions: @currentCapteur.Longueur x @currentCapteur.Hauteur cm
+                                                </text>
+                                            </svg>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Position Y</label>
-                                        <InputNumber class="form-control" @bind-Value="currentCapteur.PositionY" />
-                                    </div>
-                                </div>
                             </div>
-
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Longueur (cm)</label>
-                                        <InputNumber class="form-control" @bind-Value="currentCapteur.Longueur" />
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Hauteur (cm)</label>
-                                        <InputNumber class="form-control" @bind-Value="currentCapteur.Hauteur" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mt-4">
-                                <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
-                                <button type="button" class="btn btn-secondary" @onclick="CloseCapteurModal">Annuler</button>
-                            </div>
-                        </EditForm>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -301,6 +391,11 @@
     private bool isNewCapteur = true;
     private Capteur currentCapteur = new();
     private Capteur capteurToDelete;
+    private bool isProcessing = false;
+    private string progressStatus => isNewCapteur ?
+        (isProcessing ? "Création en cours..." : "Créer") :
+        (isProcessing ? "Modification en cours..." : "Modifier");
+    private string validationMessage = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -349,6 +444,9 @@
     {
         try
         {
+            isProcessing = true;
+            validationMessage = "";
+
             if (isNewCapteur)
             {
                 CapteurDTO capteurDto = new CapteurDTO()
@@ -387,7 +485,11 @@
         }
         catch (Exception ex)
         {
-            ViewModel.ErrorMessage = "Une erreur est survenue : " + ex.Message;
+            validationMessage = "Une erreur est survenue : " + ex.Message;
+        }
+        finally
+        {
+            isProcessing = false;
         }
     }
 

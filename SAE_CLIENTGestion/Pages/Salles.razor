@@ -14,11 +14,7 @@
         background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
     }
 
-    .btn-light:hover {
-        background-color: var(--bs-light);
-        transform: translateY(-1px);
-        transition: all 0.2s ease;
-    }
+
 
     .card {
         transition: all 0.3s ease;
@@ -26,6 +22,7 @@
 
         .card:hover {
             box-shadow: 0 .5rem 1rem rgba(0,0,0,.1) !important;
+            transform: translateY(-2px);
         }
 
     .hover-card {
@@ -41,6 +38,14 @@
         background-color: var(--bs-light);
         transform: translateY(-1px);
         transition: all 0.2s ease;
+    }
+
+    .room-walls-container {
+        border: 1px solid rgba(0,0,0,.05);
+    }
+
+    .bg-light {
+        background-color: rgba(var(--bs-primary-rgb), 0.03) !important;
     }
 
     .room-svg {
@@ -135,7 +140,7 @@
                                                         @onclick="() => EditTypeSalle(typeSalle)"
                                                         data-bs-toggle="tooltip"
                                                         title="Modifier">
-                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                    <i class="bi bi-pencil-square text-black"></i>
                                                 </button>
                                                 <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
                                                         @onclick="() => DeleteTypeSalle(typeSalle)"
@@ -199,21 +204,20 @@
                         @foreach (var salle in ViewModel.Salles)
                         {
                             <div class="col">
-                                <div class="card h-100 shadow-sm hover-card border-0" style="background-color: #f0f7ff;">
-                                    <div class="card-header py-3 border-bottom border-light" style="background-color: #e1f0ff;">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h5 class="mb-0 fw-semibold text-primary">@salle.Nom</h5>
+                                <div class="card shadow border-0 rounded-3">
+                                    <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
+                                        <div class="d-flex justify-content-between align-items-center px-2">
+                                            <div class="d-flex align-items-center gap-2">
+                                                <i class="bi bi-door-closed fs-4 text-white"></i>
+                                                <h3 class="mb-0 fw-bold text-white">@salle.Nom</h3>
+                                            </div>
                                             <div class="btn-group">
-<button class="btn btn-white btn-sm rounded-2 shadow-sm"
-        @onclick='() => NavigationManager.NavigateTo($"/editsalle/{salle.SalleId}")'
-        data-bs-toggle="tooltip"
-        title="Modifier">
-    <i class="bi bi-pencil-square text-warning"></i>
-</button>
-                                                <button class="btn btn-white btn-sm rounded-end-2 shadow-sm"
-                                                        @onclick="() => DeleteSalle(salle)"
-                                                        data-bs-toggle="tooltip"
-                                                        title="Supprimer">
+                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick='() => NavigationManager.NavigateTo($"/editsalle/{salle.SalleId}")'>
+                                                    <i class="bi bi-pencil-square text-black"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteSalle(salle)">
                                                     <i class="bi bi-trash text-danger"></i>
                                                 </button>
                                             </div>
@@ -221,32 +225,38 @@
                                     </div>
                                     <div class="card-body p-4">
                                         <div class="mb-4">
-                                            <div class="d-flex align-items-center mb-2 p-2 bg-white rounded">
-                                                <i class="bi bi-rulers me-2 text-primary"></i>
-                                                <strong>Surface:</strong>
-                                                <span class="ms-2">@salle.Surface m²</span>
+                                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded-3">
+                                                <i class="bi bi-rulers me-3 text-primary fs-5"></i>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Surface</h6>
+                                                    <small class="text-muted">@salle.Surface m²</small>
+                                                </div>
                                             </div>
-                                            <div class="d-flex align-items-center mb-2 p-2 bg-white rounded">
-                                                <i class="bi bi-building me-2 text-primary"></i>
-                                                <strong>Bâtiment:</strong>
-                                                <span class="ms-2">@salle.Batiment.Nom</span>
+                                            <div class="d-flex align-items-center mb-3 p-3 bg-light rounded-3">
+                                                <i class="bi bi-building me-3 text-primary fs-5"></i>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Bâtiment</h6>
+                                                    <small class="text-muted">@salle.Batiment.Nom</small>
+                                                </div>
                                             </div>
-                                            <div class="d-flex align-items-center p-2 bg-white rounded">
-                                                <i class="bi bi-grid-3x3-gap me-2 text-primary"></i>
-                                                <strong>Type:</strong>
-                                                <span class="ms-2">@salle.TypeSalle.Nom</span>
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="bi bi-grid-3x3-gap me-3 text-primary fs-5"></i>
+                                                <div>
+                                                    <h6 class="mb-0 fw-semibold">Type</h6>
+                                                    <small class="text-muted">@salle.TypeSalle.Nom</small>
+                                                </div>
                                             </div>
                                         </div>
-                                    
-                                    <div class="room-walls-container bg-light rounded-3 p-3">
-                                        @{
-                                            const int SCALE = 40;
-                                            const int MARGIN = 80;
-                                            const int WALL_THICKNESS = 32;
 
-                                            double currentX = MARGIN;
-                                            double currentY = MARGIN;
-                                            double minX = currentX;
+                                        <div class="room-walls-container bg-light rounded-3 p-3">
+                                            @{
+                                                const int SCALE = 40;
+                                                const int MARGIN = 80;
+                                                const int WALL_THICKNESS = 32;
+
+                                                double currentX = MARGIN;
+                                                double currentY = MARGIN;
+                                                double minX = currentX;
                                                 double minY = currentY;
                                                 double maxX = currentX;
                                                 double maxY = currentY;
@@ -340,7 +350,7 @@
                                                     }
                                                     <rect x="@rectX" y="@rectY"
                                                           width="@rectWidth" height="@rectHeight"
-                                                          fill="#ff00ff"
+                                                          fill="#000000"
                                                           opacity="1" />
 
                                                     <circle cx="@currentX" cy="@currentY" r="2" fill="#666" />

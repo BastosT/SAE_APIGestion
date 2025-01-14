@@ -22,12 +22,18 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/Murs
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Mur>>> GetMurs()
         {
             return await dataRepository.GetAllAsync();
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Mur>> GetMur(int id)
         {
             var mur = await dataRepository.GetByIdAsync(id);
@@ -68,6 +74,9 @@ namespace SAE_APIGestion.Controllers
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Mur>> PostMur(Mur mur)
         {
             if (!ModelState.IsValid)
@@ -82,6 +91,9 @@ namespace SAE_APIGestion.Controllers
 
         // DELETE: api/typeMurs/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteMur(int id)
         {
             var mur = await dataRepository.GetByIdAsync(id);
@@ -101,6 +113,9 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/Mur/dto
         [HttpGet("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<MurDTO>>> GetAllMurDTO()
         {
             var result = await dataRepository.GetAllAsync();
@@ -116,6 +131,9 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/Mur/dto/5
         [HttpGet("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<MurDTO>> GetMurDTO(int id)
         {
             var mur = await dataRepository.GetByIdAsync(id);
@@ -129,6 +147,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutMurDTO(int id, MurDTO murDto)
         {
 
@@ -156,6 +177,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPost("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CapteurDTO>> PostMurDTO(MurDTO murDto)
         {
             if (!ModelState.IsValid)
@@ -177,6 +201,9 @@ namespace SAE_APIGestion.Controllers
 
         // DELETE: api/Mur/dto/5
         [HttpDelete("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteMurDTO(int id)
         {
             var mur = await dataRepository.GetByIdAsync(id);

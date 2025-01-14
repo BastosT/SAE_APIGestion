@@ -18,12 +18,18 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/TypeEquipements
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TypeEquipement>>> GetTypeEquipements()
         {
             return await dataRepository.GetAllAsync();
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TypeEquipement>> GetTypeEquipement(int id)
         {
             var typeEquipement = await dataRepository.GetByIdAsync(id);
@@ -65,6 +71,9 @@ namespace SAE_APIGestion.Controllers
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TypeEquipement>> PostTypeEquipement(TypeEquipement typeEquipement)
         {
             if (!ModelState.IsValid)
@@ -79,6 +88,9 @@ namespace SAE_APIGestion.Controllers
 
         // DELETE: api/typeSalles/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteTypeEquipement(int id)
         {
             var typeEquipement = await dataRepository.GetByIdAsync(id);

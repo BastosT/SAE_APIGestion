@@ -22,6 +22,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Batiment>>> GetBatiments()
         {
             return await dataRepository.GetAllAsync();
@@ -29,6 +32,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Batiment>> GetBatiment(int id)
         {
             var batiment = await dataRepository.GetByIdAsync(id);
@@ -43,6 +49,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutBatiment(int id, Batiment batiment)
         {
             if (id != batiment.BatimentId)
@@ -67,6 +76,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Batiment>> PostBatiment(Batiment batiment)
         {
             if (!ModelState.IsValid)
@@ -80,6 +92,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteBatiment(int id)
         {
             var batiment = await dataRepository.GetByIdAsync(id);
@@ -101,6 +116,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<BatimentDTO>>> GetBatimentsDTO()
         {
             var result = await dataRepository.GetAllAsync();
@@ -114,6 +132,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpGet("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Batiment>> GetBatimentDTO(int id)
         {
             var batiment = await dataRepository.GetByIdAsync(id);
@@ -127,6 +148,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutBatimentDTO(int id, BatimentDTO batimentDto)
         {
             if (id != batimentDto.BatimentId)
@@ -147,6 +171,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPost("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Batiment>> PostBatimentDTO(BatimentDTO batimentDto)
         {
             if (!ModelState.IsValid)
@@ -167,6 +194,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpDelete("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteBatimentDTO(int id)
         {
             var batiment = await dataRepository.GetByIdAsync(id);

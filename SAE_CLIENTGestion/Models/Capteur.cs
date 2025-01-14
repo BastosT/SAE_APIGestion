@@ -6,8 +6,8 @@ namespace SAE_CLIENTGestion.Models
         public int CapteurId { get; set; }
         public string Nom { get; set; }
         public bool EstActif { get; set; }
-        public double? Longueur { get; set; } = 0;
-        public double? Hauteur { get; set; } = 0;
+        public double Longueur { get; set; } = 0;
+        public double Hauteur { get; set; } = 0;
         public double PositionX { get; set; } = 0;
         public double PositionY { get; set; } = 0;
         public double? DistanceFenetre { get; set; } = 0;

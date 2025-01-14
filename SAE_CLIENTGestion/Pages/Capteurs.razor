@@ -129,57 +129,43 @@
                                 </tr>
                             </thead>
                             <tbody class="border-top-0">
-                                @foreach (var batimentGroup in ViewModel.Capteurs
-                               .GroupBy(c => c.Salle?.Batiment?.Nom)
-                               .OrderBy(g => g.Key))
+                                @foreach (var batiment in ViewModel.Batiments)
                                 {
-                                    var batimentNom = batimentGroup.Key ?? "Sans bâtiment";
                                     <!-- Ligne Bâtiment -->
                                     <tr class="border-bottom building-row">
                                         <td colspan="6" class="px-4 py-2">
                                             <div class="fw-bold text-primary">
                                                 <i class="bi bi-building me-2"></i>
-                                                @batimentNom
+                                                @batiment.Nom
                                             </div>
                                         </td>
                                     </tr>
 
-                                    @foreach (var salleGroup in batimentGroup
-                                   .GroupBy(c => c.Salle?.Nom)
-                                   .OrderBy(g => g.Key))
+                                    @foreach (var salle in ViewModel.Salles.Where(s => s.BatimentId == batiment.BatimentId))
                                     {
-                                        var salleNom = salleGroup.Key ?? "Sans salle";
                                         <!-- Ligne Salle -->
                                         <tr class="border-bottom room-row">
                                             <td colspan="6" class="px-4 py-2">
                                                 <div class="fw-semibold text-secondary" style="margin-left: 1.5rem!important;">
                                                     <i class="bi bi-door-closed me-2"></i>
-                                                    @salleNom
+                                                    @salle.Nom
                                                 </div>
                                             </td>
                                         </tr>
 
-                                        @foreach (var murGroup in salleGroup.GroupBy(c => c.MurId).OrderBy(g => g.Key))
+                                        @foreach (var mur in ViewModel.Murs.Where(m => m.SalleId == salle.SalleId))
                                         {
-                                            var murId = murGroup.Key;
                                             <!-- Ligne Mur -->
                                             <tr class="border-bottom wall-row">
                                                 <td colspan="6" class="px-4 py-2">
                                                     <div class="fw-semibold text-muted" style="margin-left: 3rem!important;">
                                                         <i class="bi bi-bricks me-2"></i>
-                                                        @if (murId == null || murId == 0)
-                                                        {
-                                                            <span>Non lié à un mur</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span>Mur @murId</span>
-                                                        }
+                                                        <span>Mur @mur.Nom (@mur.MurId)</span>
                                                     </div>
                                                 </td>
                                             </tr>
 
-                                            @foreach (var capteur in murGroup.OrderBy(c => c.Nom))
+                                            @foreach (var capteur in mur.Capteurs)
                                             {
                                                 <tr class="border-bottom">
                                                     <td class="px-4 py-3">
@@ -220,7 +206,57 @@
                                         }
                                     }
                                 }
+
+                                <!-- Affichage des capteurs non associés à un mur -->
+                                <tr class="border-top">
+                                    <td colspan="6" class="px-4 py-2">
+                                        <div class="fw-bold text-primary">
+                                            <i class="bi bi-cpu me-2"></i>
+                                            Capteurs non associés à un mur
+                                        </div>
+                                    </td>
+                                </tr>
+
+                                @foreach (var capteur in ViewModel.Capteurs.Where(c => c.MurId == null || c.MurId == 0))
+                                {
+                                    <tr class="border-bottom">
+                                        <td class="px-4 py-3">
+                                            <div class="ms-6 fw-normal" style="margin-left: 4.5rem!important;">
+                                                <i class="bi bi-cpu me-2 text-muted"></i>
+                                                @capteur.Nom
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <span class="badge @(capteur.EstActif ? "bg-success" : "bg-danger")">
+                                                @(capteur.EstActif ? "Actif" : "Inactif")
+                                            </span>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <small class="text-muted">
+                                                X: @capteur.PositionX, Y: @capteur.PositionY
+                                            </small>
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            <small class="text-muted">
+                                                Distance : [Fenetre: @(capteur.DistanceFenetre)cm], [Chauffage: @(capteur.DistanceChauffage)cm], [Porte: @(capteur.DistancePorte)cm]
+                                            </small>
+                                        </td>
+                                        <td class="px-4 py-3 text-end">
+                                            <div class="btn-group">
+                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                        @onclick="() => EditCapteur(capteur)">
+                                                    <i class="bi bi-pencil-square text-warning"></i>
+                                                </button>
+                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                        @onclick="() => DeleteCapteur(capteur)">
+                                                    <i class="bi bi-trash text-danger"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
                             </tbody>
+
                         </table>
                     </div>
                 }
@@ -396,14 +432,18 @@
                                                         {
                                                             @foreach (var capteur in selectedMur.Capteurs)
                                                             {
-                                                        <rect x="@(Math.Round(margin + capteur.PositionX * scaleFactor))"
-                                                          y="@(Math.Round(margin + capteur.PositionY * scaleFactor))"
-                                                          width="@(Math.Round(capteur.Longueur * scaleFactor))"
-                                                          height="@(Math.Round(capteur.Hauteur * scaleFactor))"
-                                                          fill="#28a745"  
-                                                          fill-opacity="0.5"
-                                                          stroke="#0056b3"
-                                                          stroke-width="2" />
+                                                                @if(capteur.CapteurId != currentCapteur.CapteurId)
+                                                                {
+                                                                    
+                                                                <rect x="@(Math.Round(margin + capteur.PositionX * scaleFactor))"
+                                                                  y="@(Math.Round(margin + capteur.PositionY * scaleFactor))"
+                                                                  width="@(Math.Round(capteur.Longueur * scaleFactor))"
+                                                                  height="@(Math.Round(capteur.Hauteur * scaleFactor))"
+                                                                  fill="#FFFF00"  
+                                                                  fill-opacity="0.5"
+                                                                          stroke="#FFA500"
+                                                                          stroke-width="2" />
+                                                                }
 
                                                             }
                                                         }
@@ -519,7 +559,6 @@
 
     private void EditCapteur(Capteur capteur)
     {
-        Console.WriteLine(  "test");
         currentCapteur = new Capteur
             {
                 CapteurId = capteur.CapteurId,
@@ -537,6 +576,9 @@
             };
         isNewCapteur = false;
         showCapteurModal = true;
+        selectedMur = ViewModel.Salles
+    .FirstOrDefault(s => s.SalleId == currentCapteur.SalleId)?
+    .Murs.FirstOrDefault(m => m.MurId == currentCapteur.MurId);
     }
 
     private bool ValidateForm()

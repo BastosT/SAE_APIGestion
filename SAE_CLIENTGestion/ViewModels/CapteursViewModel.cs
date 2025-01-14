@@ -11,17 +11,20 @@ namespace SAE_CLIENTGestion.ViewModels
         private readonly IService<CapteurDTO> _capteurServiceDTO;
         private readonly IService<Salle> _salleService;
         private readonly IService<Mur> _murService;
+        private readonly IService<Batiment> _batimentService;
 
         public CapteursViewModel(
             IService<Capteur> capteurService,
             IService<CapteurDTO> capteurServiceDTO,
             IService<Salle> salleService,
+            IService<Batiment> batimentService,
             IService<Mur> murService)
         {
             _capteurService = capteurService;
             _capteurServiceDTO = capteurServiceDTO;
             _salleService = salleService;
             _murService = murService;
+            _batimentService = batimentService;
         }
 
         [ObservableProperty]
@@ -32,6 +35,9 @@ namespace SAE_CLIENTGestion.ViewModels
 
         [ObservableProperty]
         private List<Salle> _salles = new List<Salle>();
+
+        [ObservableProperty]
+        private List<Batiment> _batiments = new List<Batiment>();
 
         [ObservableProperty]
         private List<Mur> _murs = new List<Mur>();
@@ -51,7 +57,8 @@ namespace SAE_CLIENTGestion.ViewModels
                 {
                     LoadCapteursAsync(),
                     LoadSallesAsync(),
-                    LoadMursAsync()
+                    LoadMursAsync(),
+                    LoadBatimentsAsync(),
                 };
 
                 await Task.WhenAll(tasks);
@@ -78,6 +85,18 @@ namespace SAE_CLIENTGestion.ViewModels
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors du chargement des capteurs : {ex.Message}";
+            }
+        }
+
+        private async Task LoadBatimentsAsync()
+        {
+            try
+            {
+                Batiments = await _batimentService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des bâtiments : {ex.Message}";
             }
         }
 

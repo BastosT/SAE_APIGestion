@@ -80,13 +80,12 @@ VALUES
     (1, 'Capteur 1', true, 50, 15, 15, 200, 98, 150, 100, 2, 8),
     (2, 'Capteur 2', true, 0, 10, 10, 400, 161, 200, 150, 2, 8),
 
-    (3, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 10),
-    (4, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 1),
-    (5, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 2),
-    (6, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 3),
-    (7, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 4),
-    (8, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 5),
-    (9, 'DEBUG CAPTEUR', true, 100, 30, 30, 0, 10, 100, 80, 1, 6);
+    (3, 'DEBUG CAPTEUR 2', true, 100, 30, 30, 0, 10, 100, 80, 1, 1),
+    (4, 'DEBUG CAPTEUR 3', true, 100, 30, 30, 0, 10, 100, 80, 1, 2),
+    (5, 'DEBUG CAPTEUR 4', true, 100, 30, 30, 0, 10, 100, 80, 1, 3),
+    (6, 'DEBUG CAPTEUR 5' , true, 100, 30, 30, 0, 10, 100, 80, 1, 4),
+    (7, 'DEBUG CAPTEUR 6', true, 100, 30, 30, 0, 10, 100, 80, 1, 5),
+    (8, 'DEBUG CAPTEUR 7', true, 100, 30, 30, 0, 10, 100, 80, 1, 6);
 
 SELECT setval('t_e_capteur_cap_cap_id_seq', (SELECT MAX(cap_id) FROM t_e_capteur_cap));
 

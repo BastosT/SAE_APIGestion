@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace SAE_APIGestion.Migrations
 {
     /// <inheritdoc />
-    public partial class CreationBD : Migration
+    public partial class finalV : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -46,7 +46,8 @@ namespace SAE_APIGestion.Migrations
                 {
                     tye_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    tye_nom = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false)
+                    tye_nom = table.Column<string>(type: "varchar(100)", maxLength: 100, nullable: false),
+                    tye_couleur = table.Column<string>(type: "varchar(7)", maxLength: 7, nullable: false)
                 },
                 constraints: table =>
                 {

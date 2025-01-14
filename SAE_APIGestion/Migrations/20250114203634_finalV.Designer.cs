@@ -12,8 +12,8 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Migrations
 {
     [DbContext(typeof(GlobalDBContext))]
-    [Migration("20250114131748_migr")]
-    partial class migr
+    [Migration("20250114203634_finalV")]
+    partial class finalV
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -315,6 +315,12 @@ namespace SAE_APIGestion.Migrations
                         .HasColumnName("tye_id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TypeEquipementId"));
+
+                    b.Property<string>("Couleur")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("varchar(7)")
+                        .HasColumnName("tye_couleur");
 
                     b.Property<string>("Nom")
                         .IsRequired()

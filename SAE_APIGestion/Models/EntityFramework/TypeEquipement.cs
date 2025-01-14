@@ -23,6 +23,10 @@ namespace SAE_APIGestion.Models.EntityFramework
         [StringLength(100)]
         public string Nom { get; set; }
 
+        [Column("tye_couleur", TypeName = "varchar(7)")]
+        [StringLength(7)]
+        public string Couleur { get; set; }
+
         public virtual ICollection<Equipement> Equipements { get; set; }
     }
 

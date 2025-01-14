@@ -17,14 +17,14 @@ namespace SAE_APIGestion.Models.DataManger
 
         public async Task<ActionResult<IEnumerable<TypeSalle>>> GetAllAsync()
         {
-            return globalDBContext.TypesSalles
+            return globalDBContext.TypesSalles.AsNoTracking()
                 .Include(s => s.Salles)
                 .ToList();
         }
 
         public async Task<ActionResult<TypeSalle>> GetByIdAsync(int id)
         {
-            return globalDBContext.TypesSalles
+            return globalDBContext.TypesSalles.AsNoTracking()
                 .Include(s => s.Salles)
                 .FirstOrDefault(p => p.TypeSalleId == id);
         }

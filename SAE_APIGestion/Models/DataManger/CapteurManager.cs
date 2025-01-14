@@ -19,6 +19,7 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Capteur>>> GetAllAsync()
         {
             return await dbContext.Capteurs
+                .AsNoTracking()
                   .Include(b => b.Mur)
                   .Include(b => b.Salle)
                     .ThenInclude(b => b.Batiment)
@@ -29,6 +30,7 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<Capteur>> GetByIdAsync(int id)
         {
             return await dbContext.Capteurs
+                .AsNoTracking()
                   .Include(b => b.Mur)
                   .Include(b => b.Salle)
                   .ThenInclude(b => b.Batiment)

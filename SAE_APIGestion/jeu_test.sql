@@ -15,12 +15,12 @@ INSERT INTO t_e_typesalle_tys (tys_id, tys_nom, tys_description)
 VALUES (1, 'Salle de pause', 'Aucune...');
 SELECT setval('t_e_typesalle_tys_tys_id_seq', (SELECT MAX(tys_id) FROM t_e_typesalle_tys));
 
-INSERT INTO t_e_typeequipement_tye (tye_id, tye_nom)
+INSERT INTO t_e_typeequipement_tye (tye_id, tye_nom, tye_couleur)
 VALUES 
-    (1, 'Radiateur'),
-    (2, 'Fenetre'),
-    (3, 'Vitre'),
-    (4, 'Porte');
+    (1, 'Radiateur', '#FF6B6B'),  
+    (2, 'Fenetre', '#4ECDC4'),   
+    (3, 'Vitre', '#45B7D1'),      
+    (4, 'Porte', '#96CEB4');      
 SELECT setval('t_e_typeequipement_tye_tye_id_seq', (SELECT MAX(tye_id) FROM t_e_typeequipement_tye));
 
 INSERT INTO t_e_typedonneescapteur_tdc (tdc_id, tdc_nom, tdc_unite)

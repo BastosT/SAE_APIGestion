@@ -313,6 +313,12 @@ namespace SAE_APIGestion.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TypeEquipementId"));
 
+                    b.Property<string>("Couleur")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("varchar(7)")
+                        .HasColumnName("tye_couleur");
+
                     b.Property<string>("Nom")
                         .IsRequired()
                         .HasMaxLength(100)

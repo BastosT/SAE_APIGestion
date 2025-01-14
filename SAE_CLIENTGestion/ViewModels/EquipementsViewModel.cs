@@ -7,37 +7,43 @@ namespace SAE_CLIENTGestion.ViewModels
 {
     public partial class EquipementsViewModel : ObservableObject
     {
-        private readonly IService<Capteur> _capteurService;
-        private readonly IService<CapteurDTO> _capteurServiceDTO;
+        private readonly IService<Equipement> _equipementService;
+        private readonly IService<EquipementDTO> _equipementServiceDTO;
         private readonly IService<Salle> _salleService;
         private readonly IService<Mur> _murService;
         private readonly IService<Batiment> _batimentService;
+        private readonly IService<TypeEquipement> _typeEquipementService;
 
         public EquipementsViewModel(
-            IService<Capteur> capteurService,
-            IService<CapteurDTO> capteurServiceDTO,
+            IService<Equipement> equipementService,
+            IService<EquipementDTO> equipementServiceDTO,
             IService<Salle> salleService,
             IService<Batiment> batimentService,
+            IService<TypeEquipement> typeEquipementService,
             IService<Mur> murService)
         {
-            _capteurService = capteurService;
-            _capteurServiceDTO = capteurServiceDTO;
+            _equipementService = equipementService;
+            _equipementServiceDTO = equipementServiceDTO;
             _salleService = salleService;
             _murService = murService;
             _batimentService = batimentService;
+            _typeEquipementService = typeEquipementService;
         }
 
         [ObservableProperty]
         private bool _isLoading;
 
         [ObservableProperty]
-        private List<Capteur> _capteurs = new List<Capteur>();
+        private List<Equipement> _equipements = new List<Equipement>();
 
         [ObservableProperty]
         private List<Salle> _salles = new List<Salle>();
 
         [ObservableProperty]
         private List<Batiment> _batiments = new List<Batiment>();
+
+        [ObservableProperty]
+        private List<TypeEquipement> _typeEquipements = new List<TypeEquipement>();
 
         [ObservableProperty]
         private List<Mur> _murs = new List<Mur>();
@@ -55,10 +61,11 @@ namespace SAE_CLIENTGestion.ViewModels
             {
                 var tasks = new List<Task>
                 {
-                    LoadCapteursAsync(),
+                    LoadEquipementsAsync(),
                     LoadSallesAsync(),
                     LoadMursAsync(),
                     LoadBatimentsAsync(),
+                    LoadTypeEquipementsAsync(),
                 };
 
                 await Task.WhenAll(tasks);
@@ -76,15 +83,15 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        private async Task LoadCapteursAsync()
+        private async Task LoadEquipementsAsync()
         {
             try
             {
-                Capteurs = await _capteurService.GetAllAsync();
+                Equipements = await _equipementService.GetAllAsync();
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors du chargement des capteurs : {ex.Message}";
+                ErrorMessage = $"Erreur lors du chargement des équipements : {ex.Message}";
             }
         }
 
@@ -112,6 +119,18 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        private async Task LoadTypeEquipementsAsync()
+        {
+            try
+            {
+                TypeEquipements = await _typeEquipementService.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors du chargement des types d'équipements : {ex.Message}";
+            }
+        }
+
         private async Task LoadMursAsync()
         {
             try
@@ -124,69 +143,69 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> AddCapteurAsync(CapteurDTO capteur)
+        public async Task<bool> AddEquipementAsync(EquipementDTO equipement)
         {
             try
             {
-                await _capteurServiceDTO.PostAsync(capteur);
-                await LoadCapteursAsync();
-                SuccessMessage = "Capteur ajouté avec succès";
+                await _equipementServiceDTO.PostAsync(equipement);
+                await LoadEquipementsAsync();
+                SuccessMessage = "Equipement ajouté avec succès";
                 ErrorMessage = null;
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de l'ajout du capteur : {ex.Message}";
+                ErrorMessage = $"Erreur lors de l'ajout de l'équipement : {ex.Message}";
                 SuccessMessage = null;
                 return false;
             }
         }
 
-        public async Task<bool> UpdateCapteurAsync(CapteurDTO capteur)
+        public async Task<bool> UpdateEquipementAsync(EquipementDTO equipement)
         {
             try
             {
-                await _capteurServiceDTO.PutAsync(capteur.CapteurId, capteur);
-                await LoadCapteursAsync();
-                SuccessMessage = "Capteur modifié avec succès";
+                await _equipementServiceDTO.PutAsync(equipement.EquipementId, equipement);
+                await LoadEquipementsAsync();
+                SuccessMessage = "Equipement modifié avec succès";
                 ErrorMessage = null;
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de la modification du capteur : {ex.Message}";
+                ErrorMessage = $"Erreur lors de la modification de l'équipement : {ex.Message}";
                 SuccessMessage = null;
                 return false;
             }
         }
 
-        public async Task<bool> DeleteCapteurAsync(int capteurId)
+        public async Task<bool> DeleteEquipementAsync(int equipementId)
         {
             try
             {
-                await _capteurService.DeleteAsync(capteurId);
-                await LoadCapteursAsync();
-                SuccessMessage = "Capteur supprimé avec succès";
+                await _equipementService.DeleteAsync(equipementId);
+                await LoadEquipementsAsync();
+                SuccessMessage = "Equipement supprimé avec succès";
                 ErrorMessage = null;
                 return true;
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de la suppression du capteur : {ex.Message}";
+                ErrorMessage = $"Erreur lors de la suppression de l'équipement : {ex.Message}";
                 SuccessMessage = null;
                 return false;
             }
         }
 
-        public async Task<Capteur?> GetCapteurByIdAsync(int capteurId)
+        public async Task<Equipement?> GetEquipementByIdAsync(int equipementId)
         {
             try
             {
-                return await _capteurService.GetByIdAsync(capteurId);
+                return await _equipementService.GetByIdAsync(equipementId);
             }
             catch (Exception ex)
             {
-                ErrorMessage = $"Erreur lors de la récupération du capteur : {ex.Message}";
+                ErrorMessage = $"Erreur lors de la récupération de l'équipement : {ex.Message}";
                 return null;
             }
         }

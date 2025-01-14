@@ -19,6 +19,7 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<TypeEquipement>>> GetAllAsync()
         {
             return globalDBContext.TypesEquipements
+                .AsNoTracking()
                 .Include(s => s.Equipements)
                 .ToList();
         }
@@ -26,6 +27,7 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<TypeEquipement>> GetByIdAsync(int id)
         {
             return globalDBContext.TypesEquipements
+                .AsNoTracking()
                 .Include(s => s.Equipements)
                 .FirstOrDefault(p => p.TypeEquipementId == id);
         }
@@ -41,6 +43,7 @@ namespace SAE_APIGestion.Models.DataManger
         {
             globalDBContext.Entry(typeEquipement).State = EntityState.Modified;
             typeEquipement.Nom = entity.Nom;
+            typeEquipement.Couleur = entity.Couleur;
    
             globalDBContext.SaveChanges();
         }

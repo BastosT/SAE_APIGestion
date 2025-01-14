@@ -18,7 +18,9 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<IEnumerable<Mur>>> GetAllAsync()
         {
             return await dbContext.Murs
+                .AsNoTracking()
                 .Include(b => b.Equipements)
+                    .ThenInclude(b => b.TypeEquipement)
                 .Include(b => b.Capteurs)
                 .Include(b => b.Salle)
                 .ToListAsync();
@@ -27,7 +29,9 @@ namespace SAE_APIGestion.Models.DataManger
         public async Task<ActionResult<Mur>> GetByIdAsync(int id)
         {
             return await dbContext.Murs
+                .AsNoTracking()
                 .Include(b => b.Equipements)
+                    .ThenInclude(b => b.TypeEquipement)
                 .Include(b => b.Capteurs)
                 .Include(b => b.Salle)
                 .FirstOrDefaultAsync(u => u.MurId == id);

@@ -57,6 +57,8 @@ namespace SAE_APIGestion.Models.DataManger
             capteur.DistanceChauffage = entity.DistanceChauffage;
             capteur.DistancePorte = entity.DistancePorte;
             capteur.DistanceFenetre = entity.DistanceFenetre;
+            capteur.PositionX = entity.PositionX;
+            capteur.PositionY = entity.PositionY;
             capteur.EstActif = entity.EstActif;
             capteur.MurId = entity.MurId;
             capteur.SalleId = entity.SalleId;

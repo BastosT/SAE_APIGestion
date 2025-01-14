@@ -85,7 +85,9 @@ VALUES
     (5, 'DEBUG CAPTEUR 4', true, 100, 30, 30, 0, 10, 100, 80, 1, 3),
     (6, 'DEBUG CAPTEUR 5' , true, 100, 30, 30, 0, 10, 100, 80, 1, 4),
     (7, 'DEBUG CAPTEUR 6', true, 100, 30, 30, 0, 10, 100, 80, 1, 5),
-    (8, 'DEBUG CAPTEUR 7', true, 100, 30, 30, 0, 10, 100, 80, 1, 6);
+    (8, 'DEBUG CAPTEUR 7', true, 100, 30, 30, 0, 10, 100, 80, 1, 6),
+
+    (9, 'Capteur sans salle/mur', true, 100, 30, 30, 0, 10, 100, 80, null, null);
 
 SELECT setval('t_e_capteur_cap_cap_id_seq', (SELECT MAX(cap_id) FROM t_e_capteur_cap));
 

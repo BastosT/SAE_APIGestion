@@ -248,12 +248,12 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Nom</label>
-                                        <InputText class="form-control" @bind-Value="currentCapteur.Nom" />
+                                        <InputText class="form-control" @bind-Value="currentCapteur.Nom" placeholder="Nom du capteur" />
                                     </div>
 
                                     <div class="mb-3">
                                         <label class="form-label">Salle</label>
-                                        <InputSelect class="form-control" @bind-Value="currentCapteur.SalleId">
+                                        <InputSelect class="form-control" @bind-Value="currentCapteur.SalleId" >
                                             <option value="0">Sélectionner une salle</option>
                                             @foreach (var salle in ViewModel.Salles)
                                             {
@@ -338,7 +338,7 @@
 
                                 <!-- Colonne de la visualisation -->
                                 <div class="col-md-6">
-                                    <div class="h-100 d-flex flex-column justify-content-center">
+                                    <div class="d-flex flex-column">
                                         <div class="mb-3">
                                             <label class="form-label">Aperçu du positionnement</label>
                                             <div class="border rounded p-3">
@@ -564,6 +564,17 @@
         return true;
     }
 
+    private Mur selectedMur => currentCapteur?.MurId != null && currentCapteur.MurId != 0
+        ? ViewModel?.Salles
+            .FirstOrDefault(s => s.SalleId == currentCapteur.SalleId)?
+            .Murs.FirstOrDefault(m => m.MurId == currentCapteur.MurId)
+        : null;
+
+    private double svgScale => selectedMur != null
+        ? Math.Min(400.0 / (selectedMur.Longueur <= 0 ? 1 : selectedMur.Longueur),
+                   300.0 / (selectedMur.Hauteur <= 0 ? 1 : selectedMur.Hauteur)) * 0.9
+        : 0.8;
+
     private void DeleteCapteur(Capteur capteur)
     {
         capteurToDelete = capteur;
@@ -584,7 +595,6 @@
         }
     }
 
-   
 
     private async Task HandleCapteurSubmit()
     {

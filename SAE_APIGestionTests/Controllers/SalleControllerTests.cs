@@ -53,38 +53,19 @@ namespace SAE_APIGestion.Controllers.Tests
                     Nom = "Bâtiment Principal",
                     Adresse = "123 Rue Test"
                 },
-                MurFaceId = 1,
-                MurFace = new Mur
-                {
-                    MurId = 1,
-                    Nom = "Mur Nord",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurEntreeId = 2,
-                MurEntree = new Mur
-                {
-                    MurId = 2,
-                    Nom = "Mur Sud",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurGaucheId = 3,
-                MurGauche = new Mur
-                {
-                    MurId = 3,
-                    Nom = "Mur Ouest",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurDroiteId = 4,
-                MurDroite = new Mur
-                {
-                    MurId = 4,
-                    Nom = "Mur Est",
-                    Longueur = 10,
-                    Hauteur = 3
-                }
+                Murs = new List<Mur>
+                        {
+                            new Mur { MurId = 3, Longueur = 15.0, Hauteur = 3.0 },
+                            new Mur { MurId = 4, Longueur = 10.0, Hauteur = 3.0 }
+                        },
+                Capteurs = new List<Capteur>
+                        {
+                            new Capteur { CapteurId = 2, Nom = "Capteur CO2" }
+                        },
+                Equipements = new List<Equipement>
+                        {
+                            new Equipement { EquipementId = 2, Nom = "Tableau Blanc" }
+                        }
             };
 
 
@@ -108,38 +89,19 @@ namespace SAE_APIGestion.Controllers.Tests
                     Nom = "Bâtiment Principal",
                     Adresse = "123 Rue Test"
                 },
-                MurFaceId = 1,
-                MurFace = new Mur
-                {
-                    MurId = 1,
-                    Nom = "Mur Nord",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurEntreeId = 2,
-                MurEntree = new Mur
-                {
-                    MurId = 2,
-                    Nom = "Mur Sud",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurGaucheId = 3,
-                MurGauche = new Mur
-                {
-                    MurId = 3,
-                    Nom = "Mur Ouest",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurDroiteId = 4,
-                MurDroite = new Mur
-                {
-                    MurId = 4,
-                    Nom = "Mur Est",
-                    Longueur = 10,
-                    Hauteur = 3
-                }
+                Murs = new List<Mur>
+                        {
+                            new Mur { MurId = 3, Longueur = 15.0, Hauteur = 3.0 },
+                            new Mur { MurId = 4, Longueur = 10.0, Hauteur = 3.0 }
+                        },
+                Capteurs = new List<Capteur>
+                        {
+                            new Capteur { CapteurId = 2, Nom = "Capteur CO2" }
+                        },
+                Equipements = new List<Equipement>
+                        {
+                            new Equipement { EquipementId = 2, Nom = "Tableau Blanc" }
+                        }
             };
 
 
@@ -168,38 +130,19 @@ namespace SAE_APIGestion.Controllers.Tests
                     Nom = "Bâtiment Principal",
                     Adresse = "123 Rue Test"
                 },
-                MurFaceId = 500,
-                MurFace = new Mur
-                {
-                    MurId = 999,
-                    Nom = "Mur Nord",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurEntreeId = 501,
-                MurEntree = new Mur
-                {
-                    MurId = 998,
-                    Nom = "Mur Sud",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurGaucheId = 502,
-                MurGauche = new Mur
-                {
-                    MurId = 997,
-                    Nom = "Mur Ouest",
-                    Longueur = 10,
-                    Hauteur = 3
-                },
-                MurDroiteId = 503,
-                MurDroite = new Mur
-                {
-                    MurId = 986,
-                    Nom = "Mur Est",
-                    Longueur = 10,
-                    Hauteur = 3
-                }
+                Murs = new List<Mur>
+                        {
+                            new Mur { MurId = 3, Longueur = 15.0, Hauteur = 3.0 },
+                            new Mur { MurId = 4, Longueur = 10.0, Hauteur = 3.0 }
+                        },
+                Capteurs = new List<Capteur>
+                        {
+                            new Capteur { CapteurId = 2, Nom = "Capteur CO2" }
+                        },
+                Equipements = new List<Equipement>
+                        {
+                            new Equipement { EquipementId = 2, Nom = "Tableau Blanc" }
+                        }
             };
 
             // Appel à l'initialisation de la classe de base
@@ -271,7 +214,6 @@ namespace SAE_APIGestion.Controllers.Tests
             Assert.IsNotNull(salles, "Le bâtiment récupéré ne doit pas être null");
             Assert.AreEqual(salle.SalleId, salles.SalleId, "Les IDs doivent correspondre");
             Assert.AreEqual(salle.Nom, salles.Nom, "Les noms doivent correspondre");
-            Assert.AreEqual(salle.MurDroite, salles.MurDroite, "Les murs doivent correspondre");
         }
 
 

@@ -23,12 +23,18 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/Salles
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Salle>>> GetSalles()
         {
             return await dataRepository.GetAllAsync();
         }
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Salle>> GetSalle(int id)
         {
             var salle = await dataRepository.GetByIdAsync(id);
@@ -69,6 +75,9 @@ namespace SAE_APIGestion.Controllers
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Salle>> PostSalle(Salle salle)
         {
             if (!ModelState.IsValid)
@@ -83,6 +92,9 @@ namespace SAE_APIGestion.Controllers
 
         // DELETE: api/typeSalles/5
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteSalle(int id)
         {
             var salle = await dataRepository.GetByIdAsync(id);
@@ -104,6 +116,9 @@ namespace SAE_APIGestion.Controllers
         // =====================================================================================
 
         [HttpGet("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<SalleDTO>>> GetSallesDTO()
         {
             var result = await dataRepository.GetAllAsync();
@@ -117,6 +132,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpGet("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<SalleDTO>> GetSalleDTO(int id)
         {
             var salle = await dataRepository.GetByIdAsync(id);
@@ -129,6 +147,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpPut("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutSalleDTO(int id, SalleDTO salleDto)
         {
             if (id != salleDto.SalleId)
@@ -148,6 +169,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpPost("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<SalleDTO>> PostSalleDTO(SalleDTO salleDto)
         {
             if (!ModelState.IsValid)
@@ -169,6 +193,9 @@ namespace SAE_APIGestion.Controllers
 
         // DELETE: api/typeSalles/5
         [HttpDelete("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteSalleDTO(int id)
         {
             var salle = await dataRepository.GetByIdAsync(id);

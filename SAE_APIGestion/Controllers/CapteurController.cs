@@ -22,6 +22,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<Capteur>>> GetCapteurs()
         {
             return await dataRepository.GetAllAsync();
@@ -29,6 +32,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Capteur>> GetCapteur(int id)
         {
             var capteur = await dataRepository.GetByIdAsync(id);
@@ -43,6 +49,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutCapteur(int id, Capteur capteur)
         {
             if (id != capteur.CapteurId)
@@ -67,6 +76,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<Capteur>> PostCapteur(Capteur capteur)
         {
             if (!ModelState.IsValid)
@@ -80,6 +92,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCapteur(int id)
         {
             var capteur = await dataRepository.GetByIdAsync(id);
@@ -100,6 +115,9 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/Capteur/dto
         [HttpGet("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CapteurDTO>>> GetAllCapteurDTO()
         {
             var result = await dataRepository.GetAllAsync();
@@ -115,6 +133,9 @@ namespace SAE_APIGestion.Controllers
 
         // GET: api/Capteur/dto/5
         [HttpGet("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CapteurDTO>> GetCapteurDTO(int id)
         {
             var capteur = await dataRepository.GetByIdAsync(id);
@@ -128,6 +149,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutCapteurDTO(int id, CapteurDTO capteurDto)
         {
 
@@ -156,6 +180,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPost("dto")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<CapteurDTO>> PostCapteurDTO(CapteurDTO capteurDto)
         {
             if (!ModelState.IsValid)
@@ -177,6 +204,9 @@ namespace SAE_APIGestion.Controllers
 
         // DELETE: api/Capteur/dto/5
         [HttpDelete("dto/{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteCapteurDTO(int id)
         {
             var capteur = await dataRepository.GetByIdAsync(id);

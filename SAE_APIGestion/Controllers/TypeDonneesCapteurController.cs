@@ -17,6 +17,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<TypeDonneesCapteur>>> GetTypeDonneesCapteurs()
         {
             return await dataRepository.GetAllAsync();
@@ -24,6 +27,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TypeDonneesCapteur>> GetTypeDonneesCapteur(int id)
         {
             var typeDonneesCapteur = await dataRepository.GetByIdAsync(id);
@@ -38,6 +44,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> PutTypeDonneesCapteur(int id, TypeDonneesCapteur typeDonneesCapteur)
         {
             if (id != typeDonneesCapteur.TypeDonneesCapteurId)
@@ -62,6 +71,9 @@ namespace SAE_APIGestion.Controllers
 
 
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<TypeDonneesCapteur>> PostTypeDonneesCapteur(TypeDonneesCapteur typeDonneesCapteur)
         {
             if (!ModelState.IsValid)
@@ -75,6 +87,9 @@ namespace SAE_APIGestion.Controllers
         }
 
         [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeleteTypeDonneesCapteur(int id)
         {
             var typeDonneesCapteur = await dataRepository.GetByIdAsync(id);

@@ -54,6 +54,168 @@
     }
 </style>
 
+<!-- type equipement -->
+<div class="container-fluid p-4">
+    <div class="card shadow border-0 rounded-3">
+        <!-- Header avec gradient subtil -->
+        <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
+            <div class="d-flex justify-content-between align-items-center px-2">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-grid-3x3-gap fs-4 text-white"></i>
+                    <h3 class="mb-0 fw-bold text-white">Types d'Equipements</h3>
+                </div>
+                <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
+                        @onclick="() => { currentTypeEquipement = new(); showTypeEquipementModal = true; isNewTypeEquipement = true; }">
+                    <i class="bi bi-plus-circle-fill fs-5"></i>
+                    <span class="fw-medium">Nouveau Type d'équipement</span>
+                </button>
+            </div>
+        </div>
+
+        <div class=" p-4">
+            @if (ViewModel.IsLoading)
+            {
+                <div class="d-flex flex-column justify-content-center align-items-center py-5">
+                    <div class="spinner-border  mb-3" role="status">
+                        <span class="visually-hidden">Chargement...</span>
+                    </div>
+                    <span class="text-muted">Chargement des types d'équipements...</span>
+                </div>
+            }
+            else if (!ViewModel.TypeEquipements.Any())
+            {
+                <div class="alert alert-info border-0 shadow-sm d-flex align-items-center m-3 rounded-3">
+                    <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+                    <div>
+                        <h6 class="mb-0 fw-semibold">Aucun type d'équipements</h6>
+                        <small class="text-muted">Commencez par créer votre premier type d'équipements</small>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 custom-table">
+                        <thead class="bg-light border-bottom">
+                            <tr>
+                                <th class="fw-semibold px-4 py-3 border-0">
+                                    <div class="text-primary">Nom</div>
+                                </th>
+                                <th class="fw-semibold px-4 py-3 border-0">
+                                    <div class="text-primary">Couleur</div>
+                                </th>
+                                <th class="text-end fw-semibold px-4 py-3 border-0">
+                                    <div class="text-primary">Actions</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="border-top-0">
+                            @foreach (var typeEquipement in ViewModel.TypeEquipements)
+                            {
+                                <tr class="border-bottom">
+                                    <td class="px-4 py-3">
+                                        <div class="fw-semibold">@typeEquipement.Nom</div>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <span style="background-color: @(typeEquipement.Couleur ?? "#6c757d");
+                padding: 0.35em 0.65em;
+                font-size: 0.85em;
+                font-weight: 600;
+                border-radius: 0.25rem;
+                color: white;
+                display: inline-block;
+                text-align: center;
+                white-space: nowrap;
+                vertical-align: baseline;">
+                                            @typeEquipement.Couleur
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <div class="btn-group">
+                                            <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                    @onclick="() => EditTypeEquipement(typeEquipement)"
+                                                    data-bs-toggle="tooltip"
+                                                    title="Modifier">
+                                                <i class="bi bi-pencil-square text-black"></i>
+                                            </button>
+                                            <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                    @onclick="() => DeleteTypeEquipement(typeEquipement)"
+                                                    data-bs-toggle="tooltip"
+                                                    title="Supprimer">
+                                                <i class="bi bi-trash text-danger"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@if (showTypeEquipementModal)
+{
+    <div class="modal-backdrop fade show" style="opacity: 0.8; background-color: black; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1040;"></div>
+    <div class="modal fade show" style="display: block; z-index: 1041;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@(isNewTypeEquipement ? "Nouveau Type d'équipement" : "Modifier le Type d'équipement")</h5>
+                    <button type="button" class="btn-close" @onclick="() => CloseModal()"></button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="@currentTypeEquipement" OnValidSubmit="HandleTypeEquipementSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+
+                        <div class="mb-3">
+                            <label class="form-label">Nom</label>
+                            <InputText class="form-control" @bind-Value="currentTypeEquipement.Nom" />
+                            <ValidationMessage For="@(() => currentTypeEquipement.Nom)" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Couleur</label>
+                            <InputText type="color" class="form-control form-control-color" @bind-Value="currentTypeEquipement.Couleur" />
+                            <ValidationMessage For="@(() => currentTypeEquipement.Couleur)" />
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary me-2">Enregistrer</button>
+                            <button type="button" class="btn btn-secondary" @onclick="() => CloseModal()">Annuler</button>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}
+@if (showDeleteTypeEquipementConfirmation)
+{
+    <div class="modal-backdrop fade show" style="opacity: 0.8; background-color: black; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1040;"></div>
+    <div class="modal fade show" style="display: block; z-index: 1041;" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" @onclick="() => showDeleteTypeEquipementConfirmation = false"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer ce type de salle ?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showDeleteTypeEquipementConfirmation = false">Annuler</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteTypeEquipement">Supprimer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="container-fluid main-content overflow-auto">
     @if (!string.IsNullOrEmpty(ViewModel.SuccessMessage))
     {
@@ -318,7 +480,14 @@
                                             <option value="0">Sélectionner un type d'équipement</option>
                                             @foreach (var typeEquipement in ViewModel.TypeEquipements)
                                             {
-                                                <option value="@typeEquipement.TypeEquipementId">@typeEquipement.Nom</option>
+                                                <option value="@typeEquipement.TypeEquipementId">
+                                                    <span style="background-color: @typeEquipement.Couleur;
+                           padding: 0.2em 0.4em;
+                           border-radius: 0.25rem;
+                           color: white;">
+                                                        @typeEquipement.Nom
+                                                    </span>
+                                                </option>
                                             }
                                         </InputSelect>
                                     </div>
@@ -571,12 +740,17 @@
     private bool isNewEquipement = true;
     private Equipement currentEquipement = new();
     private Equipement equipementToDelete;
+    private TypeEquipementDTO currentTypeEquipement = new();
+    private TypeEquipementDTO typeEquipementToDelete;
     private Mur selectedMur = new();
     private bool isProcessing = false;
     private string progressStatus => isNewEquipement ?
         (isProcessing ? "Création en cours..." : "Créer") :
         (isProcessing ? "Modification en cours..." : "Modifier");
     private string validationMessage = "";
+    private bool showTypeEquipementModal = false;
+    private bool isNewTypeEquipement = false;
+    private bool showDeleteTypeEquipementConfirmation = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -602,6 +776,54 @@
         selectedMur = ViewModel.Salles
     .FirstOrDefault(s => s.SalleId == currentEquipement.SalleId)?
     .Murs.FirstOrDefault(m => m.MurId == currentEquipement.MurId);
+    }
+
+
+    private void EditTypeEquipement(TypeEquipementDTO typeEquipement)
+    {
+        currentTypeEquipement = new TypeEquipementDTO
+            {
+                TypeEquipementId = typeEquipement.TypeEquipementId,
+                Nom = typeEquipement.Nom,
+                Couleur = typeEquipement.Couleur,
+            };
+        isNewTypeEquipement = false;
+        showTypeEquipementModal = true;
+    }
+
+    private async Task HandleTypeEquipementSubmit()
+    {
+        bool success;
+        if (isNewTypeEquipement)
+        {
+            success = await ViewModel.AddTypeEquipementAsync(currentTypeEquipement);
+        }
+        else
+        {
+            success = await ViewModel.UpdateTypeEquipementAsync(currentTypeEquipement);
+            await ViewModel.LoadDataAsync();
+        }
+        if (success)
+        {
+            showTypeEquipementModal = false;
+        }
+    }
+
+    private void DeleteTypeEquipement(TypeEquipementDTO typeEquipement)
+    {
+        typeEquipementToDelete = typeEquipement;
+        showDeleteTypeEquipementConfirmation = true;
+    }
+
+    private async Task ConfirmDeleteTypeEquipement()
+    {
+        if (typeEquipementToDelete != null)
+        {
+            if (await ViewModel.DeleteTypeEquipementAsync(typeEquipementToDelete.TypeEquipementId))
+            {
+                showDeleteTypeEquipementConfirmation = false;
+            }
+        }
     }
 
     private bool ValidateForm()
@@ -759,5 +981,25 @@
     {
         showEquipementModal = false;
         currentEquipement = new();
+    }
+
+    private void CloseModal(string modalType = "all")
+    {
+        switch (modalType.ToLower())
+        {
+            case "typeequipement":
+                showTypeEquipementModal = false;
+                currentTypeEquipement = new();
+                break;
+
+
+            case "all":
+            default:
+                // Ferme toutes les modales et réinitialise tous les états
+                showTypeEquipementModal = false;
+
+                currentTypeEquipement = new();
+                break;
+        }
     }
 }

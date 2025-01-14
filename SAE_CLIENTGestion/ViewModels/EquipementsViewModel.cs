@@ -12,14 +12,14 @@ namespace SAE_CLIENTGestion.ViewModels
         private readonly IService<Salle> _salleService;
         private readonly IService<Mur> _murService;
         private readonly IService<Batiment> _batimentService;
-        private readonly IService<TypeEquipement> _typeEquipementService;
+        private readonly IService<TypeEquipementDTO> _typeEquipementServiceDTO;
 
         public EquipementsViewModel(
             IService<Equipement> equipementService,
             IService<EquipementDTO> equipementServiceDTO,
             IService<Salle> salleService,
             IService<Batiment> batimentService,
-            IService<TypeEquipement> typeEquipementService,
+            IService<TypeEquipementDTO> typeEquipementServiceDTO,
             IService<Mur> murService)
         {
             _equipementService = equipementService;
@@ -27,7 +27,7 @@ namespace SAE_CLIENTGestion.ViewModels
             _salleService = salleService;
             _murService = murService;
             _batimentService = batimentService;
-            _typeEquipementService = typeEquipementService;
+            _typeEquipementServiceDTO = typeEquipementServiceDTO;
         }
 
         [ObservableProperty]
@@ -43,7 +43,7 @@ namespace SAE_CLIENTGestion.ViewModels
         private List<Batiment> _batiments = new List<Batiment>();
 
         [ObservableProperty]
-        private List<TypeEquipement> _typeEquipements = new List<TypeEquipement>();
+        private List<TypeEquipementDTO> _typeEquipements = new List<TypeEquipementDTO>();
 
         [ObservableProperty]
         private List<Mur> _murs = new List<Mur>();
@@ -123,11 +123,79 @@ namespace SAE_CLIENTGestion.ViewModels
         {
             try
             {
-                TypeEquipements = await _typeEquipementService.GetAllAsync();
+                TypeEquipements = await _typeEquipementServiceDTO.GetAllAsync();
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Erreur lors du chargement des types d'équipements : {ex.Message}";
+            }
+        }
+
+        public async Task<bool> DeleteTypeEquipementAsync(int typeEquipementId)
+        {
+            IsLoading = true;
+            try
+            {
+                await _typeEquipementServiceDTO.DeleteAsync(typeEquipementId);
+                await LoadTypeEquipementsAsync();
+                SuccessMessage = "Type de equipement supprimé avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la suppression du type de salle : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+        public async Task<bool> AddTypeEquipementAsync(TypeEquipementDTO typeEquipement)
+        {
+            IsLoading = true;
+            try
+            {
+                await _typeEquipementServiceDTO.PostAsync(typeEquipement);
+                await LoadTypeEquipementsAsync();
+                SuccessMessage = "Type d'équipement ajouté avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de l'ajout du type d'équipement : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        public async Task<bool> UpdateTypeEquipementAsync(TypeEquipementDTO typeEquipement)
+        {
+            IsLoading = true;
+            try
+            {
+                await _typeEquipementServiceDTO.PutAsync(typeEquipement.TypeEquipementId, typeEquipement);
+                await LoadTypeEquipementsAsync();
+                SuccessMessage = "Type d'équipement modifié avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la modification du type d'équipement : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+            finally
+            {
+                IsLoading = false;
             }
         }
 

@@ -1,5 +1,4 @@
 ﻿(function () {
-    console.log("Initializing wall chain builder with distinct inner/outer faces");
 
     window.babylonInterop = window.babylonInterop || {};
 
@@ -339,10 +338,23 @@
             }, scene);
 
             const screenMaterial = new BABYLON.StandardMaterial("screenMaterial", scene);
-            screenMaterial.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-            screenMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.3, 0.4);
-            screenMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            if (sensor.estActif) {
+                // Lorsque le capteur est actif, l'écran sera lumineux
+                screenMaterial.diffuseColor = new BABYLON.Color3(0.1, 0.1, 0.1);  // Couleur diffuse sombre mais visible
+                screenMaterial.emissiveColor = new BABYLON.Color3(0.2, 0.3, 0.4); // Écran lumineux (bleu-gris)
+                screenMaterial.specularColor = new BABYLON.Color3(0.2, 0.2, 0.2); // Réflexions modérées
+            } else {
+                // Lorsque le capteur est inactif, l'écran devient noir (éteint)
+                screenMaterial.diffuseColor = new BABYLON.Color3(0, 0, 0);  // Couleur diffuse noire (écran éteint)
+                screenMaterial.emissiveColor = new BABYLON.Color3(0, 0, 0); // Pas de lumière émissive
+                screenMaterial.specularColor = new BABYLON.Color3(0, 0, 0); // Pas de réflexions
+            }
+
+
             screen.material = screenMaterial;
+
+            // Décaler l'écran vers l'avant pour qu'il soit visible
+            screen.position.z = depth * 0.5 + 0.01; // Décalage positif pour le faire ressortir légèrement du boîtier
 
             // Grille de ventilation
             const ventWidth = width * 0.6;
@@ -357,25 +369,77 @@
             ventMaterial.alpha = 0.8;
             ventilation.material = ventMaterial;
 
+            // Ajout de la LED avec taille minimum
+            const minLedSize = 0.25; // Taille minimum de la LED en unités Babylon
+            const proportionalLedSize = Math.min(width, height) * 0.15;
+            const ledSize = Math.max(minLedSize, proportionalLedSize); // Prend la plus grande des deux valeurs
+            const ledContainer = new BABYLON.TransformNode("ledContainer", scene);
+
+            // Base de la LED (cylindre noir)
+            const ledBase = BABYLON.MeshBuilder.CreateCylinder("ledBase", {
+                height: depth * 0.3,
+                diameter: ledSize,
+                tessellation: 32
+            }, scene);
+            const ledBaseMaterial = new BABYLON.StandardMaterial("ledBaseMaterial", scene);
+            ledBaseMaterial.diffuseColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+            ledBase.material = ledBaseMaterial;
+
+            // Partie lumineuse de la LED (dôme)
+            const ledDome = BABYLON.MeshBuilder.CreateSphere("ledDome", {
+                diameter: ledSize,
+                segments: 32,
+                slice: 0.5
+            }, scene);
+            const ledMaterial = new BABYLON.PBRMaterial("ledMaterial", scene);
+            ledMaterial.metallic = 0;
+            ledMaterial.roughness = 0.3;
+            ledMaterial.emissiveIntensity = 0.8;
+
+            // Définir la couleur de la LED en fonction de estActif
+            if (sensor.estActif) {
+                ledMaterial.emissiveColor = new BABYLON.Color3(0.1, 0.8, 0.1); // Vert vif
+                ledMaterial.albedoColor = new BABYLON.Color3(0.2, 1.0, 0.2);
+            } else {
+                ledMaterial.emissiveColor = new BABYLON.Color3(0.8, 0.1, 0.1); // Rouge vif
+                ledMaterial.albedoColor = new BABYLON.Color3(1.0, 0.2, 0.2);
+            }
+
+            ledDome.material = ledMaterial;
+
+            // Position de la LED
+            ledDome.position.y = depth * 0.15;
+            ledBase.parent = ledContainer;
+            ledDome.parent = ledContainer;
+
+            // Positionner la LED en haut à droite du capteur
+            ledContainer.position = new BABYLON.Vector3(
+                width * 0.35,
+                height * 0.35,
+                depth / 2 + 0.001
+            );
+            ledContainer.rotation = new BABYLON.Vector3(-Math.PI / 2, 0, 0);
+
             let xPos = -wallWidth / 2 + sensor.positionX * this.config.scale + width / 2;
             let yPos = wallHeight / 2 - sensor.positionY * this.config.scale - height / 2;
             let zPos = this.config.wallDepth / 2 + depth / 2;
 
             sensorContainer.position = new BABYLON.Vector3(-xPos, yPos, zPos);
-            screen.position.z = depth / 2 + 0.001;
+            screen.position.z = depth * 0.5 - 0.10; // Décalage de l'écran pour qu'il soit visible
             ventilation.position = new BABYLON.Vector3(0, -height / 3, depth / 2 + 0.001);
 
             sensorContainer.rotation.y = Math.PI;
             screen.parent = sensorContainer;
             ventilation.parent = sensorContainer;
             sensorBox.parent = sensorContainer;
+            ledContainer.parent = sensorContainer;
             sensorContainer.parent = wall;
 
             return sensorContainer;
         },
+
         renderRoom: function (scene, room, startPoint) {
             if (!room.murs || room.murs.length === 0) {
-                console.log("No walls to render");
                 return { walls: [], size: { width: 0, depth: 0 } };
             }
 
@@ -399,12 +463,15 @@
             let previousEnd = currentPoint.clone();
             let firstWallOrientation = room.murs[0].orientation;
 
+
             for (let i = 0; i < room.murs.length; i++) {
                 const wallData = room.murs[i];
                 const width = wallData.longueur * this.config.scale;
                 const height = wallData.hauteur * this.config.scale;
 
+
                 const wallContainer = new BABYLON.TransformNode("wallContainer_" + wallData.name, scene);
+
 
                 // Créer le mur principal complet
                 const wallMesh = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
@@ -470,34 +537,38 @@
                     case 0:
                         wallContainer.rotation.y = -Math.PI / 2;
                         currentPoint.z -= width;
-                        wallContainer.position.x = currentPoint.x + this.config.wallDepth / 2;
-                        wallContainer.position.z = (currentPoint.z + (currentPoint.z + width)) / 2;
-                        wallEndPosition.x = currentPoint.x;
-                        wallEndPosition.z = currentPoint.z;
+                        wallContainer.position = new BABYLON.Vector3(
+                            startPoint.x + currentPoint.x + this.config.wallDepth / 2,
+                            height / 2,
+                            startPoint.z + (currentPoint.z + (currentPoint.z + width)) / 2
+                        );
                         break;
                     case 1:
                         wallContainer.rotation.y = 0;
                         currentPoint.x -= width;
-                        wallContainer.position.z = currentPoint.z - this.config.wallDepth / 2;
-                        wallContainer.position.x = (currentPoint.x + (currentPoint.x + width)) / 2;
-                        wallEndPosition.x = currentPoint.x;
-                        wallEndPosition.z = currentPoint.z;
+                        wallContainer.position = new BABYLON.Vector3(
+                            startPoint.x + (currentPoint.x + (currentPoint.x + width)) / 2,
+                            height / 2,
+                            startPoint.z + currentPoint.z - this.config.wallDepth / 2
+                        );
                         break;
                     case 2:
                         wallContainer.rotation.y = Math.PI / 2;
                         currentPoint.z += width;
-                        wallContainer.position.x = currentPoint.x - this.config.wallDepth / 2;
-                        wallContainer.position.z = (currentPoint.z + (currentPoint.z - width)) / 2;
-                        wallEndPosition.x = currentPoint.x;
-                        wallEndPosition.z = currentPoint.z;
+                        wallContainer.position = new BABYLON.Vector3(
+                            startPoint.x + currentPoint.x - this.config.wallDepth / 2,
+                            height / 2,
+                            startPoint.z + (currentPoint.z + (currentPoint.z - width)) / 2
+                        );
                         break;
                     case 3:
                         wallContainer.rotation.y = Math.PI;
                         currentPoint.x += width;
-                        wallContainer.position.z = currentPoint.z + this.config.wallDepth / 2;
-                        wallContainer.position.x = (currentPoint.x + (currentPoint.x - width)) / 2;
-                        wallEndPosition.x = currentPoint.x;
-                        wallEndPosition.z = currentPoint.z;
+                        wallContainer.position = new BABYLON.Vector3(
+                            startPoint.x + (currentPoint.x + (currentPoint.x - width)) / 2,
+                            height / 2,
+                            startPoint.z + currentPoint.z + this.config.wallDepth / 2
+                        );
                         break;
                 }
 
@@ -521,9 +592,9 @@
                         cornerMaterial.diffuseColor = new BABYLON.Color3(0.96, 0.93, 0.86);
                         cornerMesh.material = cornerMaterial;
 
-                        // Ajustement de la position en fonction de l'orientation du mur
-                        let cornerX = previousEnd.x;
-                        let cornerZ = previousEnd.z;
+                        // Ajustement de la position en tenant compte du startPoint
+                        let cornerX = startPoint.x + previousEnd.x;
+                        let cornerZ = startPoint.z + previousEnd.z;
 
                         switch (wallData.orientation) {
                             case 0:
@@ -577,7 +648,6 @@
                         this.renderSensor(scene, sensor, wallContainer, width, height);
                     });
                 }
-
                 walls.push(wallContainer);
             }
 
@@ -597,10 +667,9 @@
                     cornerMaterial.diffuseColor = new BABYLON.Color3(0.96, 0.93, 0.86);
                     cornerMesh.material = cornerMaterial;
 
-                    let cornerX = previousEnd.x;
-                    let cornerZ = previousEnd.z;
+                    let cornerX = startPoint.x + previousEnd.x;
+                    let cornerZ = startPoint.z + previousEnd.z;
 
-                    // Pour le dernier coin, modifier le switch ainsi :
                     switch (lastWallOrientation) {
                         case 0:
                             cornerX -= this.config.wallDepth / 2;
@@ -639,7 +708,6 @@
 
             try {
                 const parsedData = JSON.parse(buildingsDataJson);
-                console.log("Parsed buildings data:", parsedData);
                 const engine = new BABYLON.Engine(canvas, true);
                 window.currentEngine = engine;
 
@@ -647,24 +715,75 @@
                 window.currentScene = scene;
                 scene.clearColor = new BABYLON.Color3(0.8, 0.8, 0.8);
 
-                let buildingOffset = new BABYLON.Vector3(0, 0, 0);
+                let globalX = 0;
+
+                let maxX = 0;    // Pour suivre la largeur maximale
+                let currentY = 0; // Pour la position verticale
+
 
                 parsedData.forEach((building, buildingIndex) => {
-                    let roomOffset = buildingOffset.clone();
 
-                    (building.salles || []).forEach((room, roomIndex) => {
-                        const result = this.renderRoom(scene, room, roomOffset);
-                        roomOffset.x += result.size.width * 1.2;
+                    // Position de départ pour ce bâtiment
+                    let currentX = 0;
+                    const buildingStartZ = currentY;
+
+                    // Trouver la largeur maximale des salles pour ce bâtiment
+                    let maxRoomWidth = 0;
+                    (building.salles || []).forEach((room) => {
+                        // Calculer approximativement la largeur de la salle
+                        const roomWidth = (room.murs || []).reduce((max, wall) => {
+                            return (wall.orientation === 1 || wall.orientation === 3)
+                                ? Math.max(max, wall.longueur * this.config.scale)
+                                : max;
+                        }, 0);
+                        maxRoomWidth = Math.max(maxRoomWidth, roomWidth);
                     });
 
-                    buildingOffset.z += 20;
+                    // Afficher les salles
+                    (building.salles || []).forEach((room, roomIndex) => {
+                        const roomPosition = new BABYLON.Vector3(
+                            currentX,
+                            0,
+                            -currentY  // Note le Z négatif pour l'orientation correcte
+                        );
+
+                        const result = this.renderRoom(scene, room, roomPosition);
+
+                        // Mettre à jour la position X pour la prochaine salle
+                        currentX += maxRoomWidth * 1.1; // 10% d'espace entre les salles
+
+                        // Si on dépasse une certaine largeur, on passe à la ligne suivante
+                        if (currentX > 200) { // Vous pouvez ajuster cette valeur
+                            currentX = 0;
+                            currentY += 70;  // Espacement vertical entre les lignes
+                        }
+
+                        maxX = Math.max(maxX, currentX);
+                    });
+
+                    // Passer au bâtiment suivant en dessous
+                    currentY += 70; // Espacement vertical entre les bâtiments
                 });
 
                 const camera = new BABYLON.ArcRotateCamera("camera",
-                    0, Math.PI / 3, 50,
-                    new BABYLON.Vector3(0, 0, 0),
+                    0, Math.PI / 3, Math.max(maxX, currentY) * 1.5,
+                    new BABYLON.Vector3(maxX / 2, 0, -currentY / 2),
                     scene
                 );
+
+                // Augmenter la vitesse de rotation et de zoom
+                camera.angularSensibilityX = 750; // Diminuer pour une rotation plus rapide (défaut: 1000)
+                camera.angularSensibilityY = 750; // Diminuer pour une rotation plus rapide (défaut: 1000)
+                camera.pinchPrecision = 50;       // Ajuster la sensibilité du pinch-zoom
+                camera.wheelPrecision = 5;       // Vitesse du zoom avec la molette (diminuer pour zoom plus rapide)
+                camera.panningSensibility = 50;    // Augmenter la vitesse du panning (défaut: 1000)
+
+
+
+                // Optionnel : Ajouter des limites pour éviter d'aller trop loin
+                camera.lowerRadiusLimit = 1;     // Distance minimale de zoom
+                camera.upperRadiusLimit = 15000;   // Distance maximale de zoom
+
                 camera.attachControl(canvas, true);
 
                 const light = new BABYLON.HemisphericLight("light",
@@ -705,5 +824,4 @@
         }
     });
 
-    console.log("Wall chain builder initialization complete");
 })();

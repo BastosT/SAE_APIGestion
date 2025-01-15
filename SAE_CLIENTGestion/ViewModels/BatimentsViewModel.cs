@@ -1,23 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using SAE_CLIENTGestion.Models;
+using SAE_CLIENTGestion.Models.DTO;
 using SAE_CLIENTGestion.Services;
 
 namespace SAE_CLIENTGestion.ViewModels
 {
     public partial class BatimentsViewModel : ObservableObject
     {
-        private readonly IService<Batiment> _batimentService;
+        private readonly IService<BatimentDTO> _batimentServiceDTO;
 
-        public BatimentsViewModel(IService<Batiment> batimentService)
+        public BatimentsViewModel(IService<BatimentDTO> batimentServiceDTO)
         {
-            _batimentService = batimentService;
+            _batimentServiceDTO = batimentServiceDTO;
         }
 
         [ObservableProperty]
         private bool _isLoading;
 
         [ObservableProperty]
-        private List<Batiment> _batiments = new List<Batiment>();
+        private List<BatimentDTO> _batiments = new List<BatimentDTO>();
 
         [ObservableProperty]
         private string? _successMessage;
@@ -30,7 +31,7 @@ namespace SAE_CLIENTGestion.ViewModels
             IsLoading = true;
             try
             {
-                Batiments = await _batimentService.GetAllAsync();
+                Batiments = await _batimentServiceDTO.GetAllAsync();
                 SuccessMessage = null;
                 ErrorMessage = null;
             }
@@ -45,12 +46,12 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> AddBatimentAsync(Batiment batiment)
+        public async Task<bool> AddBatimentAsync(BatimentDTO batiment)
         {
             IsLoading = true;
             try
             {
-                await _batimentService.PostAsync(batiment);
+                await _batimentServiceDTO.PostAsync(batiment);
                 await LoadDataAsync();
                 SuccessMessage = "Bâtiment ajouté avec succès";
                 ErrorMessage = null;
@@ -68,12 +69,12 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
-        public async Task<bool> UpdateBatimentAsync(Batiment batiment)
+        public async Task<bool> UpdateBatimentAsync(BatimentDTO batiment)
         {
             IsLoading = true;
             try
             {
-                await _batimentService.PutAsync(batiment.BatimentId, batiment);
+                await _batimentServiceDTO.PutAsync(batiment.BatimentId, batiment);
                 await LoadDataAsync();
                 SuccessMessage = "Bâtiment modifié avec succès";
                 ErrorMessage = null;
@@ -96,7 +97,7 @@ namespace SAE_CLIENTGestion.ViewModels
             IsLoading = true;
             try
             {
-                await _batimentService.DeleteAsync(id);
+                await _batimentServiceDTO.DeleteAsync(id);
                 await LoadDataAsync();
                 SuccessMessage = "Bâtiment supprimé avec succès";
                 ErrorMessage = null;

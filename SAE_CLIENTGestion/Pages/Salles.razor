@@ -178,6 +178,37 @@
                 </div>
             </div>
 
+            <!-- Nouvelle section de filtres -->
+            <div class="px-4 pt-4" style="background-color: #cdcdcd;">
+                <div class="card border-0 shadow-sm rounded-3 mb-4">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="bi bi-funnel fs-5 text-primary"></i>
+                                <h6 class="mb-0 fw-semibold">Filtres</h6>
+                            </div>
+                            <div class="flex-grow-1">
+                                <select class="form-select" @bind="SelectedBatiment">
+                                    <option value="">Tous les bâtiments</option>
+                                    @foreach (var batiment in ViewModel.Batiments)
+                                    {
+                                        <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                    }
+                                </select>
+                            </div>
+                            @if (SelectedBatiment != "")
+                            {
+                                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                                        @onclick="() => SelectedBatiment = string.Empty">
+                                    <i class="bi bi-x me-1"></i>
+                                    Réinitialiser
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="p-4" style="background-color: #cdcdcd;">
                 @if (ViewModel.IsLoading)
                 {
@@ -201,7 +232,7 @@
                 else
                 {
                     <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
-                        @foreach (var salle in ViewModel.Salles)
+                        @foreach (var salle in GetFilteredSalles())
                         {
                             <div class="col">
                                 <div class="card shadow border-0 rounded-3">
@@ -1088,6 +1119,18 @@
         private bool isDragging;
         private string resizingPoint;
         private double startX, startY;
+
+    private string SelectedBatiment { get; set; } = string.Empty;
+
+    private List<Salle> GetFilteredSalles()
+    {
+        var salles = ViewModel.Salles;
+        if (!string.IsNullOrEmpty(SelectedBatiment))
+        {
+            return salles.Where(s => s.Batiment.BatimentId.ToString() == SelectedBatiment).ToList();
+        }
+        return salles;
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

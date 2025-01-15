@@ -88,6 +88,53 @@
                 </div>
             </div>
 
+            <!-- Section Filtres -->
+            <div class="px-4 pt-3 pb-2 border-bottom">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="row g-3 flex-grow-1">
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrer par Bâtiment</label>
+                            <select class="form-select" @bind="selectedBatimentFilter">
+                                <option value="">Tous les bâtiments</option>
+                                @foreach (var batiment in ViewModel.Batiments)
+                                {
+                                    <option value="@batiment.BatimentId">@batiment.Nom</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrer par Salle</label>
+                            <select class="form-select" @bind="selectedSalleFilter" disabled="@(selectedBatimentFilter == null)">
+                                <option value="">Toutes les salles</option>
+                                @foreach (var salle in ViewModel.Salles.Where(s => selectedBatimentFilter == null || s.BatimentId == selectedBatimentFilter))
+                                {
+                                    <option value="@salle.SalleId">@salle.Nom</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Filtrer par Mur</label>
+                            <select class="form-select" @bind="selectedMurFilter" disabled="@(selectedSalleFilter == null)">
+                                <option value="">Tous les murs</option>
+                                @foreach (var mur in ViewModel.Salles
+                                .Where(s => selectedSalleFilter == null || s.SalleId == selectedSalleFilter)
+                                .SelectMany(s => s.Murs))
+                                {
+                                    <option value="@mur.MurId">Mur @mur.Nom (@mur.Orientation)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="ms-3 d-flex align-items-end" style="height: 71px;">
+                        <button class="btn btn-outline-secondary" @onclick="ResetFilters"
+                                disabled="@(!HasActiveFilters)">
+                            <i class="bi bi-arrow-counterclockwise me-2"></i>
+                            Réinitialiser
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div class="p-4">
                 @if (ViewModel.IsLoading)
                 {
@@ -137,10 +184,11 @@
                             </thead>
                             <tbody class="border-top-0">
                                 @foreach (var batiment in ViewModel.Batiments.Where(b =>
-                               ViewModel.Salles.Where(s => s.BatimentId == b.BatimentId) // Pour chaque salle du bâtiment
-                               .SelectMany(s => ViewModel.Murs.Where(m => m.SalleId == s.SalleId)) // Pour chaque mur de ces salles
-                               .SelectMany(m => m.Capteurs) // Pour tous les capteurs de ces murs
-                               .Any() // Vérifie s'il y a au moins un capteur
+                               (selectedBatimentFilter == null || b.BatimentId == selectedBatimentFilter) &&
+                               ViewModel.Salles.Where(s => s.BatimentId == b.BatimentId)
+                               .SelectMany(s => ViewModel.Murs.Where(m => m.SalleId == s.SalleId))
+                               .SelectMany(m => m.Capteurs)
+                               .Any()
                                ))
                                 {
                                     <!-- Ligne Bâtiment -->
@@ -155,9 +203,10 @@
 
                                     @foreach (var salle in ViewModel.Salles.Where(s =>
                                    s.BatimentId == batiment.BatimentId &&
-                                   ViewModel.Murs.Where(m => m.SalleId == s.SalleId) // Pour chaque mur de la salle
-                                   .SelectMany(m => m.Capteurs) // Pour tous les capteurs de ces murs
-                                   .Any() // Vérifie s'il y a au moins un capteur
+                                   (selectedSalleFilter == null || s.SalleId == selectedSalleFilter) &&
+                                   ViewModel.Murs.Where(m => m.SalleId == s.SalleId)
+                                   .SelectMany(m => m.Capteurs)
+                                   .Any()
                                    ))
                                     {
                                         <!-- Ligne Salle -->
@@ -172,7 +221,8 @@
 
                                         @foreach (var mur in ViewModel.Murs.Where(m =>
                                        m.SalleId == salle.SalleId &&
-                                       m.Capteurs.Any() // Vérifie si le mur a au moins un capteur
+                                       (selectedMurFilter == null || m.MurId == selectedMurFilter) &&
+                                       m.Capteurs.Any()
                                        ))
                                         {
                                             <!-- Ligne Mur -->
@@ -233,10 +283,9 @@
                                 }
 
                                 <!-- Affichage des capteurs non associés à un mur -->
-                                @if (ViewModel.Capteurs.Where(c => c.MurId == null || c.MurId == 0).Count() > 0)
+                                @if (!HasActiveFilters && ViewModel.Capteurs.Where(c => c.MurId == null || c.MurId == 0).Count() > 0)
                                 {
-                                    
-                                <tr class="border-top">
+                                    <tr class="border-top">
                                         <td colspan="6" class="px-4 py-2">
                                             <div class="fw-bold text-primary">
                                                 <i class="bi bi-cpu me-2"></i>
@@ -244,50 +293,50 @@
                                             </div>
                                         </td>
                                     </tr>
-                                }
 
-                                @foreach (var capteur in ViewModel.Capteurs.Where(c => c.MurId == null || c.MurId == 0))
-                                {
-                                    <tr class="border-bottom sensor-row">
-                                        <td class="px-4 py-3">
-                                            <div class="ms-6 fw-normal" style="margin-left: 4.5rem!important;">
-                                                <i class="bi bi-cpu me-2 text-muted"></i>
-                                                @capteur.Nom
-                                            </div>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <span class="badge @(capteur.EstActif ? "bg-success" : "bg-danger")">
-                                                @(capteur.EstActif ? "Actif" : "Inactif")
-                                            </span>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <small class="text-muted">
-                                                Longueur: @capteur.Longueur, Hauteur: @capteur.Hauteur
-                                            </small>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <small class="text-muted">
-                                                X: @capteur.PositionX, Y: @capteur.PositionY
-                                            </small>
-                                        </td>
-                                        <td class="px-4 py-3">
-                                            <small class="text-muted">
-                                                Distance : [Fenetre: @(capteur.DistanceFenetre)cm], [Chauffage: @(capteur.DistanceChauffage)cm], [Porte: @(capteur.DistancePorte)cm]
-                                            </small>
-                                        </td>
-                                        <td class="px-4 py-3 text-end">
-                                            <div class="btn-group">
-                                                <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
-                                                        @onclick="() => EditCapteur(capteur)">
-                                                    <i class="bi bi-pencil-square text-black"></i>
-                                                </button>
-                                                <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
-                                                        @onclick="() => DeleteCapteur(capteur)">
-                                                    <i class="bi bi-trash text-danger"></i>
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                    @foreach (var capteur in ViewModel.Capteurs.Where(c => c.MurId == null || c.MurId == 0))
+                                    {
+                                        <tr class="border-bottom sensor-row">
+                                            <td class="px-4 py-3">
+                                                <div class="ms-6 fw-normal" style="margin-left: 4.5rem!important;">
+                                                    <i class="bi bi-cpu me-2 text-muted"></i>
+                                                    @capteur.Nom
+                                                </div>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <span class="badge @(capteur.EstActif ? "bg-success" : "bg-danger")">
+                                                    @(capteur.EstActif ? "Actif" : "Inactif")
+                                                </span>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <small class="text-muted">
+                                                    Longueur: @capteur.Longueur, Hauteur: @capteur.Hauteur
+                                                </small>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <small class="text-muted">
+                                                    X: @capteur.PositionX, Y: @capteur.PositionY
+                                                </small>
+                                            </td>
+                                            <td class="px-4 py-3">
+                                                <small class="text-muted">
+                                                    Distance : [Fenetre: @(capteur.DistanceFenetre)cm], [Chauffage: @(capteur.DistanceChauffage)cm], [Porte: @(capteur.DistancePorte)cm]
+                                                </small>
+                                            </td>
+                                            <td class="px-4 py-3 text-end">
+                                                <div class="btn-group">
+                                                    <button class="btn btn-light btn-sm rounded-start-2 shadow-sm me-1"
+                                                            @onclick="() => EditCapteur(capteur)">
+                                                        <i class="bi bi-pencil-square text-black"></i>
+                                                    </button>
+                                                    <button class="btn btn-light btn-sm rounded-end-2 shadow-sm"
+                                                            @onclick="() => DeleteCapteur(capteur)">
+                                                        <i class="bi bi-trash text-danger"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
                                 }
                             </tbody>
 
@@ -602,6 +651,48 @@
         (isProcessing ? "Création en cours..." : "Créer") :
         (isProcessing ? "Modification en cours..." : "Modifier");
     private string validationMessage = "";
+
+    // Gestionnaire pour le changement de bâtiment
+    private int? _selectedBatimentFilter;
+    private int? selectedBatimentFilter
+    {
+        get => _selectedBatimentFilter;
+        set
+        {
+            _selectedBatimentFilter = value;
+            // Réinitialiser les filtres dépendants
+            selectedSalleFilter = null;
+            selectedMurFilter = null;
+            StateHasChanged();
+        }
+    }
+
+    // Gestionnaire pour le changement de salle
+    private int? _selectedSalleFilter;
+    private int? selectedSalleFilter
+    {
+        get => _selectedSalleFilter;
+        set
+        {
+            _selectedSalleFilter = value;
+            // Réinitialiser le filtre de mur
+            selectedMurFilter = null;
+            StateHasChanged();
+        }
+    }
+
+    private int? selectedMurFilter;
+
+    // Propriété pour vérifier si des filtres sont actifs
+    private bool HasActiveFilters => selectedBatimentFilter.HasValue || selectedSalleFilter.HasValue || selectedMurFilter.HasValue;
+
+    // Méthode pour réinitialiser tous les filtres
+    private void ResetFilters()
+    {
+        selectedBatimentFilter = null;
+        selectedSalleFilter = null;
+        selectedMurFilter = null;
+    }
 
     protected override async Task OnInitializedAsync()
     {

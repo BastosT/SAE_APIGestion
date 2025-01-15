@@ -73,7 +73,7 @@
 
     <!-- Section Types de Salle -->
     <div class="container-fluid p-4">
-        <div class="card shadow border-0 rounded-3">
+        <div class="card shadow border-0 ">
             <!-- Header avec gradient subtil -->
             <div class="card-header py-4 border-bottom border-light" style="background-color: #a1a1a1">
                 <div class="d-flex justify-content-between align-items-center px-2">
@@ -81,7 +81,7 @@
                         <i class="bi bi-grid-3x3-gap fs-4 text-white"></i>
                         <h3 class="mb-0 fw-bold text-white">Types de Salle</h3>
                     </div>
-                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
+                    <button class="btn btn-primary d-flex align-items-center gap-3 px-4 py-2 shadow-sm"
                             @onclick="() => { currentTypeSalle = new(); showTypeSalleModal = true; isNewTypeSalle = true; }">
                         <i class="bi bi-plus-circle-fill fs-5"></i>
                         <span class="fw-medium">Nouveau Type de Salle</span>
@@ -170,7 +170,7 @@
                         <i class="bi bi-door-open fs-4 text-white"></i>
                         <h2 class="mb-0 fw-bold text-white">Gestion des Salles</h2>
                     </div>
-                    <button class="btn btn-primary d-flex align-items-center gap-3 rounded-pill px-4 py-2 shadow-sm"
+                    <button class="btn btn-primary d-flex align-items-center gap-3 px-4 py-2 shadow-sm"
                             @onclick='() => NavigationManager.NavigateTo("/addsalle")'>
                         <i class="bi bi-plus-circle-fill fs-5"></i>
                         <span class="fw-medium">Nouvelle Salle</span>

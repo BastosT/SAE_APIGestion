@@ -548,6 +548,8 @@
                             StateHasChanged();
                             Console.WriteLine($"Mise à jour des capteurs de {oldMur.MurId} vers {createdMur.MurId}");
                             await ViewModel.UpdateCapteurMurId(oldMur.MurId, createdMur.MurId);
+                            Console.WriteLine($"Mise à jour des equipements de {oldMur.MurId} vers {createdMur.MurId}");
+                            await ViewModel.UpdateEquipementMurId(oldMur.MurId, createdMur.MurId);
 
                             progressStatus = $"Suppression de l'ancien mur {i + 1}/{mursList.Count}...";
                             StateHasChanged();

@@ -736,6 +736,46 @@ namespace SAE_CLIENTGestion.ViewModels
             }
         }
 
+        public async Task<bool> UpdateEquipementMurId(int oldMurId, int newMurId)
+        {
+            try
+            {
+                // Récupérer tous les equipements
+                var allEquipements = await _equipementService.GetAllAsync();
+                // Filtrer les equipements qui ont l'ancien MurId
+                var equipementsToUpdate = allEquipements.Where(c => c.MurId == oldMurId).ToList();
+
+                // Pour chaque capteur trouvé, mettre à jour son MurId
+                foreach (var equipement in equipementsToUpdate)
+                {
+                    var equipementDTO = new EquipementDTO
+                    {
+                        EquipementId = equipement.EquipementId,
+                        Nom = equipement.Nom,
+                        Longueur = equipement.Longueur,
+                        Hauteur = equipement.Hauteur,
+                        PositionX = equipement.PositionX,
+                        PositionY = equipement.PositionY,
+                        SalleId = equipement.SalleId,
+                        TypeEquipementId = equipement.TypeEquipementId,
+                        MurId = newMurId
+                    };
+
+                    await _equipementServiceDTO.PutAsync(equipement.EquipementId, equipementDTO);
+                }
+
+                SuccessMessage = "Equipements mis à jour avec succès";
+                ErrorMessage = null;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                ErrorMessage = $"Erreur lors de la mise à jour des equipements : {ex.Message}";
+                SuccessMessage = null;
+                return false;
+            }
+        }
+
         public async Task<List<Mur>> GetMursWithCapteursBySalleId(int salleId)
         {
             try

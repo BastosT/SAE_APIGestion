@@ -11,6 +11,7 @@
 
         renderEquipment: function (scene, equipment, wall, wallWidth, wallHeight) {
             // Pour les fenêtres et vitres
+
             if (equipment.typeEquipement &&
                 (equipment.typeEquipement.nom.toLowerCase() === "fenetre" ||
                     equipment.typeEquipement.nom.toLowerCase() === "vitre")) {
@@ -279,6 +280,83 @@
 
                 return radiatorContainer;
             }
+            // Pour les portes
+            else if (equipment.typeEquipement && equipment.typeEquipement.nom.toLowerCase() === "porte") {
+                const doorFrame = new BABYLON.TransformNode("doorFrame", scene);
+                const frameWidth = equipment.longueur * this.config.scale;
+                const frameHeight = equipment.hauteur * this.config.scale;
+                const frameThickness = 0.04;  // Plus épais que les fenêtres pour plus de solidité
+
+                // Créer le cadre de la porte
+                const parts = [
+                    // Haut du cadre
+                    {
+                        dimensions: {
+                            width: frameWidth,
+                            height: frameThickness,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(0, frameHeight / 2, 0)
+                    },
+                    // Côté gauche
+                    {
+                        dimensions: {
+                            width: frameThickness,
+                            height: frameHeight,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(-frameWidth / 2, 0, 0)
+                    },
+                    // Côté droit
+                    {
+                        dimensions: {
+                            width: frameThickness,
+                            height: frameHeight,
+                            depth: this.config.wallDepth
+                        },
+                        position: new BABYLON.Vector3(frameWidth / 2, 0, 0)
+                    }
+                ];
+
+                // Matériau pour le cadre
+                const frameMaterial = new BABYLON.StandardMaterial("doorFrameMaterial", scene);
+                frameMaterial.diffuseColor = new BABYLON.Color3(0.4, 0.2, 0.1);
+
+                // Créer les parties du cadre
+                parts.forEach((part, index) => {
+                    const mesh = BABYLON.MeshBuilder.CreateBox("doorFramePart" + index, part.dimensions, scene);
+                    mesh.position = part.position;
+                    mesh.material = frameMaterial;
+                    mesh.parent = doorFrame;
+                });
+
+                // Créer la porte elle-même
+                const door = BABYLON.MeshBuilder.CreateBox("doorPanel", {
+                    width: frameWidth - frameThickness * 2,
+                    height: frameHeight,
+                    depth: frameThickness
+                }, scene);
+
+                const doorMaterial = new BABYLON.StandardMaterial("doorMaterial", scene);
+                doorMaterial.diffuseColor = new BABYLON.Color3(0.4, 0.2, 0.1);
+                door.material = doorMaterial;
+                door.position.z = this.config.wallDepth / 2;
+                door.parent = doorFrame;
+
+                // Positionner le tout
+                const xPos = -wallWidth / 2 + equipment.positionX * this.config.scale + frameWidth / 2;
+                const yPos = wallHeight / 2 - equipment.positionY * this.config.scale - frameHeight / 2;
+
+                doorFrame.position = new BABYLON.Vector3(
+                    -xPos,
+                    yPos,
+                    0  // Centré dans le mur
+                );
+
+                doorFrame.parent = wall;
+                doorFrame.rotation.y = Math.PI;
+                return doorFrame;
+            }
             // Pour les autres équipements (comportement par défaut)
             else {
                 const width = equipment.longueur * this.config.scale;
@@ -438,6 +516,7 @@
             return sensorContainer;
         },
 
+
         renderRoom: function (scene, room, startPoint) {
             if (!room.murs || room.murs.length === 0) {
                 return { walls: [], size: { width: 0, depth: 0 } };
@@ -459,28 +538,19 @@
 
             let currentPoint = new BABYLON.Vector3(startPoint.x, startPoint.y, startPoint.z);
             let walls = [];
-            let corners = [];
             let previousEnd = currentPoint.clone();
-            let firstWallOrientation = room.murs[0].orientation;
-
 
             for (let i = 0; i < room.murs.length; i++) {
                 const wallData = room.murs[i];
                 const width = wallData.longueur * this.config.scale;
                 const height = wallData.hauteur * this.config.scale;
-
-
                 const wallContainer = new BABYLON.TransformNode("wallContainer_" + wallData.name, scene);
-
-
-                // Créer le mur principal complet
                 const wallMesh = BABYLON.MeshBuilder.CreateBox("wall_" + wallData.name, {
                     width: width,
                     height: height,
                     depth: this.config.wallDepth
                 }, scene);
 
-                // Appliquer les matériaux
                 const innerMaterial = new BABYLON.StandardMaterial("wallInnerMaterial_" + i, scene);
                 innerMaterial.diffuseColor = new BABYLON.Color3(0.96, 0.93, 0.86);
                 const outerMaterial = new BABYLON.StandardMaterial("wallOuterMaterial_" + i, scene);
@@ -490,49 +560,49 @@
                 multiMat.subMaterials = [innerMaterial, outerMaterial, outerMaterial, outerMaterial, outerMaterial, outerMaterial];
                 wallMesh.material = multiMat;
 
-                // CSG pour créer les trous pour les fenêtres/vitres
                 let mainCSG = BABYLON.CSG.FromMesh(wallMesh);
 
-                // Filtrer les fenêtres et vitres
-                const openings = (wallData.equipements || [])
-                    .filter(eq => eq.typeEquipement &&
-                        (eq.typeEquipement.nom.toLowerCase() === "fenetre" ||
-                            eq.typeEquipement.nom.toLowerCase() === "vitre"));
+                const openings = (wallData.equipements || []).filter(eq => eq.typeEquipement &&
+                    (eq.typeEquipement.nom.toLowerCase() === "fenetre" ||
+                        eq.typeEquipement.nom.toLowerCase() === "vitre" ||
+                        eq.typeEquipement.nom.toLowerCase() === "porte"));
 
-                // Créer les trous pour chaque ouverture
                 openings.forEach(opening => {
                     const openingWidth = opening.longueur * this.config.scale;
                     const openingHeight = opening.hauteur * this.config.scale;
                     const openingX = opening.positionX * this.config.scale;
                     const openingY = opening.positionY * this.config.scale;
-
                     const hole = BABYLON.MeshBuilder.CreateBox("hole", {
                         width: openingWidth,
                         height: openingHeight,
                         depth: this.config.wallDepth * 2
                     }, scene);
 
-                    hole.position = new BABYLON.Vector3(
-                        -width / 2 + openingX + openingWidth / 2,
-                        height / 2 - openingY - openingHeight / 2,
-                        0
-                    );
+                    if (opening.typeEquipement.nom.toLowerCase() === "porte") {
+                        hole.position = new BABYLON.Vector3(
+                            width / 2 - openingX - openingWidth / 2,
+                            height / 2 - openingY - openingHeight / 2,
+                            0
+                        );
+                    } else {
+                        hole.position = new BABYLON.Vector3(
+                            -width / 2 + openingX + openingWidth / 2,
+                            height / 2 - openingY - openingHeight / 2,
+                            0
+                        );
+                    }
 
                     const holeCSG = BABYLON.CSG.FromMesh(hole);
                     mainCSG = mainCSG.subtract(holeCSG);
                     hole.dispose();
                 });
 
-                // Convertir le CSG final en mesh
                 const finalWall = mainCSG.toMesh("finalWall", wallMesh.material, scene);
                 finalWall.parent = wallContainer;
-
-                // Nettoyer le mesh original
                 wallMesh.dispose();
 
                 let wallEndPosition = new BABYLON.Vector3(currentPoint.x, 0, currentPoint.z);
 
-                // Positionner le mur selon son orientation
                 switch (wallData.orientation) {
                     case 0:
                         wallContainer.rotation.y = -Math.PI / 2;
@@ -573,130 +643,26 @@
                 }
 
                 wallContainer.position.y = height / 2;
-
-                // Créer le coin extérieur si ce n'est pas le premier mur
-                if (i > 0) {
-                    // Créer uniquement les coins extérieurs
-                    const prevWallOrientation = room.murs[i - 1].orientation;
-                    const currentWallOrientation = wallData.orientation;
-                    const isExteriorCorner = (prevWallOrientation + 1) % 4 === currentWallOrientation;
-
-                    if (isExteriorCorner) {
-                        const cornerMesh = BABYLON.MeshBuilder.CreateBox("corner_" + i, {
-                            width: this.config.wallDepth,
-                            height: height,
-                            depth: this.config.wallDepth
-                        }, scene);
-
-                        const cornerMaterial = new BABYLON.StandardMaterial("cornerMaterial_" + i, scene);
-                        cornerMaterial.diffuseColor = new BABYLON.Color3(0.96, 0.93, 0.86);
-                        cornerMesh.material = cornerMaterial;
-
-                        // Ajustement de la position en tenant compte du startPoint
-                        let cornerX = startPoint.x + previousEnd.x;
-                        let cornerZ = startPoint.z + previousEnd.z;
-
-                        switch (wallData.orientation) {
-                            case 0:
-                                cornerX += this.config.wallDepth / 2;
-                                cornerZ += this.config.wallDepth / 2;
-                                break;
-                            case 1:
-                                cornerX += this.config.wallDepth / 2;
-                                cornerZ -= this.config.wallDepth / 2;
-                                break;
-                            case 2:
-                                cornerX -= this.config.wallDepth / 2;
-                                cornerZ -= this.config.wallDepth / 2;
-                                break;
-                            case 3:
-                                cornerX -= this.config.wallDepth / 2;
-                                cornerZ += this.config.wallDepth / 2;
-                                break;
-                        }
-
-                        cornerMesh.position = new BABYLON.Vector3(
-                            cornerX,
-                            height / 2,
-                            cornerZ
-                        );
-
-                        corners.push(cornerMesh);
-                    }
-                }
-
                 previousEnd = wallEndPosition.clone();
 
-                // Ajouter les équipements (y compris les fenêtres et vitres)
                 if (wallData.equipements) {
                     wallData.equipements.forEach(equipment => {
                         if (equipment.typeEquipement &&
                             (equipment.typeEquipement.nom.toLowerCase() === "fenetre" ||
                                 equipment.typeEquipement.nom.toLowerCase() === "vitre")) {
-                            // Rendre la fenêtre/vitre avec les mêmes coordonnées que son trou
                             this.renderEquipment(scene, equipment, wallContainer, width, height);
                         } else {
-                            // Rendre les autres équipements normalement
                             this.renderEquipment(scene, equipment, wallContainer, width, height);
                         }
                     });
                 }
 
-                // Ajouter les capteurs
                 if (wallData.capteurs) {
                     wallData.capteurs.forEach(sensor => {
                         this.renderSensor(scene, sensor, wallContainer, width, height);
                     });
                 }
                 walls.push(wallContainer);
-            }
-
-            // Créer le dernier coin extérieur pour fermer la pièce si nécessaire
-            if (room.murs.length > 0) {
-                const lastWallOrientation = room.murs[room.murs.length - 1].orientation;
-                const isExteriorCorner = (lastWallOrientation + 1) % 4 === firstWallOrientation;
-
-                if (isExteriorCorner) {
-                    const cornerMesh = BABYLON.MeshBuilder.CreateBox("corner_last", {
-                        width: this.config.wallDepth,
-                        height: room.murs[0].hauteur * this.config.scale,
-                        depth: this.config.wallDepth
-                    }, scene);
-
-                    const cornerMaterial = new BABYLON.StandardMaterial("cornerMaterial_last", scene);
-                    cornerMaterial.diffuseColor = new BABYLON.Color3(0.96, 0.93, 0.86);
-                    cornerMesh.material = cornerMaterial;
-
-                    let cornerX = startPoint.x + previousEnd.x;
-                    let cornerZ = startPoint.z + previousEnd.z;
-
-                    switch (lastWallOrientation) {
-                        case 0:
-                            cornerX -= this.config.wallDepth / 2;
-                            cornerZ += this.config.wallDepth / 2;
-                            break;
-                        case 1:
-                            cornerX -= this.config.wallDepth / 2;
-                            cornerZ -= this.config.wallDepth / 2;
-                            break;
-                        case 2:
-                            cornerX += this.config.wallDepth / 2;
-                            cornerZ -= this.config.wallDepth / 2;
-                            break;
-                        case 3:
-                            cornerX += this.config.wallDepth / 2;
-                            cornerZ += this.config.wallDepth / 2;
-                            break;
-                    }
-
-                    cornerMesh.position = new BABYLON.Vector3(
-                        cornerX,
-                        (room.murs[0].hauteur * this.config.scale) / 2,
-                        cornerZ
-                    );
-
-                    corners.push(cornerMesh);
-                }
             }
 
             return { walls, size: roomSize };

@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SAE_APIGestion.Models.DTO;
 using SAE_APIGestion.Models.EntityFramework;
@@ -6,6 +6,10 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Controllers
 {
 
+    /// <summary>
+    /// Contrôleur API pour gérer les entités <see cref="Batiment"/>.
+    /// Expose des points de terminaison pour effectuer des opérations CRUD sur les bâtiments.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class BatimentController : ControllerBase
@@ -14,6 +18,11 @@ namespace SAE_APIGestion.Controllers
         private readonly IDataRepository<Batiment> dataRepository;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Constructeur pour initialiser le contrôleur avec un repository et un mapper.
+        /// </summary>
+        /// <param name="dataRepo">Le repository des bâtiments pour interagir avec la base de données.</param>
+        /// <param name="mapper">Le mapper pour la conversion entre entités et DTOs.</param>
         public BatimentController(IDataRepository<Batiment> dataRepo, IMapper mapper = null)
         {
             dataRepository = dataRepo;
@@ -21,6 +30,10 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère tous les bâtiments de la base de données.
+        /// </summary>
+        /// <returns>Une liste de bâtiments avec un statut HTTP approprié.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -31,6 +44,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère un bâtiment spécifique en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du bâtiment à récupérer.</param>
+        /// <returns>Un bâtiment avec un statut HTTP approprié.</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -48,6 +66,12 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Met à jour un bâtiment existant avec de nouvelles informations.
+        /// </summary>
+        /// <param name="id">L'identifiant du bâtiment à mettre à jour.</param>
+        /// <param name="batiment">Les nouvelles données du bâtiment.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -75,6 +99,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Crée un nouveau bâtiment dans la base de données.
+        /// </summary>
+        /// <param name="batiment">Le bâtiment à ajouter.</param>
+        /// <returns>Le bâtiment créé avec un statut HTTP approprié.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -91,6 +120,11 @@ namespace SAE_APIGestion.Controllers
             return CreatedAtAction("GetBatiment", new { id = batiment.BatimentId }, batiment);
         }
 
+        /// <summary>
+        /// Supprime un bâtiment de la base de données en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du bâtiment à supprimer.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -115,6 +149,10 @@ namespace SAE_APIGestion.Controllers
         // =====================================================================================
 
 
+        /// <summary>
+        /// Récupère tous les bâtiments en utilisant un DTO (Data Transfer Object).
+        /// </summary>
+        /// <returns>Une liste de bâtiments sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,6 +169,11 @@ namespace SAE_APIGestion.Controllers
             return Ok(batimentsDTO);
         }
 
+        /// <summary>
+        /// Récupère un bâtiment spécifique sous forme de DTO en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du bâtiment à récupérer.</param>
+        /// <returns>Un bâtiment sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -147,6 +190,12 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Met à jour un bâtiment existant en utilisant un DTO.
+        /// </summary>
+        /// <param name="id">L'identifiant du bâtiment à mettre à jour.</param>
+        /// <param name="batimentDto">Le DTO contenant les nouvelles données.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpPut("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -170,6 +219,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Crée un nouveau bâtiment à partir d'un DTO.
+        /// </summary>
+        /// <param name="batimentDto">Le DTO du bâtiment à ajouter.</param>
+        /// <returns>Le bâtiment créé sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpPost("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -193,6 +247,11 @@ namespace SAE_APIGestion.Controllers
             return CreatedAtAction("GetBatiment", new { id = resultDto.BatimentId }, resultDto);
         }
 
+        /// <summary>
+        /// Supprime un bâtiment en utilisant un DTO, basé sur son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du bâtiment à supprimer.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpDelete("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

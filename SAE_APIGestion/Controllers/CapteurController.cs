@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SAE_APIGestion.Models.DTO;
 using SAE_APIGestion.Models.EntityFramework;
@@ -6,6 +6,10 @@ using System.Text.Json;
 
 namespace SAE_APIGestion.Controllers
 {
+    /// <summary>
+    /// Contrôleur API pour gérer les entités <see cref="Capteur"/>.
+    /// Expose des points de terminaison pour effectuer des opérations CRUD sur les capteurs.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class CapteurController : ControllerBase
@@ -14,6 +18,11 @@ namespace SAE_APIGestion.Controllers
         private readonly IDataRepository<Capteur> dataRepository;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Constructeur pour initialiser le contrôleur avec un repository et un mapper.
+        /// </summary>
+        /// <param name="dataRepo">Le repository des capteurs pour interagir avec la base de données.</param>
+        /// <param name="mapper">Le mapper pour la conversion entre entités et DTOs.</param>
         public CapteurController(IDataRepository<Capteur> dataRepo, IMapper mapper = null)
         {
             dataRepository = dataRepo;
@@ -21,6 +30,10 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère tous les capteurs de la base de données.
+        /// </summary>
+        /// <returns>Une liste de capteurs avec un statut HTTP approprié.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -31,6 +44,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Récupère un capteur spécifique en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du capteur à récupérer.</param>
+        /// <returns>Un capteur avec un statut HTTP approprié.</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -48,6 +66,12 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Met à jour un capteur existant avec de nouvelles informations.
+        /// </summary>
+        /// <param name="id">L'identifiant du capteur à mettre à jour.</param>
+        /// <param name="capteur">Les nouvelles données du capteur.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -75,6 +99,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Crée un nouveau capteur dans la base de données.
+        /// </summary>
+        /// <param name="capteur">Le capteur à ajouter.</param>
+        /// <returns>Le capteur créé avec un statut HTTP approprié.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -91,6 +120,11 @@ namespace SAE_APIGestion.Controllers
             return CreatedAtAction("GetCapteur", new { id = capteur.CapteurId }, capteur);
         }
 
+        /// <summary>
+        /// Supprime un capteur de la base de données en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du capteur à supprimer.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -114,6 +148,10 @@ namespace SAE_APIGestion.Controllers
         // =====================================================================================
 
         // GET: api/Capteur/dto
+        /// <summary>
+        /// Récupère tous les capteurs sous forme de DTO (Data Transfer Object).
+        /// </summary>
+        /// <returns>Une liste de capteurs sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -132,6 +170,11 @@ namespace SAE_APIGestion.Controllers
 
 
         // GET: api/Capteur/dto/5
+        /// <summary>
+        /// Récupère un capteur spécifique sous forme de DTO en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du capteur à récupérer.</param>
+        /// <returns>Un capteur sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -148,6 +191,12 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Met à jour un capteur existant en utilisant un DTO.
+        /// </summary>
+        /// <param name="id">L'identifiant du capteur à mettre à jour.</param>
+        /// <param name="capteurDto">Le DTO contenant les nouvelles données.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpPut("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -179,6 +228,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Crée un nouveau capteur à partir d'un DTO.
+        /// </summary>
+        /// <param name="capteurDto">Le DTO du capteur à ajouter.</param>
+        /// <returns>Le capteur créé sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpPost("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -203,6 +257,11 @@ namespace SAE_APIGestion.Controllers
         }
 
         // DELETE: api/Capteur/dto/5
+        /// <summary>
+        /// Supprime un capteur en utilisant un DTO, basé sur son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du capteur à supprimer.</param>
+        /// <returns>Le statut HTTP approprié après l'opération.</returns>
         [HttpDelete("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

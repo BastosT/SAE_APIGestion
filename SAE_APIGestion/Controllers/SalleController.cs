@@ -1,10 +1,14 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SAE_APIGestion.Models.DTO;
 using SAE_APIGestion.Models.EntityFramework;
 
 namespace SAE_APIGestion.Controllers
 {
+    /// <summary>
+    /// Contrôleur API pour gérer les entités <see cref="Salle"/>.
+    /// Fournit des points de terminaison pour effectuer des opérations CRUD et manipuler les données via des DTO.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class SalleController : ControllerBase
@@ -14,6 +18,11 @@ namespace SAE_APIGestion.Controllers
         private readonly IMapper _mapper;
 
 
+        /// <summary>
+        /// Constructeur permettant d'initialiser le contrôleur avec un repository et le service AutoMapper.
+        /// </summary>
+        /// <param name="dataRepo">Le repository permettant d'accéder aux données des <see cref="Salle"/>.</param>
+        /// <param name="mapper">Le service AutoMapper pour la conversion entités/DTOs.</param>
         public SalleController(IDataRepository<Salle> dataRepo, IMapper mapper = null)
         {
             dataRepository = dataRepo;
@@ -22,6 +31,10 @@ namespace SAE_APIGestion.Controllers
 
 
         // GET: api/Salles
+        /// <summary>
+        /// Récupère toutes les salles dans la base de données.
+        /// </summary>
+        /// <returns>Une liste de salles avec un statut HTTP approprié.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -31,6 +44,11 @@ namespace SAE_APIGestion.Controllers
             return await dataRepository.GetAllAsync();
         }
 
+        /// <summary>
+        /// Récupère une salle spécifique en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant de la salle à récupérer.</param>
+        /// <returns>La salle correspondante avec un statut HTTP approprié.</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -47,6 +65,12 @@ namespace SAE_APIGestion.Controllers
             return salle;
         }
 
+        /// <summary>
+        /// Met à jour les informations d'une salle spécifique.
+        /// </summary>
+        /// <param name="id">L'identifiant de la salle à mettre à jour.</param>
+        /// <param name="salle">Les nouvelles données de la salle.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -74,6 +98,11 @@ namespace SAE_APIGestion.Controllers
 
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Crée une nouvelle salle dans la base de données.
+        /// </summary>
+        /// <param name="salle">Les données de la salle à ajouter.</param>
+        /// <returns>La salle créée avec un statut HTTP approprié.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -91,6 +120,11 @@ namespace SAE_APIGestion.Controllers
         }
 
         // DELETE: api/typeSalles/5
+        /// <summary>
+        /// Supprime une salle spécifique de la base de données.
+        /// </summary>
+        /// <param name="id">L'identifiant de la salle à supprimer.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -115,6 +149,10 @@ namespace SAE_APIGestion.Controllers
         //DTO
         // =====================================================================================
 
+        /// <summary>
+        /// Récupère toutes les salles sous forme de DTOs (Data Transfer Objects).
+        /// </summary>
+        /// <returns>Une liste de salles au format DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -131,6 +169,11 @@ namespace SAE_APIGestion.Controllers
             return Ok(sallesDto);
         }
 
+        /// <summary>
+        /// Récupère une salle spécifique sous forme de DTO en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant de la salle à récupérer sous forme de DTO.</param>
+        /// <returns>La salle correspondante au format DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -146,6 +189,12 @@ namespace SAE_APIGestion.Controllers
             return Ok(salleDto);
         }
 
+        /// <summary>
+        /// Met à jour une salle spécifique à partir de son DTO.
+        /// </summary>
+        /// <param name="id">L'identifiant de la salle à mettre à jour.</param>
+        /// <param name="salleDto">Le DTO contenant les nouvelles données de la salle.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpPut("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -168,6 +217,11 @@ namespace SAE_APIGestion.Controllers
             return NoContent();
         }
 
+        /// <summary>
+        /// Crée une nouvelle salle à partir de son DTO.
+        /// </summary>
+        /// <param name="salleDto">Le DTO contenant les données de la salle à ajouter.</param>
+        /// <returns>La salle créée au format DTO avec un statut HTTP approprié.</returns>
         [HttpPost("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -192,6 +246,11 @@ namespace SAE_APIGestion.Controllers
         }
 
         // DELETE: api/typeSalles/5
+        /// <summary>
+        /// Supprime une salle spécifique à partir de son DTO.
+        /// </summary>
+        /// <param name="id">L'identifiant de la salle à supprimer.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpDelete("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

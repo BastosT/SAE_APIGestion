@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using SAE_APIGestion.Models.DTO;
 using SAE_APIGestion.Models.EntityFramework;
@@ -6,6 +6,10 @@ using SAE_APIGestion.Models.EntityFramework;
 namespace SAE_APIGestion.Controllers
 {
 
+    /// <summary>
+    /// Contrôleur API pour gérer les entités <see cref="Mur"/>.
+    /// Fournit des points de terminaison pour effectuer des opérations CRUD et manipuler les données via des DTO.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class MurController : ControllerBase
@@ -13,6 +17,11 @@ namespace SAE_APIGestion.Controllers
         private readonly IDataRepository<Mur> dataRepository;
         private readonly IMapper _mapper;
 
+        /// <summary>
+        /// Constructeur permettant d'initialiser le contrôleur avec un repository et le service AutoMapper.
+        /// </summary>
+        /// <param name="dataRepo">Le repository permettant d'accéder aux données des <see cref="Mur"/>.</param>
+        /// <param name="mapper">Le service AutoMapper pour la conversion entités/DTOs.</param>
         public MurController(IDataRepository<Mur> dataRepo, IMapper mapper = null)
         {
             dataRepository = dataRepo;
@@ -21,6 +30,10 @@ namespace SAE_APIGestion.Controllers
 
 
         // GET: api/Murs
+        /// <summary>
+        /// Récupère tous les murs dans la base de données.
+        /// </summary>
+        /// <returns>Une liste de murs avec un statut HTTP approprié.</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -30,6 +43,11 @@ namespace SAE_APIGestion.Controllers
             return await dataRepository.GetAllAsync();
         }
 
+        /// <summary>
+        /// Récupère un mur spécifique en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du mur à récupérer.</param>
+        /// <returns>Le mur correspondant à l'identifiant avec un statut HTTP approprié.</returns>
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -46,6 +64,12 @@ namespace SAE_APIGestion.Controllers
             return mur;
         }
 
+        /// <summary>
+        /// Met à jour les informations d'un mur spécifique.
+        /// </summary>
+        /// <param name="id">L'identifiant du mur à mettre à jour.</param>
+        /// <param name="mur">Les nouvelles données du mur.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -73,6 +97,11 @@ namespace SAE_APIGestion.Controllers
 
 
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Crée un nouveau mur dans la base de données.
+        /// </summary>
+        /// <param name="mur">Les données du mur à ajouter.</param>
+        /// <returns>Le mur ajouté avec un statut HTTP approprié.</returns>
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -90,6 +119,11 @@ namespace SAE_APIGestion.Controllers
         }
 
         // DELETE: api/typeMurs/5
+        /// <summary>
+        /// Supprime un mur spécifique de la base de données.
+        /// </summary>
+        /// <param name="id">L'identifiant du mur à supprimer.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -112,6 +146,10 @@ namespace SAE_APIGestion.Controllers
         // =====================================================================================
 
         // GET: api/Mur/dto
+        /// <summary>
+        /// Récupère tous les murs sous forme de DTOs (Data Transfer Objects).
+        /// </summary>
+        /// <returns>Une liste de murs au format DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -130,6 +168,11 @@ namespace SAE_APIGestion.Controllers
 
 
         // GET: api/Mur/dto/5
+        /// <summary>
+        /// Récupère un mur spécifique sous forme de DTO en fonction de son identifiant.
+        /// </summary>
+        /// <param name="id">L'identifiant du mur à récupérer sous forme de DTO.</param>
+        /// <returns>Le mur correspondant à l'identifiant au format DTO avec un statut HTTP approprié.</returns>
         [HttpGet("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -146,6 +189,12 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Met à jour un mur spécifique à partir de son DTO.
+        /// </summary>
+        /// <param name="id">L'identifiant du mur à mettre à jour.</param>
+        /// <param name="murDto">Le DTO contenant les nouvelles données du mur.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpPut("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -176,6 +225,11 @@ namespace SAE_APIGestion.Controllers
         }
 
 
+        /// <summary>
+        /// Crée un nouveau mur à partir de son DTO.
+        /// </summary>
+        /// <param name="murDto">Le DTO contenant les données du mur à ajouter.</param>
+        /// <returns>Le mur créé sous forme de DTO avec un statut HTTP approprié.</returns>
         [HttpPost("dto")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -200,6 +254,11 @@ namespace SAE_APIGestion.Controllers
         }
 
         // DELETE: api/Mur/dto/5
+        /// <summary>
+        /// Supprime un mur spécifique à partir de son DTO.
+        /// </summary>
+        /// <param name="id">L'identifiant du mur à supprimer.</param>
+        /// <returns>Un statut HTTP approprié après l'opération.</returns>
         [HttpDelete("dto/{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

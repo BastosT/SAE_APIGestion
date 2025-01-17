@@ -6,78 +6,11 @@
 
 <h3>Prédiction IA</h3>
 
-<!-- Section k-NN -->
-<div>
-    <h4>Prédiction avec k-NN :</h4>
-    <button @onclick="FetchPredictKnn">Obtenir la prédiction k-NN</button>
-</div>
-
-@if (ViewModel.PredictionKnnData != null)
-{
-    <div style="margin-top: 20px;">
-        <h4>Résultat de la prédiction k-NN :</h4>
-        @if (ViewModel.PredictionKnnData.ContainsKey("prediction"))
-        {
-            var predictionList = ViewModel.PredictionKnnData["prediction"] as JsonElement?;
-            if (predictionList.HasValue)
-            {
-                var array = predictionList.Value.EnumerateArray().FirstOrDefault();
-                var firstPrediction = array[0].GetDecimal();
-                <p>Dernière valeur prédite : @firstPrediction °C</p>
-            }
-            else
-            {
-                <p>Aucune prédiction disponible.</p>
-            }
-        }
-        else
-        {
-            <p>Erreur : données de prédiction mal formées</p>
-        }
-    </div>
-}
-
-<!-- Section Horizon -->
+<!-- Section Température -->
 <div style="margin-top: 20px;">
-    <h4>Prédiction avec horizon personnalisé :</h4>
-    <label for="horizon">Horizon de prédiction (en secondes) :</label>
-    <input id="horizon" type="number" @bind="ViewModel.Horizon" min="1" style="margin-right: 10px;" />
-    <button @onclick="FetchPredictionWithHorizon">Obtenir la prédiction</button>
+    <h4>Données de température et prédictions :</h4>
+    <button @onclick="FetchTemperatureData" class="btn btn-primary">Obtenir les données de température et les prédictions</button>
 </div>
-
-@if (ViewModel.PredictionWithHorizonData != null)
-{
-    <div style="margin-top: 20px;">
-        <h4>Résultat de la prédiction avec horizon personnalisé :</h4>
-        @if (ViewModel.PredictionWithHorizonData.ContainsKey("predictions"))
-        {
-            var predictionsElement = ViewModel.PredictionWithHorizonData["predictions"] as JsonElement?;
-            if (predictionsElement.HasValue && predictionsElement.Value.ValueKind == JsonValueKind.Array)
-            {
-                var predictions = predictionsElement.Value.EnumerateArray().Select(p => p.GetDecimal()).ToList();
-
-                if (predictions.Any())
-                {
-                    var lastPrediction = predictions.Last(); // Récupérer la dernière valeur
-                    <p>Dernière valeur prédite : @lastPrediction seconde(s)</p>
-                }
-                else
-                {
-                    <p>Aucune prédiction disponible.</p>
-                }
-            }
-            else
-            {
-                <p>Erreur : données de prédiction mal formées ou non disponibles.</p>
-            }
-        }
-        else
-        {
-            <p>Erreur : la clé 'predictions' est absente des données retournées.</p>
-        }
-    </div>
-}
-
 
 @if (ViewModel.IsLoading)
 {
@@ -87,15 +20,42 @@ else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
 {
     <p style="color: red;">@ViewModel.ErrorMessage</p>
 }
+else
+{
+    <!-- Affichage des données récupérées -->
+    @if (ViewModel.AllData.Count == 0)
+    {
+        <p>Aucune donnée disponible. Cliquez sur le bouton pour récupérer les données.</p>
+    }
+    else
+    {
+        <table class="table" style="margin-top: 20px;">
+            <thead>
+                <tr>
+                    <th>Température (°C)</th>
+                    <th>Temps</th>
+                    <th>Type</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var data in ViewModel.AllData)
+                {
+                    <tr>
+                        <td>@data.Temperature °C</td>
+                        <td>@data.Time</td>
+                        <td>@(data.IsPredicted ? "Prédite" : "Actuelle")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
 
 @code {
-    private async Task FetchPredictKnn()
+    private async Task FetchTemperatureData()
     {
-        await ViewModel.FetchPredictKnnAsync();
-    }
-
-    private async Task FetchPredictionWithHorizon()
-    {
-        await ViewModel.FetchPredictionWithHorizonAsync();
+        // Effacer les anciennes données avant d'en récupérer de nouvelles
+        ViewModel.AllData.Clear();
+        await ViewModel.FetchAllDataAsync();  // Utilise la méthode qui combine les températures actuelles et les prédictions
     }
 }

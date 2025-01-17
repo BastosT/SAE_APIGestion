@@ -39,15 +39,15 @@ public class PredictionViewModel
                 try
                 {
                     Console.WriteLine(data["isPredicted"]);
+
                     // Créer l'objet TemperaturePredictionModel
                     var temperaturePredictionModel = new TemperaturePredictionModel
                     {
-                        // Vérifier si les données sont prédites ou non
                         IsPredicted = data["isPredicted"] != null && (bool)data["isPredicted"],
                         Temperature = data["temperature"].ToString(),
-
-                        // Extraire la valeur de 'time' en utilisant GetValue<double>()
-                        Time = ConvertTimeToDateTime(data["time"] as JsonNode) // Conversion de "time" en JsonNode si possible
+                        Time = data["isPredicted"] != null && (bool)data["isPredicted"]
+                            ? ConvertTimeToDateTimePredicted(data["time"])
+                            : ConvertTimeToDateTime(data["time"] as JsonNode)
                     };
 
                     // Ajouter le modèle à la collection
@@ -72,6 +72,21 @@ public class PredictionViewModel
         }
     }
 
+    private DateTime ConvertTimeToDateTimePredicted(object timeValue)
+    {
+        if (timeValue == null) return DateTime.MinValue;
+
+        try
+        {
+            decimal unixTimestamp = decimal.Parse(timeValue.ToString());
+            return DateTimeOffset.FromUnixTimeSeconds((long)unixTimestamp).DateTime;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Erreur de conversion : {ex.Message}");
+            return DateTime.MinValue;
+        }
+    }
     // Méthode pour convertir "time" en DateTime avec gestion des erreurs
     private DateTime ConvertTimeToDateTime(JsonNode timeNode)
     {

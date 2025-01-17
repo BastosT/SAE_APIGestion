@@ -1,9 +1,7 @@
 ﻿@page "/prediction"
 @inject PredictionViewModel ViewModel
 @inject PredictionService PredictionService
-
 <PageTitle>Prediction IA</PageTitle>
-
 <h3>Prédiction IA</h3>
 
 <!-- Section Température -->
@@ -22,14 +20,90 @@ else if (!string.IsNullOrEmpty(ViewModel.ErrorMessage))
 }
 else
 {
-    <!-- Affichage des données récupérées -->
     @if (ViewModel.AllData.Count == 0)
     {
         <p>Aucune donnée disponible. Cliquez sur le bouton pour récupérer les données.</p>
     }
     else
     {
-        <table class="table" style="margin-top: 20px;">
+        <!-- Graphique SVG -->
+        <div style="margin: 20px 0; width: 100%;">
+            <svg style="width: 100%; height: 300px; background-color: #f8f9fa;" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMid meet">
+                <!-- Grille de fond -->
+                @for (int i = 1; i < 10; i++)
+                {
+                    <line x1="50" y1="@(50 + i * 20)" x2="1150" y2="@(50 + i * 20)" 
+                          stroke="#e9ecef" stroke-width="1" />
+                }
+                @for (int i = 1; i < 22; i++)
+                {
+                    <line x1="@(50 + i * 50)" y1="50" x2="@(50 + i * 50)" y2="250" 
+                          stroke="#e9ecef" stroke-width="1" />
+                }
+
+                <!-- Axe Y avec graduations et valeurs -->
+                <line x1="50" y1="250" x2="50" y2="50" stroke="black" stroke-width="2" />
+                @{
+                    var dataPoints = ViewModel.AllData.OrderBy(d => d.Time).ToList();
+                    var maxTemp = dataPoints.Max(d => Convert.ToDouble(d.Temperature));
+                    var minTemp = dataPoints.Min(d => Convert.ToDouble(d.Temperature));
+                    var tempRange = maxTemp - minTemp;
+                    
+                    for (int i = 0; i <= 10; i++)
+                    {
+                        var temp = maxTemp - (i * (tempRange / 10));
+                        var yPos = 50 + i * 20;
+                        
+                        <line x1="45" y1="@yPos" x2="50" y2="@yPos" stroke="black" stroke-width="2" />
+                        <text:svg x="40" y="@(yPos + 5)" style="font-size: 12px;" text-anchor="end" dominant-baseline="middle">@temp.ToString("F1")</text:svg>
+                    }
+                }
+
+                <!-- Axe X avec graduations -->
+                <line x1="50" y1="250" x2="1150" y2="250" stroke="black" stroke-width="2" />
+                @for (int i = 0; i <= 22; i++)
+                {
+                    <line x1="@(50 + i * 50)" y1="250" x2="@(50 + i * 50)" y2="255" 
+                          stroke="black" stroke-width="2" />
+                }
+                
+                <!-- Lignes du graphique -->
+                @for (int i = 1; i < dataPoints.Count; i++)
+                {
+                    double prevXPos = Math.Round(50 + (1100.0 * (i-1) / (dataPoints.Count - 1)));
+                    double prevYPos = Math.Round(250 - (200.0 * (Convert.ToDouble(dataPoints[i-1].Temperature) - minTemp) / (tempRange == 0 ? 1 : tempRange)));
+                    double xPos = Math.Round(50 + (1100.0 * i / (dataPoints.Count - 1)));
+                    double yPos = Math.Round(250 - (200.0 * (Convert.ToDouble(dataPoints[i].Temperature) - minTemp) / (tempRange == 0 ? 1 : tempRange)));
+                    var color = dataPoints[i].IsPredicted ? "#ff6b6b" : "#4dabf7";
+                    
+                    <line 
+                        x1="@prevXPos" 
+                        y1="@prevYPos" 
+                        x2="@xPos" 
+                        y2="@yPos" 
+                        stroke="@color" 
+                        stroke-width="2" 
+                        stroke-dasharray="@(dataPoints[i].IsPredicted ? "5,5" : "none")"
+                        @onclick="() => ShowTooltip(dataPoints[i])"
+                    />
+                }
+            </svg>
+        </div>
+
+        <!-- Légende -->
+        <div style="margin: 10px 0;">
+            <span style="margin-right: 20px;">
+                <span style="display: inline-block; width: 20px; height: 2px; background-color: #4dabf7; margin-right: 5px;"></span>
+                Données actuelles
+            </span>
+            <span>
+                <span style="display: inline-block; width: 20px; height: 2px; background-color: #ff6b6b; margin-right: 5px; border-top: 2px dashed;"></span>
+                Prédictions
+            </span>
+        </div>
+
+        <!-- Tableau de données -->
+        <table class="table">
             <thead>
                 <tr>
                     <th>Température (°C)</th>
@@ -38,12 +112,12 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var data in ViewModel.AllData)
+                @foreach (var item in ViewModel.AllData)
                 {
                     <tr>
-                        <td>@data.Temperature °C</td>
-                        <td>@data.Time</td>
-                        <td>@(data.IsPredicted ? "Prédite" : "Actuelle")</td>
+                        <td>@item.Temperature °C</td>
+                        <td>@item.Time</td>
+                        <td>@(item.IsPredicted ? "Prédite" : "Actuelle")</td>
                     </tr>
                 }
             </tbody>
@@ -54,8 +128,12 @@ else
 @code {
     private async Task FetchTemperatureData()
     {
-        // Effacer les anciennes données avant d'en récupérer de nouvelles
         ViewModel.AllData.Clear();
-        await ViewModel.FetchAllDataAsync();  // Utilise la méthode qui combine les températures actuelles et les prédictions
+        await ViewModel.FetchAllDataAsync();
+    }
+
+    private void ShowTooltip(dynamic dataPoint)
+    {
+        Console.WriteLine($"Température: {dataPoint.Temperature}°C, Temps: {dataPoint.Time}, Type: {(dataPoint.IsPredicted ? "Prédite" : "Actuelle")}");
     }
 }
